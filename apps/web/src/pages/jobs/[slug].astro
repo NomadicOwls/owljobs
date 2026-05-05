@@ -1,0 +1,297 @@
+---
+import Layout from "../../components/Layout.astro";
+import { supabasePublic } from "../../lib/supabase.js";
+import { getJobBySlug, slugFromId } from "../../lib/jobs.js";
+import { setCacheHeaders } from "../../lib/cache.js";
+import { getEnv } from "../../lib/env.js";
+import { relativeDate } from "../../lib/relative-date.js";
+
+const { niche } = Astro.locals;
+const env = getEnv(Astro.locals);
+
+const { slug } = Astro.params;
+if (!slug) return Astro.redirect("/404");
+
+const db = supabasePublic(env);
+let job: Awaited<ReturnType<typeof getJobBySlug>> = null;
+
+try {
+  job = await getJobBySlug(db, niche.supabaseSchema, slug);
+} catch {
+  // fall through → 404
+}
+
+if (!job) return Astro.redirect("/404");
+
+setCacheHeaders(Astro.response.headers, 600, 3600);
+
+const isFeatured = job.is_sponsored || (job.featured_until ? new Date(job.featured_until) > new Date() : false);
+const location = [job.location, job.country].filter(Boolean).join(", ");
+const canonicalSlug = slugFromId(job.id);
+const canonicalUrl = `https://${niche.domain}/jobs/${canonicalSlug}`;
+const applyUrl = job.apply_url ?? job.canonical_url;
+const postedAgo = relativeDate(job.posted_at);
+
+function formatDate(iso: string | null): string {
+  if (!iso) return "";
+  return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+}
+
+const employerName = job.employers?.name ?? "";
+const employerInitials = employerName
+  .split(/\s+/)
+  .filter(Boolean)
+  .map((w: string) => w[0])
+  .join("")
+  .slice(0, 2)
+  .toUpperCase();
+---
+
+<Layout
+  title={`${job.title}${employerName ? ` — ${employerName}` : ""}`}
+  description={`${job.title}${employerName ? ` at ${employerName}` : ""}${location ? ` in ${location}` : ""}. Apply now on ${niche.name}.`}
+  canonicalUrl={canonicalUrl}
+  ogType="article"
+>
+  <main class="pb-16 pt-6">
+    <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+
+      <!-- Back link -->
+      <a href="/jobs" class="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground hover:no-underline">
+        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        Back to all jobs
+      </a>
+
+      <!-- Job header (free-floating, no card wrapper) -->
+      <div class="mb-8">
+        <div class="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
+          <!-- Logo + title + company -->
+          <div class="flex items-start gap-4">
+            <div class="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl border border-border bg-secondary text-lg font-semibold text-muted-foreground">
+              {employerInitials || "?"}
+            </div>
+            <div>
+              <div class="flex flex-wrap items-center gap-2">
+                <h1 class="text-2xl font-bold text-foreground sm:text-3xl">{job.title}</h1>
+                {isFeatured && (
+                  <span class="inline-flex items-center rounded-md bg-accent px-2 py-0.5 text-xs font-medium text-accent-foreground">Featured</span>
+                )}
+              </div>
+              {employerName && (
+                <p class="mt-1 text-lg text-muted-foreground">
+                  {job.employers?.normalized_name ? (
+                    <a href={`/employers/${job.employers.normalized_name}`} class="hover:text-foreground hover:underline transition-colors">
+                      {employerName}
+                    </a>
+                  ) : employerName}
+                </p>
+              )}
+            </div>
+          </div>
+
+          <!-- Bookmark + Share icon buttons -->
+          <div class="flex gap-2">
+            <button
+              onclick="navigator.clipboard?.writeText(window.location.href)"
+              title="Copy link"
+              class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+            >
+              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+              </svg>
+              <span class="sr-only">Save job</span>
+            </button>
+            <button
+              onclick="navigator.share ? navigator.share({title: document.title, url: window.location.href}) : navigator.clipboard?.writeText(window.location.href)"
+              title="Share"
+              class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+            >
+              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+              </svg>
+              <span class="sr-only">Share job</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Meta row -->
+        <div class="mt-6 flex flex-wrap gap-4 text-sm text-muted-foreground">
+          {location && (
+            <div class="flex items-center gap-1.5">
+              <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>
+              </svg>
+              {location}
+            </div>
+          )}
+          {postedAgo && (
+            <div class="flex items-center gap-1.5">
+              <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+              </svg>
+              Posted {postedAgo}
+            </div>
+          )}
+          {job.expires_at && (
+            <div class="flex items-center gap-1.5 text-yellow-500">
+              <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4M12 17h.01"/>
+              </svg>
+              Closes {formatDate(job.expires_at)}
+            </div>
+          )}
+        </div>
+
+        <!-- Apply button -->
+        <div class="mt-6">
+          <a
+            href={applyUrl}
+            rel="nofollow noopener"
+            target="_blank"
+            class="inline-flex items-center gap-2 rounded-md bg-accent px-6 py-2.5 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent/90 hover:no-underline sm:w-auto"
+            aria-label={`Apply for ${job.title} (opens employer site)`}
+          >
+            Apply for this position
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Two-column grid -->
+      <div class="grid gap-8 lg:grid-cols-3">
+
+        <!-- Main content -->
+        <div class="space-y-6 lg:col-span-2">
+
+          <!-- Description card -->
+          <div class="rounded-xl border border-border bg-card p-6">
+            <h2 class="text-lg font-semibold text-foreground">About this role</h2>
+            {job.description ? (
+              <div class="job-description mt-4 leading-relaxed text-muted-foreground" set:html={job.description} />
+            ) : (
+              <p class="mt-4 rounded-lg border border-dashed border-border p-4 text-sm text-muted-foreground">
+                Full job description available on the employer's career page.
+              </p>
+            )}
+          </div>
+
+          <!-- Sources card -->
+          {job.job_sources && job.job_sources.length > 0 && (
+            <div class="rounded-xl border border-border bg-card px-6 py-5">
+              <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Also listed on</p>
+              <div class="flex flex-wrap gap-2">
+                {job.job_sources.map((s) => (
+                  <a
+                    href={s.source_url}
+                    rel="nofollow noopener"
+                    target="_blank"
+                    class="rounded-md border border-border px-3 py-1 text-xs text-muted-foreground transition-colors hover:border-accent/50 hover:text-accent hover:no-underline"
+                  >
+                    {s.source}
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <!-- Sidebar -->
+        <div class="lg:col-span-1">
+          <div class="sticky top-24 rounded-xl border border-border bg-card p-6">
+            <h2 class="text-lg font-semibold text-foreground">
+              About {employerName || "the employer"}
+            </h2>
+
+            {employerName && (
+              <div class="mt-6 space-y-4">
+                <div class="flex items-center gap-3 text-sm">
+                  <svg class="h-5 w-5 shrink-0 text-muted-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+                  </svg>
+                  <span class="text-muted-foreground">Company</span>
+                  <span class="ml-auto font-medium text-foreground">{employerName}</span>
+                </div>
+                {job.employers?.normalized_name && (
+                  <div class="flex items-center gap-3 text-sm">
+                    <svg class="h-5 w-5 shrink-0 text-muted-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                    </svg>
+                    <span class="text-muted-foreground">All jobs</span>
+                    <a href={`/employers/${job.employers.normalized_name}`} class="ml-auto font-medium text-accent hover:underline transition-colors">
+                      View listings →
+                    </a>
+                  </div>
+                )}
+                {job.employers?.careers_url && (
+                  <div class="flex items-center gap-3 text-sm">
+                    <svg class="h-5 w-5 shrink-0 text-muted-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                    </svg>
+                    <span class="text-muted-foreground">Website</span>
+                    <a
+                      href={job.employers.careers_url}
+                      rel="nofollow noopener"
+                      target="_blank"
+                      class="ml-auto font-medium text-accent hover:underline transition-colors"
+                    >
+                      Careers page
+                    </a>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div class="mt-6 border-t border-border pt-6">
+              <a
+                href={applyUrl}
+                rel="nofollow noopener"
+                target="_blank"
+                class="flex w-full items-center justify-center rounded-md bg-accent px-4 py-2.5 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent/90 hover:no-underline"
+              >
+                Apply Now
+              </a>
+              <p class="mt-3 text-center text-xs text-muted-foreground">
+                You'll be taken to {employerName || "the employer"}'s career page.
+              </p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<style>
+  .job-description :global(h2),
+  .job-description :global(h3),
+  .job-description :global(h4) {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--foreground);
+    margin: 1.25rem 0 0.5rem;
+  }
+
+  .job-description :global(ul),
+  .job-description :global(ol) {
+    padding-left: 1.5rem;
+    margin: 0.75rem 0;
+  }
+
+  .job-description :global(li) {
+    margin-bottom: 0.3rem;
+  }
+
+  .job-description :global(p) {
+    margin-bottom: 0.75rem;
+  }
+
+  .job-description :global(a) {
+    color: var(--accent);
+    text-decoration: underline;
+  }
+</style>

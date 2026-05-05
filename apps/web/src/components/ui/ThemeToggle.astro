@@ -1,0 +1,100 @@
+---
+---
+
+<div class="relative" data-theme-toggle>
+  <button
+    type="button"
+    aria-haspopup="menu"
+    aria-expanded="false"
+    aria-label="Toggle theme"
+    class="inline-flex h-9 w-9 items-center justify-center rounded-md text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+    data-toggle-trigger
+  >
+    <!-- Sun icon (visible in light mode) -->
+    <svg class="h-4 w-4 dark:hidden" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"/>
+      <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    <!-- Moon icon (visible in dark mode) -->
+    <svg class="hidden h-4 w-4 dark:block" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span class="sr-only">Toggle theme</span>
+  </button>
+
+  <div
+    role="menu"
+    class="absolute right-0 top-full z-50 mt-1 hidden w-36 rounded-md border border-border bg-popover py-1 shadow-md"
+    data-toggle-menu
+  >
+    <button type="button" role="menuitem" data-theme="light" class="flex w-full items-center gap-2 px-3 py-1.5 text-sm text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors">
+      <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"/>
+        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      Light
+    </button>
+    <button type="button" role="menuitem" data-theme="dark" class="flex w-full items-center gap-2 px-3 py-1.5 text-sm text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors">
+      <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Dark
+    </button>
+    <button type="button" role="menuitem" data-theme="system" class="flex w-full items-center gap-2 px-3 py-1.5 text-sm text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors">
+      <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="3" width="20" height="14" rx="2" stroke="currentColor" stroke-width="2"/>
+        <path d="M8 21h8M12 17v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      System
+    </button>
+  </div>
+</div>
+
+<script>
+  function initThemeToggle(toggle: HTMLElement) {
+    const trigger = toggle.querySelector("[data-toggle-trigger]") as HTMLButtonElement;
+    const menu = toggle.querySelector("[data-toggle-menu]") as HTMLElement;
+
+    function open() {
+      menu.classList.remove("hidden");
+      trigger.setAttribute("aria-expanded", "true");
+    }
+    function close() {
+      menu.classList.add("hidden");
+      trigger.setAttribute("aria-expanded", "false");
+    }
+    function applyTheme(t: string) {
+      if (t === "system") {
+        localStorage.removeItem("theme");
+        if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+          document.documentElement.classList.add("dark");
+        } else {
+          document.documentElement.classList.remove("dark");
+        }
+      } else {
+        localStorage.setItem("theme", t);
+        document.documentElement.classList.toggle("dark", t === "dark");
+      }
+    }
+
+    trigger.addEventListener("click", (e) => {
+      e.stopPropagation();
+      menu.classList.contains("hidden") ? open() : close();
+    });
+
+    menu.querySelectorAll("[data-theme]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        applyTheme((btn as HTMLElement).dataset.theme!);
+        close();
+      });
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!toggle.contains(e.target as Node)) close();
+    });
+  }
+
+  document.querySelectorAll("[data-theme-toggle]").forEach((el) => {
+    initThemeToggle(el as HTMLElement);
+  });
+</script>

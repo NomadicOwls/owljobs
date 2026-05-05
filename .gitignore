@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.DS_Store
+.astro/
+.wrangler/
+.turbo/
+*.local
+.env
+.env.*
+.dev.vars
+!.env.example
+.claude/settings.local.json
+scripts/.eia860-tmp/

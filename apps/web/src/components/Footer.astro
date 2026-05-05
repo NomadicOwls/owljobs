@@ -1,0 +1,61 @@
+---
+const niche = Astro.locals.niche;
+const year = new Date().getFullYear();
+---
+
+<footer class="border-t border-border bg-card/30 py-12">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+
+      <!-- Brand -->
+      <div class="sm:col-span-2 lg:col-span-1">
+        <a href="/" class="flex items-center gap-2 no-underline hover:no-underline">
+          <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-accent text-accent-foreground text-xs font-bold">
+            {niche.name.split(" ").map((w: string) => w[0]).join("").slice(0, 2).toUpperCase()}
+          </div>
+          <span class="text-base font-semibold tracking-tight text-foreground">{niche.name}</span>
+        </a>
+        <p class="mt-4 text-sm text-muted-foreground">
+          {niche.tagline}. Listings aggregated daily from employer career pages.
+        </p>
+      </div>
+
+      <!-- For Job Seekers -->
+      <div>
+        <h3 class="font-semibold text-foreground">For Job Seekers</h3>
+        <ul class="mt-4 space-y-2">
+          <li><a href="/jobs" class="text-sm text-muted-foreground transition-colors hover:text-foreground hover:no-underline">Browse Jobs</a></li>
+          <li><a href="/feed.xml" class="text-sm text-muted-foreground transition-colors hover:text-foreground hover:no-underline">RSS Feed</a></li>
+          <li><a href="/feed.json" class="text-sm text-muted-foreground transition-colors hover:text-foreground hover:no-underline">JSON Feed</a></li>
+        </ul>
+      </div>
+
+      <!-- For Employers -->
+      <div>
+        <h3 class="font-semibold text-foreground">For Employers</h3>
+        <ul class="mt-4 space-y-2">
+          <li>
+            <a href={`mailto:hello@${niche.domain}`} class="text-sm text-muted-foreground transition-colors hover:text-foreground hover:no-underline">
+              Are you hiring?
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Company -->
+      <div>
+        <h3 class="font-semibold text-foreground">Company</h3>
+        <ul class="mt-4 space-y-2">
+          <li><a href="/privacy" class="text-sm text-muted-foreground transition-colors hover:text-foreground hover:no-underline">Privacy Policy</a></li>
+          <li><a href="/terms" class="text-sm text-muted-foreground transition-colors hover:text-foreground hover:no-underline">Terms of Service</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-12 flex flex-col items-center justify-between gap-4 border-t border-border pt-8 sm:flex-row">
+      <p class="text-sm text-muted-foreground">
+        &copy; {year} {niche.name}. Updated hourly.
+      </p>
+    </div>
+  </div>
+</footer>

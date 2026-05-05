@@ -1,0 +1,183 @@
+---
+export const prerender = true;
+import Layout from "../components/Layout.astro";
+---
+
+<Layout
+  title="Privacy Policy"
+  description="How Wind Turbine Jobs collects, stores and processes your personal data."
+>
+  <div class="mx-auto max-w-2xl px-4 py-14 pb-20 sm:px-6">
+    <div class="prose-content">
+      <h1>Privacy Policy</h1>
+      <p class="lead">This policy explains what personal data we collect, why we collect it, and your rights under the GDPR.</p>
+
+      <h2>Who we are</h2>
+      <p>
+        Wind Turbine Jobs is a job aggregation service that collects wind turbine technician roles
+        from publicly available employer career pages and presents them in one place.
+      </p>
+
+      <h2>Data we collect</h2>
+      <h3>Job alert subscribers</h3>
+      <p>If you sign up for job alerts, we store:</p>
+      <ul>
+        <li>Your email address</li>
+        <li>A confirmation status and timestamp</li>
+        <li>A token to allow you to unsubscribe at any time</li>
+        <li>Date of subscription</li>
+      </ul>
+      <p>
+        We do not store your IP address, browser fingerprint, or any other identifying information.
+      </p>
+      <p>
+        We collect this data on the basis of your consent. You can withdraw consent at any time
+        by clicking the unsubscribe link in any email we send.
+      </p>
+
+      <h3>Server logs</h3>
+      <p>
+        Cloudflare (our infrastructure provider) processes request logs. This is covered by
+        Cloudflare's own privacy policy and data processing agreement.
+      </p>
+
+      <h2>Sub-processors</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Processor</th>
+            <th>Purpose</th>
+            <th>DPA</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Resend</td>
+            <td>Transactional email delivery (confirmation &amp; unsubscribe)</td>
+            <td><a href="https://resend.com/legal/dpa" rel="noopener" target="_blank">resend.com/legal/dpa</a></td>
+          </tr>
+          <tr>
+            <td>Supabase</td>
+            <td>Database (subscriber email + token storage)</td>
+            <td><a href="https://supabase.com/privacy" rel="noopener" target="_blank">supabase.com/privacy</a></td>
+          </tr>
+          <tr>
+            <td>Cloudflare</td>
+            <td>Edge hosting, CDN, Turnstile spam protection</td>
+            <td><a href="https://www.cloudflare.com/gdpr/introduction/" rel="noopener" target="_blank">cloudflare.com/gdpr</a></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>Data retention</h2>
+      <p>
+        Subscriber records are kept until you unsubscribe. Unsubscribed records are deleted immediately.
+        Unconfirmed records (where you signed up but never clicked the confirmation link) are purged after 30 days.
+      </p>
+
+      <h2>Your rights</h2>
+      <p>Under the GDPR you have the right to:</p>
+      <ul>
+        <li>Access a copy of your personal data</li>
+        <li>Request correction of inaccurate data</li>
+        <li>Request deletion ("right to be forgotten")</li>
+        <li>Withdraw consent at any time (unsubscribe link in every email)</li>
+      </ul>
+      <p>
+        To exercise any right, email us at <a href="mailto:privacy@windturbinejobs.com">privacy@windturbinejobs.com</a>.
+      </p>
+
+      <h2>Cookies &amp; tracking</h2>
+      <p>
+        We do not set any tracking or advertising cookies. We do not use Google Analytics or any
+        third-party analytics that processes personal data. We may add privacy-safe analytics
+        (Cloudflare Web Analytics or Plausible) that do not use cookies and do not collect
+        personal data — no consent banner required.
+      </p>
+
+      <h2>Job listings</h2>
+      <p>
+        Job listings are aggregated from publicly available employer career pages. We do not store
+        any candidate data submitted to employers. When you click "Apply", you are taken directly
+        to the employer's site.
+      </p>
+
+      <p class="updated">Last updated: May 2025</p>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .prose-content {
+    line-height: 1.75;
+    color: var(--muted-foreground);
+  }
+  .prose-content h1 {
+    font-size: clamp(1.875rem, 5vw, 2.5rem);
+    font-weight: 800;
+    color: var(--foreground);
+    margin: 0 0 0.5rem;
+    letter-spacing: -0.025em;
+  }
+  .prose-content .lead {
+    font-size: 1rem;
+    margin-bottom: 2.5rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 1.5rem;
+  }
+  .prose-content h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--foreground);
+    margin: 2.25rem 0 0.625rem;
+    letter-spacing: -0.015em;
+  }
+  .prose-content h3 {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--foreground);
+    margin: 1.5rem 0 0.4rem;
+  }
+  .prose-content p,
+  .prose-content li {
+    font-size: 0.9375rem;
+  }
+  .prose-content ul {
+    padding-left: 1.25rem;
+  }
+  .prose-content li {
+    margin-bottom: 0.3rem;
+  }
+  .prose-content table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+    margin: 1rem 0 1.5rem;
+  }
+  .prose-content th {
+    text-align: left;
+    padding: 0.5rem 0.75rem;
+    background: var(--secondary);
+    font-weight: 700;
+    color: var(--foreground);
+    border-bottom: 1px solid var(--border);
+  }
+  .prose-content td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .prose-content a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+  .prose-content a:hover {
+    text-decoration: underline;
+  }
+  .prose-content .updated {
+    font-size: 0.8rem;
+    margin-top: 3rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+  }
+</style>

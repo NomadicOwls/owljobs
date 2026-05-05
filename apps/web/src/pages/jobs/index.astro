@@ -1,0 +1,213 @@
+---
+import Layout from "../../components/Layout.astro";
+import JobCardModern from "../../components/JobCardModern.astro";
+import FeaturedJobCard from "../../components/FeaturedJobCard.astro";
+import { supabasePublic } from "../../lib/supabase.js";
+import { listJobs } from "../../lib/jobs.js";
+import { setCacheHeaders } from "../../lib/cache.js";
+import { getEnv } from "../../lib/env.js";
+
+const { niche } = Astro.locals;
+const env = getEnv(Astro.locals);
+
+setCacheHeaders(Astro.response.headers, 300, 600);
+
+const url = Astro.url;
+const page = Math.max(1, parseInt(url.searchParams.get("page") ?? "1", 10));
+const country = url.searchParams.get("country") ?? undefined;
+const q = url.searchParams.get("q") ?? undefined;
+const perPage = 20;
+
+const db = supabasePublic(env);
+
+let jobs: Awaited<ReturnType<typeof listJobs>>["jobs"] = [];
+let total = 0;
+
+try {
+  const result = await listJobs(db, niche.supabaseSchema, { page, perPage, country, q });
+  jobs = result.jobs;
+  total = result.total;
+} catch {
+  // silently degrade
+}
+
+const totalPages = Math.max(1, Math.ceil(total / perPage));
+const hasActiveFilters = !!(q || country);
+
+function buildUrl(p: number): string {
+  const next = new URL(url);
+  next.searchParams.set("page", String(p));
+  return next.pathname + next.search;
+}
+---
+
+<Layout
+  title={`Browse ${niche.name}${q ? ` — ${q}` : ""}`}
+  description={`Browse ${total} ${niche.tagline.toLowerCase()} openings${country ? ` in ${country}` : ""}. Updated hourly.`}
+>
+  <!-- Search header -->
+  <div class="border-b border-border bg-card/50">
+    <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <h1 class="mb-6 text-3xl font-bold text-foreground">Find {niche.name}</h1>
+      <form method="GET" action="/jobs" class="flex flex-col gap-3 sm:flex-row">
+        <div class="relative flex-1">
+          <svg class="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+          </svg>
+          <input
+            type="search"
+            name="q"
+            value={q ?? ""}
+            placeholder="Search by title or keyword…"
+            class="h-12 w-full rounded-md border border-border bg-background pl-10 pr-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+          />
+        </div>
+        <div class="relative flex-1 sm:max-w-xs">
+          <svg class="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 0-8 8c0 5.4 7.05 11.5 7.39 11.76a1 1 0 0 0 1.22 0C12.95 21.5 20 15.4 20 10a8 8 0 0 0-8-8z"/>
+          </svg>
+          <input
+            type="text"
+            name="country"
+            value={country ?? ""}
+            placeholder="Country (e.g. US, DE)…"
+            class="h-12 w-full rounded-md border border-border bg-background pl-10 pr-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+          />
+        </div>
+        <!-- Mobile filter/submit row -->
+        <button
+          type="submit"
+          class="h-12 inline-flex items-center justify-center rounded-md bg-primary px-5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 sm:px-4"
+        >
+          Search
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <div class="flex gap-8">
+
+      <!-- Desktop sidebar -->
+      <aside class="hidden w-64 shrink-0 lg:block">
+        <div class="sticky top-24 space-y-6">
+          <div class="flex items-center justify-between">
+            <h2 class="text-sm font-semibold text-foreground">Filters</h2>
+            {hasActiveFilters && (
+              <a href="/jobs" class="text-xs text-accent hover:underline">Clear all</a>
+            )}
+          </div>
+
+          <div class="space-y-3">
+            <p class="text-xs font-medium uppercase tracking-wide text-muted-foreground">Search</p>
+            <form method="GET" action="/jobs" class="space-y-2">
+              <input
+                type="search"
+                name="q"
+                value={q ?? ""}
+                placeholder="Title or keyword…"
+                class="h-9 w-full rounded-md border border-border bg-transparent px-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+              <input
+                type="text"
+                name="country"
+                value={country ?? ""}
+                placeholder="Country (e.g. US, DE)…"
+                class="h-9 w-full rounded-md border border-border bg-transparent px-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+              <button type="submit" class="h-9 w-full rounded-md bg-primary text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90">
+                Apply filters
+              </button>
+            </form>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main content -->
+      <div class="min-w-0 flex-1">
+
+        <!-- Result count + active filters -->
+        <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+          <p class="text-sm text-muted-foreground">
+            <span class="font-medium text-foreground">{total.toLocaleString()}</span> jobs found
+          </p>
+
+          {hasActiveFilters && (
+            <div class="flex flex-wrap items-center gap-2">
+              {q && (
+                <a
+                  href={`/jobs${country ? `?country=${encodeURIComponent(country)}` : ""}`}
+                  class="inline-flex items-center gap-1 rounded-md border border-border bg-secondary px-2 py-1 text-xs text-foreground hover:bg-secondary/80 hover:no-underline transition-colors"
+                >
+                  {q}
+                  <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                </a>
+              )}
+              {country && (
+                <a
+                  href={`/jobs${q ? `?q=${encodeURIComponent(q)}` : ""}`}
+                  class="inline-flex items-center gap-1 rounded-md border border-border bg-secondary px-2 py-1 text-xs text-foreground hover:bg-secondary/80 hover:no-underline transition-colors"
+                >
+                  {country}
+                  <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                </a>
+              )}
+            </div>
+          )}
+        </div>
+
+        <!-- Featured job (sponsored) -->
+        {!q && !country && page === 1 && (
+          <FeaturedJobCard
+            title="Senior Wind Turbine Field Service Technician"
+            employer="Vestas Wind Systems"
+            location="Amsterdam, NL · Multiple sites"
+            salary="€65K – €85K"
+            jobType="Full-time"
+            postedAgo="2h ago"
+            applyUrl="https://careers.vestas.com"
+            href="/jobs"
+            tags={["High Voltage", "SCADA", "Remote OK"]}
+          />
+        )}
+
+        <!-- Job list -->
+        {jobs.length > 0 ? (
+          <div class="grid gap-4">
+            {jobs.map((job, index) => (
+              <JobCardModern job={job} index={index} />
+            ))}
+          </div>
+        ) : (
+          <div class="flex flex-col items-center justify-center rounded-xl border border-border bg-card py-16 text-center">
+            <svg class="h-12 w-12 text-muted-foreground/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+            </svg>
+            <p class="mt-4 text-base font-medium text-foreground">No jobs found</p>
+            <p class="mt-1 text-sm text-muted-foreground">Try broadening your search or clearing filters.</p>
+            <a href="/jobs" class="mt-6 inline-flex items-center rounded-md border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-secondary hover:no-underline transition-colors">
+              Clear all filters
+            </a>
+          </div>
+        )}
+
+        <!-- Pagination -->
+        {totalPages > 1 && (
+          <nav class="mt-10 flex items-center justify-center gap-4 border-t border-border pt-8" aria-label="Pagination">
+            {page > 1 && (
+              <a href={buildUrl(page - 1)} class="rounded-md border border-border px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:border-accent/50 hover:text-foreground hover:no-underline">
+                ← Previous
+              </a>
+            )}
+            <span class="text-sm text-muted-foreground">Page {page} of {totalPages}</span>
+            {page < totalPages && (
+              <a href={buildUrl(page + 1)} class="rounded-md border border-border px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:border-accent/50 hover:text-foreground hover:no-underline">
+                Next →
+              </a>
+            )}
+          </nav>
+        )}
+      </div>
+    </div>
+  </div>
+</Layout>

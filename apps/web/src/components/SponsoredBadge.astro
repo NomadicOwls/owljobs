@@ -1,0 +1,7 @@
+---
+export interface Props {
+  class?: string;
+}
+const { class: className = "" } = Astro.props;
+---
+<span class:list={["inline-block rounded border border-accent/20 bg-accent/10 px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-accent", className]}>Featured</span>

@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["@cloudflare/workers-types"],
+    "noEmit": true,
+    "paths": {
+      "@owljobs/niches": ["../niches/src/index.ts"],
+      "@owljobs/schema": ["../schema/src/index.ts"]
+    }
+  },
+  "include": ["src", "../niches/src", "../schema/src"]
+}

@@ -1,0 +1,43 @@
+name = "owljobs-ingest"
+main = "src/index.ts"
+compatibility_date = "2025-04-08"
+compatibility_flags = ["nodejs_compat"]
+
+# Cron: run every hour
+[triggers]
+crons = ["0 * * * *"]
+
+[ai]
+binding = "AI"
+
+# Queues — create once with:
+#   wrangler queues create owljobs-classify
+#   wrangler queues create owljobs-enrich
+[[queues.producers]]
+queue = "owljobs-classify"
+binding = "CLASSIFY_QUEUE"
+
+[[queues.producers]]
+queue = "owljobs-enrich"
+binding = "ENRICH_QUEUE"
+
+[[queues.consumers]]
+queue = "owljobs-classify"
+max_batch_size = 10
+max_batch_timeout = 0
+max_retries = 2
+
+[[queues.consumers]]
+queue = "owljobs-enrich"
+max_batch_size = 10
+max_batch_timeout = 0
+max_retries = 2
+
+# Supabase credentials — set as secrets, never in plaintext here.
+# Run once per environment:
+#   wrangler secret put SUPABASE_URL
+#   wrangler secret put SUPABASE_SERVICE_KEY
+#
+# For local dev, create workers/ingest/.dev.vars:
+#   SUPABASE_URL=https://<ref>.supabase.co
+#   SUPABASE_SERVICE_KEY=<service_role_key>

@@ -1,0 +1,23 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["@cloudflare/workers-types"],
+    "noEmit": true,
+    "paths": {
+      "@owljobs/niches": ["../../packages/niches/src/index.ts"],
+      "@owljobs/schema": ["../../packages/schema/src/index.ts"],
+      "@owljobs/ats-adapters": ["../../packages/ats-adapters/src/index.ts"],
+      "@owljobs/ats-adapters/workday": ["../../packages/ats-adapters/src/workday.ts"],
+      "@owljobs/ats-adapters/greenhouse": ["../../packages/ats-adapters/src/greenhouse.ts"],
+      "@owljobs/ats-adapters/successfactors": ["../../packages/ats-adapters/src/successfactors.ts"]
+    }
+  },
+  "include": [
+    "src",
+    "../../niches",
+    "../../packages/niches/src",
+    "../../packages/schema/src",
+    "../../packages/ats-adapters/src"
+  ]
+}
+

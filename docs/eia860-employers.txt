@@ -1,0 +1,933 @@
+# EIA Form 860 (2024) — Wind Farm Operators & Owners
+# 928 unique companies, sorted by total installed capacity
+# Generated: 2026-05-03
+# Source: https://www.eia.gov/electricity/data/eia860/xls/eia8602024.zip
+# Columns: MW (nameplate), Plants
+  7811.3 MW    66 plants  Avangrid Power LLC
+  7536.8 MW    34 plants  MidAmerican Energy Co
+  5560.6 MW    32 plants  Big Sky Wind, LLC
+  4488.9 MW    32 plants  Invenergy Services LLC
+  3595.1 MW    18 plants  Pattern Operators LP
+  3361.2 MW    23 plants  Duke Energy Renewables Services
+    3309 MW    24 plants  EDF Renewable Asset Holdings, Inc.
+  2615.4 MW    12 plants  Engie North America
+  2531.5 MW    15 plants  Southern Power Co
+  2490.9 MW    14 plants  PacifiCorp
+  2373.2 MW    17 plants  Northern States Power Co - Minnesota
+  2032.7 MW    20 plants  Leeward Asset Management, LLC
+  1641.3 MW     7 plants  AE Power Services LLC
+  1582.4 MW     9 plants  Enel Green Power NA, Inc.
+  1489.8 MW    12 plants  DTE Electric Company
+  1416.2 MW     6 plants  BHE Renewables, LLC
+  1301.5 MW     7 plants  Interstate Power and Light Co
+  1288.7 MW     7 plants  Algonquin Power Co
+  1262.5 MW    12 plants  ALLETE Clean Energy
+  1199.6 MW     4 plants  Southwestern Electric Power Co
+  1102.9 MW     9 plants  AES Distributed Energy
+  1098.4 MW     2 plants  Public Service Co of Colorado
+  1085.3 MW    23 plants  Terra-Gen Operating Co-Wind
+  1044.3 MW     7 plants  Onward Energy
+    1027 MW     1 plants  Great Prairie Wind LLC
+    1000 MW     2 plants  Southwestern Public Service Co
+     894 MW     5 plants  Boralex US Operations LLC
+     845 MW     3 plants  Caithness Shepherds Flat LLC
+   831.7 MW     5 plants  Consumers Energy Co - (MI)
+   830.7 MW     4 plants  SunEdison LLC
+   816.5 MW     3 plants  Portland General Electric Co
+   771.9 MW     3 plants  Puget Sound Energy Inc
+   735.5 MW     1 plants  FPL Energy Horse Hollow LLC
+     700 MW    14 plants  Evergreen Wind, LLC
+     699 MW     2 plants  Union Electric Co - (MO)
+   662.5 MW     1 plants  Capricorn Ridge Wind LLC
+   643.4 MW     1 plants  High Banks Wind, LLC
+   641.5 MW     4 plants  Public Service Co of Oklahoma
+   638.7 MW     3 plants  AES Clean Energy
+   628.2 MW     4 plants  Evergy Kansas Central, Inc
+     612 MW     6 plants  Valcour Operating Services, LLC
+   600.6 MW     3 plants  Limon
+   599.8 MW     3 plants  Empire District Electric Co
+   547.4 MW     5 plants  Acciona Wind Energy USA LLC
+     525 MW     1 plants  Aviator Wind, LLC
+   521.8 MW     5 plants  ALLETE, Inc.
+   500.6 MW     1 plants  White Mesa Wind, LLC
+     500 MW     1 plants  Young Wind, LLC
+   499.5 MW     1 plants  High Lonesome Wind Power, LLC
+   448.7 MW     3 plants  Oklahoma Gas & Electric Co
+   444.7 MW     6 plants  Acciona Energy USA Global, LLC
+   421.2 MW     4 plants  Wisconsin Power & Light Co
+   418.9 MW     1 plants  Mesquite Star Special LLC
+     400 MW     2 plants  Mesquite Wind LLC
+   398.6 MW     1 plants  Jordan Creek Wind Farm, LLC
+     376 MW     1 plants  Stephens Ranch Wind Energy LLC
+   366.6 MW     1 plants  Orsted Onshore North America
+   365.5 MW     1 plants  Clearwater Energy Resources LLC
+   352.8 MW     1 plants  Foard City Wind, LLC
+   350.4 MW     5 plants  Otter Tail Power Co
+   350.2 MW     1 plants  Azure Sky Wind Project, LLC
+     350 MW     1 plants  Mohave County Wind Farm
+     340 MW     1 plants  BMP Wind LLC
+   338.4 MW     1 plants  Sage Draw Wind, LLC
+   337.2 MW     3 plants  Wisconsin Electric Power Co
+     336 MW     1 plants  TG East Wind Project LLC
+   329.8 MW     1 plants  Boswell Wind, LLC
+   325.5 MW    15 plants  Consolidated Edison Development Inc.
+   321.2 MW     1 plants  Flat Rock Windpower, LLC
+   319.6 MW     3 plants  Wisconsin Public Service Corp
+   318.1 MW     1 plants  Rattlesnake Creek Wind Project, LLC
+   308.8 MW     1 plants  Canyon Wind Project, LLC
+   306.9 MW     4 plants  Exus Pennsylvania Wind Holdings
+     304 MW     4 plants  EDP Renewables North America LLC
+   303.8 MW     2 plants  TC Energy
+   302.4 MW     1 plants  Indiana Crossroads Wind Farms LLC
+     302 MW     1 plants  Lincoln Land Wind, LLC
+   301.7 MW     1 plants  Seven Cowboy Wind Project, LLC
+   301.3 MW     1 plants  Lacy Creek Wind, LLC
+     301 MW     1 plants  Inertia Wind Project, LLC
+   300.8 MW     3 plants  FPLE Wind, LLC
+   300.6 MW     1 plants  Irish Creek Wind, LLC
+   300.5 MW     1 plants  Sacramento Municipal Util Dist
+     300 MW     1 plants  Pioneer Prairie Wind Farm I, LLC
+     300 MW     1 plants  Cedro Hill Wind, LLC
+     300 MW     1 plants  Chisholm View Wind Project
+     300 MW     1 plants  Tahoka Wind, LLC
+     300 MW     1 plants  Torrecillas Wind Energy, LLC
+     300 MW     1 plants  Ranchero Wind Farm LLC
+     300 MW     1 plants  Bronco Plains Wind, LLC
+     300 MW     1 plants  Soldier Creek Wind LLC
+     300 MW     1 plants  Milligan 1 Wind, LLC
+     300 MW     1 plants  Hubbard Wind LLC
+   299.7 MW     2 plants  FPL Energy Vansycle LLC
+   299.7 MW     1 plants  Balko Wind LLC
+   299.7 MW     1 plants  TX Jumbo Road Wind, LLC
+   299.3 MW     1 plants  Red Dirt Wind Project, LLC
+   299.3 MW     1 plants  Enel Green Power Diamond Vista Wind Project, LLC
+   299.2 MW     1 plants  Limestone Wind Project, LLC
+   298.8 MW     1 plants  Aurora Wind Project, LLC
+     298 MW     1 plants  Kingfisher Wind LLC
+     298 MW     1 plants  Haystack Wind Project, LLC
+   297.8 MW     1 plants  Thunder Ranch Wind Project, LLC
+   297.6 MW     2 plants  NextEra Energy Seiling Wind
+   293.7 MW     1 plants  Canadian Hills Wind LLC
+   292.7 MW    16 plants  Greenbacker Renewable Energy Corporation
+   291.6 MW     6 plants  Nextera Energy Resources
+   284.9 MW     3 plants  Shell Wind Energy Inc.
+     282 MW     3 plants  Basin Electric Power Coop
+   280.5 MW     2 plants  Orion Energy Group LLC
+     278 MW     1 plants  FPL Energy Upton Wind LP
+   272.6 MW     1 plants  Las Majadas Wind Farm, LLC
+   268.2 MW     1 plants  Helena Wind, LLC
+   265.5 MW     1 plants  FGE Goodnight I, LLC
+     264 MW     1 plants  Clearway Energy Operating LLC
+   262.2 MW     1 plants  Windy Flats Partners LLC
+     256 MW     1 plants  Roadrunner Crossing Wind Farm, LLC
+     253 MW     1 plants  Dermott Wind, LLC
+     252 MW     1 plants  Cedar Point LLC
+   250.7 MW     1 plants  Little Blue Wind Project, LLC
+     250 MW     1 plants  Hidalgo Wind Farm LLC
+     250 MW     1 plants  Golden West Power Partners, LLC
+     250 MW     1 plants  Willow Springs Windfarm, LLC
+     250 MW     1 plants  Amadeus Wind LLC
+     250 MW     1 plants  Nobles 2 Power Partners, LLC
+     250 MW     1 plants  Skeleton Creek Energy Center
+   249.9 MW     1 plants  Palo Duro Wind
+   249.9 MW     1 plants  Rush Springs Wind Project
+   249.8 MW     1 plants  Buffalo Dunes Wind Project LLC
+   249.8 MW     1 plants  Tucson Electric Power Co
+   249.7 MW     1 plants  Javelina Wind Energy, LLC
+   247.3 MW     1 plants  Armadillo Flats Wind Project, LLC
+   243.5 MW     1 plants  Pratt Wind, LLC
+   242.8 MW     1 plants  El Campo Wind, LLC (Longroad)
+     242 MW     1 plants  Clear Creek Wind, LLC
+   239.4 MW     1 plants  Big Sky Wind LLC
+   237.6 MW     1 plants  Rio Bravo Windpower, LLC
+   236.5 MW     1 plants  White Cloud Wind Project, LLC
+     236 MW     1 plants  Chapman Ranch Wind LLC
+     230 MW     1 plants  Electra Wind, LLC
+     230 MW     1 plants  Horse Creek Wind, LLC
+     230 MW     1 plants  Plum Creek Wind, LLC
+     226 MW     1 plants  Roundhouse Renewable Energy, LLC
+   225.6 MW     1 plants  Griffin Trail Wind, LLC
+   224.4 MW     1 plants  Great Pathfinder Wind
+   223.9 MW     1 plants  Shamrock Wind LLC
+   217.5 MW     1 plants  FPL Energy Illinois Wind LLC
+   215.3 MW     1 plants  Marble River, LLC
+   214.8 MW     1 plants  Kingman Wind Energy, LLC
+   214.5 MW     2 plants  NRG Energy Gas & Wind Holdings Inc
+   213.8 MW     1 plants  Old Trail Wind Farm LLC
+   210.9 MW     1 plants  High Trail Wind Farm LLC
+   210.1 MW     1 plants  Canadian Breaks LLC
+   209.4 MW     1 plants  Reloj del Sol Wind Farm LLC
+     209 MW     1 plants  King Creek Wind Farm 2, LLC
+   208.3 MW     1 plants  Ninnescah Wind Energy LLC
+   207.9 MW     1 plants  Clearwater Wind East, LLC
+   205.6 MW     1 plants  Niyol Wind, LLC
+   205.2 MW     1 plants  Lexington Chenoa Wind Farm LLC
+     205 MW     3 plants  Montana-Dakota Utilities Co
+     204 MW     1 plants  FPL Energy New Mexico Wind LLC
+     204 MW     1 plants  White Creek Wind 1 LLC
+     204 MW     1 plants  Shannon Wind LLC
+   203.5 MW     1 plants  Milford Wind Corridor Phase I, LLC (Longroad)
+   202.5 MW     6 plants  Sequitur Renewables, LLC
+     202 MW     1 plants  Sugar Creek Wind One LLC
+     202 MW     1 plants  Harvest Ridge Wind Farm
+   201.6 MW     1 plants  Indiana Crossroads Wind Farm II LLC
+   201.5 MW     1 plants  Horizon Hill Wind, LLC
+   201.5 MW     1 plants  White Rock Wind East, LLC
+     201 MW     1 plants  Logan Wind Energy LLC
+     201 MW     1 plants  Cloud County Windfarm, LLC
+   200.9 MW     1 plants  Osborn Wind Energy LLC
+   200.6 MW     1 plants  Sunflower Energy Center, LLC
+   200.5 MW     1 plants  Alta Farms II Wind Project, LLC
+   200.4 MW     1 plants  Meadow Lake Wind Farm VI LLC
+   200.2 MW     1 plants  Blue Summit III Wind, LLC
+   200.2 MW     1 plants  El Algodon Alto Wind Farm, LLC
+   200.1 MW     1 plants  Crowned Ridge Wind, LLC
+     200 MW     1 plants  FPL Energy Crystal Lake Wind II LLC
+     200 MW     1 plants  Blackstone Wind Farm II LLC
+     200 MW     1 plants  Caney River Wind Project
+     200 MW     1 plants  Headwaters Wind Farm LLC
+     200 MW     1 plants  Crocker Wind Farm, LLC
+     200 MW     1 plants  Javelina Wind Energy II, LLC
+     200 MW     1 plants  Cimarron Bend Wind Project I, LLC
+     200 MW     1 plants  Cimarron Bend Wind Project II, LLC
+     200 MW     1 plants  Emmons-Logan Wind, LLC
+     200 MW     1 plants  Wheatridge Wind Holdings, LLC
+     200 MW     1 plants  Ponderosa Wind, LLC
+     200 MW     1 plants  Cedar Springs Wind, LLC
+     200 MW     1 plants  Heartland Divide II
+     200 MW     1 plants  Bronco Plains Wind II, LLC
+     200 MW     1 plants  Sweetland Wind Farm, LLC
+     200 MW     1 plants  North Bend Wind Project, LLC
+   199.7 MW     1 plants  Meadow Lake Wind Farm LLC
+   199.5 MW     1 plants  FPL Peetz Table Wind Energy
+   199.4 MW     1 plants  Burke Wind LLC
+   199.3 MW     1 plants  Prairie Queen Wind Farm LLC
+   199.2 MW     1 plants  Turtle Creek Wind Farm LLC
+     199 MW     1 plants  Waverly Wind Farm LLC
+     199 MW     1 plants  Mammoth Plains Wind Project
+   198.9 MW     2 plants  Ridgeline Energy LLC
+   198.8 MW     3 plants  Enel Kansas, LLC
+   198.8 MW     1 plants  Oliver Wind IV, LLC
+   198.6 MW     1 plants  Cedar Bluff Wind, LLC
+   198.1 MW     1 plants  Elk City LLC
+     198 MW     1 plants  Trinity Hills Wind Farm LLC
+     198 MW     1 plants  Bluestem Wind Energy, LLC
+   196.8 MW     1 plants  Castle Gap Wind Power, LLC
+   196.7 MW     1 plants  Bearkat Wind Energy 1, LLC
+   194.3 MW     1 plants  Green River Wind Farm Phase 1, LLC
+     189 MW     1 plants  NaturEner Rim Rock Energy LLC
+     189 MW     1 plants  Timbermill Wind
+     185 MW     2 plants  Los Angeles Department of Water & Power
+     185 MW     1 plants  Hilltopper Wind Project, LLC
+     185 MW     1 plants  Glacier Sands Wind Power, LLC
+   184.8 MW    11 plants  Idaho Wind Partners 1 LLC
+     184 MW     1 plants  King Creek Wind Farm 1, LLC
+   183.8 MW     1 plants  Lockett Windfarm, LLC
+     180 MW     1 plants  Bull Creek Wind LLC
+     180 MW     1 plants  Scout Clean Energy LLC
+   178.2 MW     1 plants  CP Bloom Wind LLC
+     178 MW     1 plants  Pegasus Wind, LLC
+   175.3 MW     1 plants  Wildcat Creek Wind Farm LLC
+   174.3 MW     1 plants  Northern Colorado Wind LLC
+   171.8 MW     1 plants  Appaloosa Run Wind, LLC
+     171 MW     1 plants  Moraine Sands Wind Power, LLC
+     168 MW     1 plants  Alta Wind V, LLC
+     168 MW     1 plants  Pinyon Pines Wind I, LLC
+   167.7 MW     1 plants  Desert Sky Wind Farm LP
+   165.6 MW     1 plants  Hackberry Wind LLC
+   165.6 MW     1 plants  Cimarron Wind Energy LLC
+     165 MW     1 plants  Cameron Wind 1 LLC
+     163 MW     1 plants  Astra Wind LLC
+     163 MW     1 plants  Babbitt Ranch Energy Center, LLC
+   162.9 MW     1 plants  Midway Wind, LLC
+     162 MW     1 plants  FPLE High Winds, LLC
+     162 MW     1 plants  North Sky River Energy LLC
+     161 MW     1 plants  Wildorado Wind, LLC
+     160 MW     2 plants  Rattlesnake Power, LLC
+     160 MW     1 plants  Sholes Wind Energy Center, LLC
+     160 MW     1 plants  Cedar Creek Wind, LLC
+   159.1 MW     2 plants  NextEra Energy Majestic Wind
+     159 MW     2 plants  FPL Energy Langdon Wind LLC
+     158 MW     2 plants  Fluvanna Wind Energy LLC
+     154 MW     1 plants  Tatanka Ridge LLC
+     152 MW     1 plants  Trent Wind Farm LLC
+   151.8 MW     1 plants  CPV Keenan II Renewable Energy Co LLC
+   151.5 MW     1 plants  Century Oak Wind Project, LLC
+   151.4 MW     1 plants  Blue Canyon Windpower II LLC
+   151.2 MW     1 plants  Old Settler Wind, LLC
+     150 MW     1 plants  FPL Energy Crystal Lake Wind LLC
+     150 MW     1 plants  FPL Energy Story Wind LLC
+     150 MW     1 plants  Langford Wind Power LLC
+     150 MW     1 plants  Alta Wind I, LLC
+     150 MW     1 plants  Alta Wind II, LLC
+     150 MW     1 plants  Alta Wind III, LLC
+     150 MW     1 plants  Loraine Windpower Project
+     150 MW     1 plants  White Oak Energy LLC
+     150 MW     1 plants  Garden Wind LLC
+     150 MW     1 plants  Mustang Hills, LLC (Longroad)
+     150 MW     1 plants  Green Pastures Wind I, LLC
+     150 MW     1 plants  Green Pastures Wind II, LLC
+     150 MW     1 plants  Briscoe Wind Farm, LLC
+     150 MW     1 plants  Cardinal Point LLC
+     150 MW     1 plants  Carousel Wind Farm, LLC
+     150 MW     1 plants  Brady Wind II, LLC
+     150 MW     1 plants  Brady Wind, LLC
+     150 MW     1 plants  Wildcat Ranch Wind Project, LLC
+     150 MW     1 plants  Foxtail Wind, LLC
+   149.6 MW     1 plants  Goat Wind LLC
+   149.3 MW     1 plants  Rocksprings Val Verde Wind, LLC
+     149 MW     1 plants  Deerfield Wind Energy, LLC
+   148.8 MW     1 plants  Rocky Ridge Wind Project LLC
+   148.6 MW     8 plants  UPC Power Solutions
+   148.5 MW     1 plants  Evergy Metro
+   148.5 MW     1 plants  FPL Energy Ashtabula Wind LLC
+   148.5 MW     1 plants  Smoky Hills Wind Project II LLC
+     148 MW     1 plants  Ranchland Wind Project II, LLC
+     147 MW     1 plants  FPL Energy Weatherford, LLC
+     144 MW     1 plants  TransAlta Wyoming Wind LLC
+     144 MW     1 plants  Rattlesnake Flat, LLC
+     140 MW     1 plants  Rockhaven Wind Project, LLC
+     140 MW     1 plants  Pioneer Hutt Wind Energy, LLC
+     138 MW     6 plants  Mountain Air Projects, LLC
+     138 MW     1 plants  Alta Wind X, LLC
+   136.3 MW     1 plants  Turlock Irrigation District
+   135.4 MW     1 plants  Blue Summit Wind LLC
+     133 MW     1 plants  Cedar Springs Wind III, LLC
+     132 MW     1 plants  Helix Maine Wind Development, LLC
+     132 MW     1 plants  Sherbino II Wind Farm LLC
+     132 MW     1 plants  Pinyon Pines Wind II, LLC
+     130 MW     1 plants  Taloga Wind LLC
+     130 MW     1 plants  Minco Wind IV, LLC
+     130 MW     1 plants  Bitter Ridge Wind Farm, LLC
+     130 MW     1 plants  Orsted Wind Power North America LLC
+   125.1 MW     1 plants  Paulding Wind Farm IV LLC
+   124.3 MW     1 plants  Anticline Wind, LLC
+   121.9 MW     1 plants  Elbow Creek Wind Project LLC
+   121.3 MW     1 plants  Ford Ridge
+     120 MW     1 plants  Ashtabula Wind II LLC
+     120 MW     1 plants  Tuscola Bay Wind LLC
+   119.7 MW     1 plants  Bluff Point Wind, LLC
+     115 MW     1 plants  Black Rock Wind Force, LLC
+   114.9 MW     1 plants  Ranchland Wind Project I, LLC
+     114 MW     1 plants  FPL Energy Callahan Wind, LLC
+     114 MW     1 plants  Great Plains Windpark Legacy LLC
+   112.5 MW     1 plants  NextEra Wolf Ridge LLC
+   112.2 MW     1 plants  Gray County Wind Energy LLC
+   112.1 MW     1 plants  Deerfield Wind Energy 2, LLC
+   111.8 MW     1 plants  Bluestone Wind, LLC
+     110 MW     1 plants  Keechi Wind, LLC
+     110 MW     1 plants  Walleye Wind, LLC
+   108.3 MW     1 plants  Shady Oaks Wind 2, LLC
+     108 MW     3 plants  DTE Sustainable Generation
+   107.5 MW     1 plants  Ball Hill Wind Energy, LLC
+   106.7 MW     5 plants  Madison Gas & Electric Co
+   106.5 MW     1 plants  NaturEner Glacier Wind Energy 1 LLC
+     106 MW     1 plants  AES Indiana
+     106 MW     1 plants  Blackstone Wind Farm LLC
+     106 MW     1 plants  Buffalo Ridge Wind, LLC
+   105.7 MW     1 plants  Meadow Lake Wind Farm IV LLC
+   105.7 MW     1 plants  Roundhouse Renewable Energy II, LLC
+     105 MW     1 plants  Northwest Ohio Wind, LLC
+     105 MW     1 plants  Willow Creek Wind Power LLC
+     104 MW     1 plants  Shooting Star Power Partners, LLC
+   103.5 MW     1 plants  NaturEner Glacier Wind Energy 2 LLC
+   103.5 MW     1 plants  Meadow Lake Wind Farm III LLC
+   103.5 MW     1 plants  Heartland Divide Wind Project, LLC
+     103 MW     1 plants  New Creek Wind, LLC
+   102.9 MW     1 plants  Wheat Field Wind Power Project LLC
+   102.9 MW     1 plants  Arlington Wind Power Project LLC
+   102.8 MW     1 plants  Clearwater Wind II, LLC
+   102.4 MW     1 plants  Baldwin Wind LLC
+   102.4 MW     1 plants  Red Mesa Wind LLC
+   102.3 MW     1 plants  Meadow Lake Wind Farm II LLC
+   102.3 MW     1 plants  FPL Energy Stateline II Inc
+     102 MW     1 plants  FPL Energy Oklahoma Wind LLC
+     102 MW     1 plants  Milford Wind Corridor Stage II LLC
+     102 MW     1 plants  Alta Wind IV, LLC
+     102 MW     1 plants  Coram California Development, L.P.
+     102 MW     1 plants  Rosewater Wind Farm LLC
+   101.2 MW     1 plants  NRG Energy Inc
+   101.2 MW     1 plants  Eight Point Wind, LLC
+   100.8 MW     1 plants  Smoky Hills Wind Farm I LLC
+   100.8 MW     1 plants  Paulding Wind Farm III LLC
+   100.7 MW     1 plants  High Prairie Wind Farm II LLC
+   100.7 MW     1 plants  Telocaset Wind Power Partners
+   100.7 MW     1 plants  Sagebrush Power Partners, LLC
+   100.5 MW     1 plants  Rail Splitter Wind Farm LLC
+   100.5 MW     1 plants  Buckthorn Wind Project, LLC
+   100.3 MW     1 plants  Tuscola Wind II LLC
+     100 MW     1 plants  High Lonesome Mesa, LLC
+     100 MW     1 plants  Lost Lakes Wind Farm LLC
+     100 MW     1 plants  Meadow Lake Wind Farm V LLC
+     100 MW     1 plants  Apple Blossom Wind, LLC
+     100 MW     1 plants  Arbuckle Mountain Wind Farm LLC
+     100 MW     1 plants  Meadowlark Wind I LLC
+     100 MW     1 plants  Borderlands Wind, LLC
+     100 MW     1 plants  Ponderosa Wind II, LLC
+     100 MW     1 plants  Clearwater Wind III, LLC
+    99.8 MW     1 plants  Blue Canyon Windpower VI LLC
+    99.5 MW     1 plants  White Rock Wind West, LLC
+    99.4 MW     1 plants  Blue Summit II Wind, LLC
+    99.3 MW     1 plants  Oliver Wind III, LLC
+    99.2 MW     1 plants  Perrin Ranch Wind LLC
+    99.1 MW     1 plants  Redbed Plains Wind Farm LLC
+      99 MW     1 plants  Blue Canyon Windpower V LLC
+      99 MW     1 plants  Day County Wind LLC
+      99 MW     1 plants  Paulding Wind Farm II LLC
+      99 MW     1 plants  NexteraEnergy
+      99 MW     1 plants  Rising Tree Wind Farm III LLC
+    98.9 MW     1 plants  Harvest Wind Project TIC
+    98.9 MW     1 plants  NextEra Energy Resources Ensign Wind
+    98.8 MW     1 plants  NextEra Energy Resources Breckinridge
+    98.2 MW     1 plants  Osceola Windpower LLC
+      98 MW     1 plants  FPL Energy Hancock County Wind, LLC
+      98 MW     1 plants  Quilt Block Wind Farm LLC
+      98 MW     1 plants  Hoopeston Wind LLC
+    97.4 MW     1 plants  Coyote Ridge LLC
+    96.1 MW     1 plants  Colorado Highlands Wind LLC
+    95.9 MW     1 plants  Energy Northwest
+    95.3 MW     1 plants  Strauss Wind LLC
+      93 MW     1 plants  Minonk Stewardship Wind LLC
+      92 MW     1 plants  Whitetail Wind Energy, LLC
+      90 MW     1 plants  Michigan Wind 2, LLC
+      90 MW     1 plants  Alta Wind XI, LLC
+      90 MW     1 plants  Big Level Wind LLC
+    89.8 MW     2 plants  Black Hills Colorado Electric, LLC
+    89.7 MW     1 plants  Cottonwood Wind Project
+    85.9 MW     1 plants  Golden Hills Wind, LLC
+      84 MW     1 plants  FPL Energy Red Canyon LLC
+    82.8 MW     7 plants  Chopin Wind, LLC
+    82.5 MW     1 plants  NWP Indian Mesa Wind Farm LP
+      82 MW     1 plants  Pecos Wind I LP
+    81.6 MW     1 plants  Beebe Renewable Energy, LLC
+      81 MW     1 plants  Elkhorn Ridge Wind, LLC
+      81 MW     1 plants  Bishop Hill Energy II, LLC
+      80 MW     1 plants  Llano Estacado Wind Ranch
+      80 MW     1 plants  Old Gold Energy Center, LLC
+      80 MW     1 plants  Mountain Wind Power II LLC
+      80 MW     1 plants  NorthWestern Energy - (SD)
+      80 MW     1 plants  Lorenzo Wind, LLC
+      80 MW     1 plants  Sac County Wind
+    79.9 MW     1 plants  Laredo Ridge Wind LLC
+    79.9 MW     1 plants  Broken Bow Wind LLC
+    79.2 MW     1 plants  Rising Tree Wind Farm LLC
+    78.4 MW     1 plants  Arkwright Summit Wind Farm LLC
+    78.2 MW     1 plants  Vasco Winds, LLC
+    78.2 MW     1 plants  NextEra Energy Montezuma Wind II, LLC
+    78.2 MW     1 plants  Golden Spread Electric Cooperative, Inc
+      78 MW     1 plants  Pecos Wind II LP
+      78 MW     1 plants  Black Oak Wind, LLC
+      78 MW     1 plants  Sendero Wind Energy, LLC
+    77.7 MW     1 plants  Jericho Rise Wind Farm LLC
+    74.8 MW     1 plants  Pheasant Run Wind LLC
+    74.8 MW     1 plants  Steele Flats Wind Project LLC
+    74.3 MW     1 plants  Blue Canyon Windpower LLC
+    72.6 MW     1 plants  Weaver Wind, LLC (Longroad)
+    71.4 MW     2 plants  SRIV Partnership LLC
+      71 MW     2 plants  Green Mountain Power Corp
+      70 MW     1 plants  Criterion Power Partners LLC
+      70 MW     1 plants  Kossuth County Wind, LLC
+      69 MW     1 plants  Michigan Wind 1, LLC
+      69 MW     1 plants  Kawailoa Wind LLC
+    66.1 MW     1 plants  Eurus Combine Hills II LLC
+      66 MW     1 plants  Crystal Lake 3 LLC
+      66 MW     1 plants  Hog Creek Wind Project LLC
+    65.1 MW     1 plants  Axium Arizona Renewables, LLC
+      65 MW     1 plants  Whitney Hill Wind Power LLC
+    62.6 MW     1 plants  Spring Canyon Expansion LLC
+    61.5 MW     1 plants  FPL Energy North Dakota Wind LLC
+    61.2 MW     1 plants  Cirrus Wind 1 LLC
+      61 MW     1 plants  Mountain Wind Power LLC
+    60.2 MW     1 plants  Sky River Wind LLC
+      60 MW     1 plants  Flat Water Wind Farm LLC
+    59.8 MW     1 plants  Whirlwind Energy LLC
+    59.8 MW     1 plants  Blackwell Wind, LLC
+    59.4 MW     1 plants  Nebraska Public Power District
+    59.4 MW     1 plants  Harvest II Windfarm, LLC
+    59.4 MW     2 plants  Black Hills Electric Generation LLC
+    57.6 MW     1 plants  Utah Associated Mun Power Sys
+    56.7 MW     1 plants  Wind Capital Holdings, LLC
+    55.4 MW     1 plants  Howard Wind LLC (Longroad)
+    55.4 MW     1 plants  Independence Wind Energy LLC
+      54 MW     1 plants  Butler Ridge Wind Energy Center
+    53.7 MW     1 plants  Pinnacle Wind, LLC
+    52.8 MW     1 plants  Harvest Windfarm, LLC
+    52.8 MW     1 plants  Silver Star I Power Partners LLC
+    52.5 MW     1 plants  Black Hills Service Company LLC
+    51.8 MW     1 plants  Lakeswind Power Partners
+      51 MW     1 plants  Wessington Wind
+    50.9 MW     1 plants  Casa Mesa Wind, LLC
+    50.6 MW     1 plants  FPL Energy Oliver County Wind
+    50.6 MW     1 plants  Record Hill Wind LLC
+    50.4 MW     1 plants  Cow Branch Wind Power, LLC
+    50.4 MW     1 plants  CR Clearing, LLC
+    50.4 MW     1 plants  Capital Power Corporation
+    50.4 MW     1 plants  Beebe 1B Renewable Energy, LLC
+    50.4 MW     1 plants  Cotton Plains Wind I, LLC
+    50.4 MW     1 plants  Hidalgo Wind Farm II LLC
+      50 MW     2 plants  Roth Rock Wind Farm LLC
+    49.7 MW     2 plants  NorthWestern Energy (MT wind/thermal)
+    49.6 MW     1 plants  Osceola Windpower II
+    49.5 MW     1 plants  FPL Energy Operating Services, Inc.
+    49.5 MW     1 plants  FPL Energy Burleigh County Wind LLC
+    49.5 MW     1 plants  Wilton Wind II LLC
+    49.5 MW     1 plants  Diamond Shamrock Refining Company LP
+      48 MW     1 plants  FPL Energy Oliver County Wind II LLC
+    46.5 MW     2 plants  Wind Wall 1 LLC
+      46 MW     1 plants  Golden Hills Interconnection Wind, LLC
+    44.6 MW     1 plants  Palmer's Creek Wind Farm, LLC
+      44 MW     1 plants  Minnesota Municipal Power Agny
+    43.7 MW     3 plants  Junction Hilltop Management LLC
+    43.6 MW     2 plants  Brookfield Renewable Trading and Marketing LP
+      43 MW     1 plants  Justin McNeilus
+      43 MW     1 plants  Eurus Combine Hills I LLC
+    42.7 MW     2 plants  San Gorgonio Farms Inc
+      42 MW     1 plants  Hawkeye Power Partners LLC
+      42 MW     1 plants  Cerro Gordo Wind Farm
+    40.5 MW     1 plants  FPL Energy South Dakota Wind LLC
+    40.5 MW     1 plants  TPW Petersburg LLC
+      40 MW     1 plants  Crofton Bluffs Wind, LLC
+      40 MW     2 plants  BEAM US, LLC
+      40 MW     1 plants  High Mesa Energy, LLC
+      40 MW     1 plants  Fourmile Wind Energy, LLC
+      40 MW     4 plants  Orchard Windfarm, LLC
+    39.9 MW     1 plants  Ringer Hill Wind LLC
+    38.9 MW     1 plants  Salka Cabazon Wind LLC
+    38.7 MW     1 plants  Prescott Wind Energy LLC
+    37.8 MW     1 plants  Lookout Windpower, LLC
+    36.8 MW     1 plants  FPL Energy Montezuma Wind
+      36 MW     1 plants  Big Blue Wind Farm LLC (MN)
+    34.7 MW     4 plants  Echo 1
+    34.2 MW     1 plants  CPV Saddleback Ridge Wind, LLC
+    30.6 MW     2 plants  CalWind Resources Inc
+    30.1 MW     3 plants  Wind Stream Operations LLC
+      30 MW     2 plants  CHI Energy Inc
+      30 MW     1 plants  Kimball Wind, LLC
+      30 MW     1 plants  Deepwater Wind Block Island LLC
+      30 MW     1 plants  Red Horse 2
+      30 MW     1 plants  Fair Wind Power Partners, LLC
+      30 MW     1 plants  Mesa Wind Repower
+    29.9 MW     1 plants  AEM Wind LLC
+    29.4 MW     1 plants  Forward Windpower, LLC
+    28.8 MW     1 plants  Antrim Wind Energy LLC
+    28.5 MW    15 plants  CHI Operations Inc
+    27.6 MW     1 plants  Na Pua Makani Power Partners LLC
+    27.3 MW     1 plants  Wildcat Wind, LLC
+    25.3 MW     1 plants  Ridgewind Power Partners LLC
+      25 MW     1 plants  ESI Vansycle Partners LP
+    24.7 MW     8 plants  Midwest Power Partners LLC
+    24.6 MW     1 plants  Golden Valley Elec Assn Inc
+      24 MW     1 plants  Auwahi Wind Energy LLC
+    23.5 MW     1 plants  CalPortland Company
+    22.8 MW     1 plants  CPV Canton Mountain Wind LLC
+    22.5 MW     1 plants  Ewington Energy Systems, LLC
+    22.5 MW     1 plants  Power County Wind Park South LLC
+    22.5 MW     1 plants  Power County Wind Park North LLC
+    22.4 MW     1 plants  Idaho Winds LLC
+      21 MW     1 plants  Apollo Energy Corp
+      21 MW     1 plants  Hot Springs Windfarm, LLC
+      21 MW     1 plants  Bennett Creek Windfarm LLC
+      21 MW     2 plants  Iowa Lakes Electric Coop
+      21 MW     1 plants  Grant County Wind, LLC
+      20 MW     1 plants  Edom Hills Project 1 LLC
+      20 MW     1 plants  Aspenall Energies (Delaware), LLC
+      20 MW     2 plants  Everpoint Services Inc
+      20 MW     1 plants  DeWind Co.
+      20 MW     1 plants  CPV Spruce Mountain Wind LLC
+      20 MW     1 plants  Pleasant Hill Wind Energy LLC
+      20 MW     1 plants  WEB Silver Maple Wind LLC
+    19.8 MW     1 plants  Rising Tree Wind Farm II LLC
+    19.6 MW     1 plants  Massachusetts Mun Wholes Electric Co
+    18.9 MW     1 plants  Spanish Fork Wind Park 2, LLC
+    18.9 MW     6 plants  Marshall Wind Farm, LLC
+    18.9 MW     1 plants  Cassia Gulch Wind Park, LLC
+    18.9 MW     1 plants  Buffalo Bear, LLC
+      18 MW     2 plants  Echo 2
+      18 MW     1 plants  Fire Island Wind LLC
+    17.7 MW     1 plants  Gordon Butte Wind LLC
+    17.4 MW     1 plants  International Turbine Res Inc
+      17 MW     1 plants  Chevron USA
+    16.8 MW     1 plants  Tuana Springs Energy, LLC
+    15.3 MW     1 plants  RoxWind LLC
+    14.3 MW     1 plants  Jericho Power LLC
+    13.8 MW     1 plants  South Fork Wind, LLC
+    12.5 MW     1 plants  Greensburg Wind Farm, LLC
+      12 MW     1 plants  Virginia Electric & Power Co
+    11.8 MW     1 plants  Shaokatan Hills, LLC (Longroad)
+    11.5 MW     2 plants  Madison Windpower LLC
+    11.5 MW     1 plants  Pantex (NNSA)
+    11.4 MW     2 plants  Consolidated Edison Solutions Inc.
+    11.2 MW     1 plants  Lakota Ridge, LLC (Longroad)
+    10.4 MW     1 plants  Eastridge Wind Project
+    10.1 MW     8 plants  Foundation HA Energy Generation, LLC
+      10 MW     3 plants  Odessa Energy Services LLC
+      10 MW     1 plants  Ralls Wind Farm LLC
+      10 MW     1 plants  Musselshell Wind Project LLC
+      10 MW     1 plants  Musselshell Wind Project Two LLC
+      10 MW     1 plants  Jett Creek
+      10 MW     1 plants  Benson Creek
+      10 MW     1 plants  Durbin Creek
+      10 MW     1 plants  Prospector
+      10 MW     1 plants  Willow Spring
+     9.9 MW     1 plants  Threemile Canyon Wind I, LLC
+     9.9 MW     1 plants  Galactic Wind
+     9.1 MW     1 plants  Pisgah Mountain, LLC
+       9 MW     1 plants  Cycle Holdings, LLC
+       9 MW     1 plants  Kodiak Electric Assn Inc
+       9 MW     1 plants  PaTu Wind Farm LLC
+     8.8 MW     2 plants  Southern Minnesota Mun P Agny
+     8.7 MW     1 plants  GE Wind Energy LLC
+     8.4 MW     1 plants  Agriwind Holdings, LLC
+     8.4 MW     1 plants  Cassia Wind Farm, LLC
+     8.2 MW     4 plants  Foundation CA Fund VI Manager LLC
+     8.1 MW     3 plants  Foundation CA Fund V Manager, LLC
+       8 MW     1 plants  Huerfano River Wind, LLC
+     7.2 MW     1 plants  American Mun Power-Ohio, Inc
+     6.9 MW     1 plants  Creston Ridge II, LLC
+     6.9 MW     1 plants  Perennial Wind, LLC
+     6.8 MW     1 plants  Creston Ridge, LLC
+       6 MW     1 plants  City of Lamar - (CO)
+       6 MW     2 plants  RENEW Energy Inc
+       6 MW     3 plants  Brewster
+       6 MW     1 plants  Coastal Community Action Program
+     5.8 MW     1 plants  E&E Enterprises LLC
+     5.6 MW     1 plants  City of Worthington - (MN)
+     5.6 MW     1 plants  Foundation CA Fund X Manager LLC
+     5.6 MW     1 plants  SPPW1, LLC
+     5.4 MW     3 plants  Foundation CA Fund IX Manager, LLC
+       5 MW     1 plants  Loess Hills Wind Farm LLC
+       5 MW     1 plants  GL Wind LLC
+       5 MW     1 plants  Cashton Greens Wind Farm LLC
+       5 MW     1 plants  FPC Services Inc.
+       5 MW     1 plants  Wind Colebrook South
+       5 MW     1 plants  Rock County Wind Fuel, LLC
+     4.5 MW     1 plants  CPV Beaver Ridge Wind LLC
+     4.5 MW     1 plants  Air Force Civil Engineer Center
+     4.5 MW     1 plants  Fox Island Wind LLC
+     4.5 MW     1 plants  Cooper Hatchery Inc.
+     4.5 MW     3 plants  Haviland Plastic Products Co
+     4.5 MW     1 plants  WED Coventry Two, LLC
+     4.5 MW     4 plants  Narragansett Bay Commission
+     4.5 MW     1 plants  OEE XIX, LLC
+     4.5 MW     1 plants  OEE XXIII LLC
+     4.5 MW     1 plants  OEE XXVI LLC
+     4.5 MW     1 plants  OEE XXX LLC
+     4.5 MW     1 plants  OEE XXVIII LLC
+     4.5 MW     1 plants  OEE XXXIII LLC
+     4.3 MW     1 plants  Gamesa Wind US LLC
+       4 MW     1 plants  Willmar Municipal Utilities
+       4 MW     1 plants  Equity Industrial Turbines
+       4 MW     1 plants  Fort Hays State University
+     3.8 MW     1 plants  Community Renewables, LLC
+     3.8 MW     2 plants  Foundation CA Fund VIII Manager, LLC
+     3.5 MW     1 plants  West Texas A&M University
+     3.4 MW     1 plants  Henkel U.S. Operations Corporation
+     3.4 MW     1 plants  Mt Wachusett Community College
+     3.4 MW     1 plants  US Air Force
+     3.4 MW     1 plants  Dept of Corrections NCCI Wind
+     3.3 MW     1 plants  Kotzebue Electric Assn Inc
+     3.2 MW     1 plants  NextEra Renewable Fuels, LLC
+     3.2 MW     1 plants  Carleton College
+     3.2 MW     1 plants  Tooele Army Depot
+       3 MW     1 plants  City of Geneseo - (IL)
+       3 MW     1 plants  Town of Princeton - (MA)
+       3 MW     1 plants  Bluestem LLC
+       3 MW     1 plants  Lime Wind LLC
+       3 MW     1 plants  Michelangelo Wind 3 LLC
+       3 MW     1 plants  Optimum Wind 5 LLC
+       3 MW     1 plants  Optimum Wind 6 LLC
+       3 MW     1 plants  Optimum Wind 7 LLC
+       3 MW     1 plants  Optimum Wind 4 LLC
+       3 MW     1 plants  Optimum Wind 3 LLC
+       3 MW     1 plants  Leonardo Wind 1 LLC
+       3 MW     1 plants  Venus Wind 3 LLC
+       3 MW     1 plants  Michelangelo Wind 1 LLC
+       3 MW     1 plants  Michelangelo Wind 4 LLC
+       3 MW     1 plants  S.C. Johnson & Son, Inc.
+       3 MW     1 plants  Fairhaven Wind LLC
+       3 MW     1 plants  Findlay Wind Farm
+       3 MW     1 plants  OEE XXV LLC
+       3 MW     1 plants  WED Green Hill, LLC
+       3 MW     1 plants  WED Plainfield II, LLC
+       3 MW     1 plants  WED Plainfield III, LLC
+       3 MW     1 plants  WED Plainfield, LLC
+       3 MW     1 plants  WED Shun I, LLC
+       3 MW     1 plants  WED Shun II, LLC
+       3 MW     1 plants  WED Shun III, LLC
+       3 MW     1 plants  Green Providence Wind II, LLC
+     2.7 MW     1 plants  Waverly Municipal Elec Utility
+     2.7 MW     1 plants  Western Plains Wind, LLC
+     2.5 MW     1 plants  Lincoln Electric Company
+     2.5 MW     1 plants  Regents of the University of Minnesota
+     2.5 MW     1 plants  Kirkwood Community College
+     2.5 MW     1 plants  Polk County Renewables, LLC
+     2.5 MW     1 plants  Cuming County Renewables. LLC
+     2.5 MW     1 plants  REG Juhl Glenville Wind, LLC
+     2.3 MW     1 plants  City of Algona - (IA)
+     2.1 MW     1 plants  Federated Rural Electric Assn
+       2 MW     1 plants  TG Windfarm LLC
+       2 MW     1 plants  CG Windfarm LLC
+       2 MW     1 plants  Bisson Windfarm LLC
+       2 MW     1 plants  Tofteland Windfarm LLC
+       2 MW     1 plants  Westridge Windfarm LLC
+       2 MW     1 plants  Fey Windfarm LLC
+       2 MW     1 plants  Windcurrent Farms LLC
+       2 MW     1 plants  K-brink Windfarm, LLC
+       2 MW     1 plants  Boeve Windfarm LLC
+       2 MW     1 plants  First State Marine Wind
+       2 MW     1 plants  631-56 Airport Owner, LLC
+       2 MW     1 plants  Hilltop Power, LLC
+       2 MW     1 plants  Lake Region Community Hybrid, LLC
+     1.9 MW     1 plants  Alaska Environmental Power
+     1.9 MW     1 plants  Valentine Wind, LLC
+     1.9 MW     1 plants  Wind GEM, LLC
+     1.8 MW     1 plants  Nome Joint Utility Systems
+     1.8 MW     1 plants  Hull Municipal Light Plant
+     1.8 MW     1 plants  CS Wind America, Inc.
+     1.8 MW     1 plants  August Wind Energy, LLC
+     1.8 MW     1 plants  Roseman Energy, LLC
+     1.8 MW     1 plants  Birch Power LLC
+     1.8 MW     1 plants  Two Dot Wind Broadview East LLC
+     1.7 MW     1 plants  Illinois Rural Electric Coop
+     1.7 MW     1 plants  Stahl Wind Energy, LLC (Longroad)
+     1.7 MW     1 plants  Carstensen Wind, LLC (Longroad)
+     1.7 MW     1 plants  Northern Lights Wind LLC (Longroad)
+     1.7 MW     1 plants  Lucky Wind, LLC (Longroad)
+     1.7 MW     1 plants  Greenback Energy, LLC (Longroad)
+     1.7 MW     1 plants  Iowa Lakes Community College
+     1.7 MW     1 plants  Notus Clean Energy LLC
+     1.7 MW     1 plants  University of Minnesota Morris Campus
+     1.7 MW     1 plants  University of Minnesota WCROC
+     1.7 MW     1 plants  Heartland Community College
+     1.7 MW     1 plants  Green Energy Machine, LLC
+     1.7 MW     1 plants  CCC Hastings Renewable Energy, LLC
+     1.7 MW     1 plants  Seward Wind LLC
+     1.6 MW     1 plants  City of Osage - (IA)
+     1.6 MW     1 plants  Town of Ipswich - (MA)
+     1.6 MW     1 plants  Luther College Wind Energy Project LLC
+     1.6 MW     1 plants  Cumberland Rose Wind Energy, LLC
+     1.6 MW     1 plants  Forward Fontanelle Power, LLC
+     1.6 MW     1 plants  Greenfield Wind Power, LLC
+     1.6 MW     1 plants  Meadow Ridge Wind Energy, LLC
+     1.6 MW     1 plants  Sky Volt, LLC
+     1.6 MW     1 plants  Wiota Wind Energy, LLC #1
+     1.6 MW     1 plants  St. Olaf College
+     1.5 MW     1 plants  Kas Brothers Windfarm LLC
+     1.5 MW     1 plants  Mesalands Community College
+     1.5 MW     1 plants  Winona County Wind LLC
+     1.5 MW     1 plants  Wolverine Wind Energy, LLC
+     1.5 MW     1 plants  Bulldog Wind Energy, LLC
+     1.5 MW     1 plants  Adams Electric Cooperative
+     1.5 MW     1 plants  Buffalo Center Wind LLC
+     1.5 MW     1 plants  MWRA Charlestown
+     1.5 MW     1 plants  New London Municipal Utilities
+     1.5 MW     1 plants  Hamilton Wind Energy LLC
+     1.5 MW     1 plants  City of Traer - (IA)
+     1.5 MW     1 plants  Camelot Wind LLC
+     1.5 MW     1 plants  WED NK Green LLC
+     1.5 MW     1 plants  WED Coventry One, LLC
+     1.5 MW     1 plants  WED Coventry Three, LLC
+     1.5 MW     1 plants  WED Coventry Four, LLC
+     1.5 MW     1 plants  Scituate Wind LLC
+     1.5 MW     1 plants  SUEZ North America, Inc.
+     1.5 MW     1 plants  OEE XVII, LLC
+     1.5 MW     1 plants  OEE XXIV LLC
+     1.5 MW     1 plants  Seneca Nation
+     1.5 MW     1 plants  Town of Otis
+     1.5 MW     1 plants  Jiminy Peak Mountain Resort, LLC
+     1.5 MW     1 plants  Green Providence Wind I, LLC
+     1.5 MW     2 plants  Arkansas River Power Authority
+     1.4 MW     1 plants  City of Moorhead - (MN)
+     1.3 MW     1 plants  Shane's Wind Machine LLC
+     1.2 MW     1 plants  City of Mountain Lake - (MN)
+     1.2 MW     1 plants  Massachusetts Wtr Rauth-Deer I
+     1.2 MW     1 plants  Harbec Energy
+       1 MW     1 plants  Sand Point Generating, LLC
+       1 MW     1 plants  Case Western Reserve University
+     0.1 MW     1 plants  Ameren Illinois
+       0 MW     1 plants  WPPI Energy
+       0 MW     1 plants  Solano Wind 3, LLC
+       0 MW     1 plants  Cameron Ridge LLC
+       0 MW     1 plants  Ridgetop Energy LLC
+       0 MW     1 plants  Mesa Wind Power Corporation
+       0 MW     1 plants  Sky River LLC
+       0 MW     8 plants  BP Wind Energy North America Inc
+       0 MW     3 plants  Coram Energy, LLC
+       0 MW     2 plants  CTV Marketing Group
+       0 MW     1 plants  EDF Renewable Windfarm V, Inc
+       0 MW     1 plants  TPC Windfarm LLC
+       0 MW     1 plants  Ridgetop Energy LLC II
+       0 MW     1 plants  Texas Big Spring, L.P.
+       0 MW    14 plants  Enel North America, Inc.
+       0 MW    14 plants  Northern Alternative Energy
+       0 MW     1 plants  Mitsubishi Heavy Industries America, Inc.
+       0 MW     1 plants  Mountain View Power Prtnrs, LLC
+       0 MW     1 plants  Ridge Crest Wind Partners, LLC
+       0 MW     2 plants  Florida Power & Light Co
+       0 MW     1 plants  RISEC Operating Services
+       0 MW     3 plants  Shaw Creek Solar
+       0 MW     2 plants  Terra-Gen California Wind Holdings LLC
+       0 MW     1 plants  FPL Energy Sooner Wind LLC
+       0 MW     1 plants  InfraRed Energy Transition Fund LP
+       0 MW     4 plants  Custom Farm Systems
+       0 MW     1 plants  OMEGA Joint Venture 6
+       0 MW     1 plants  Wolverine Creek Energy LLC
+       0 MW    10 plants  NRG Energy, Inc
+       0 MW     1 plants  Citi Renewable Investments I LLC
+       0 MW     1 plants  AIE Tawhiri Power Holding, LLC
+       0 MW     1 plants  Other
+       0 MW     1 plants  Caithness VG Wind LLC
+       0 MW     1 plants  Mitchell Technical Institute
+       0 MW     1 plants  Valcour Clinton Windpark, LLC
+       0 MW     1 plants  Valcour Ellenburg Windpark, LLC
+       0 MW     1 plants  Valcour Bliss Windpark, LLC
+       0 MW     1 plants  South Trent Wind LLC
+       0 MW     1 plants  Duke Energy DEGS North Allegheny
+       0 MW     1 plants  Hatchet Ridge Wind LLC
+       0 MW     1 plants  Pattern Gulf Wind
+       0 MW     1 plants  Cottonwood J20 Holdings, LLC
+       0 MW     4 plants  Edison Mission Energy
+       0 MW     1 plants  Cielo Goat Limited
+       0 MW     1 plants  Mission Wind Goat Mountain Inc
+       0 MW     3 plants  UBS Asset Management (Americas) Inc
+       0 MW     3 plants  Texas Wind Repower HoldCo, L.P. c/o Concord Infrastructure Investments, LLC
+       0 MW     1 plants  Crosswind Holdco LLC
+       0 MW     1 plants  Hardin Holdco LLC
+       0 MW     1 plants  Valcour Altona Windpark, LLC
+       0 MW     1 plants  Valcour Wethersfield Windpark, LLC
+       0 MW     1 plants  Valcour Chateaugay Windpark, LLC
+       0 MW     1 plants  National Grid Renewables
+       0 MW     1 plants  Wisconsin Power and Light Co
+       0 MW     1 plants  Tenaska Elkhorn Ridge I LLC
+       0 MW     1 plants  Tenaska Elkhorn Ridge II LLC
+       0 MW     1 plants  Tenaska Elkhorn Ridge III LLC
+       0 MW     1 plants  Ocotillo Windpower LP
+       0 MW     1 plants  Duke Energy DEGS Happy Jack
+       0 MW     1 plants  TE Notrees LLC
+       0 MW     3 plants  DEGS Wind 1 LLC
+       0 MW     1 plants  Butter Creek Power, LLC
+       0 MW     1 plants  Big Top, LLC
+       0 MW     1 plants  Wagon Trail, LLC
+       0 MW     1 plants  Vitol Wind I, LLC
+       0 MW     2 plants  Oppidum Green Energy USA, LLC
+       0 MW     1 plants  Siemens Gamesa Renewable Energy Inc.
+       0 MW     1 plants  Blue Hen Wind
+       0 MW     1 plants  Spring Valley Wind LLC
+       0 MW     3 plants  IRG Acquisition Holdings LLC
+       0 MW     7 plants  NRG Renew
+       0 MW     1 plants  Dutch Energy Corporation
+       0 MW     1 plants  Clover US Blocker LLC
+       0 MW     1 plants  TianRun Uilk LLC
+       0 MW     1 plants  Uilk Wind I
+       0 MW     1 plants  Uilk Wind II
+       0 MW     1 plants  Uilk Wind III
+       0 MW     1 plants  Fox Islands Electric Coop, Inc
+       0 MW     1 plants  Bankers Commercial Corporation
+       0 MW     1 plants  Adams Wind Generations LLC
+       0 MW     2 plants  BE Minnesota Wind Holdings LLC
+       0 MW     1 plants  Norgard 1
+       0 MW     1 plants  Danielson Wind Farms LLC
+       0 MW     2 plants  RPG Elk/Hawkeye Investco, LLC
+       0 MW     2 plants  RPMA Wind Holding II
+       0 MW     1 plants  Valley View Wind Investors LLC
+       0 MW     1 plants  Valley View Wind Holdings
+       0 MW     1 plants  Ocotillo Express LLC
+       0 MW     1 plants  Shiloh III Wind Project, LLC
+       0 MW     1 plants  Southern California P P A
+       0 MW     2 plants  Sumitomo Corporation of America
+       0 MW     1 plants  Berkshire Wind Power Cooperative Corp
+       0 MW     1 plants  TC-8 71 Ranch, LP
+       0 MW     1 plants  TC-7 Oversight Resources, LLC
+       0 MW     1 plants  Windstar Energy LLC
+       0 MW     1 plants  Kingman Energy Corp
+       0 MW     2 plants  GL Envision LLC
+       0 MW     1 plants  ALM Holding Company
+       0 MW     1 plants  RPMA Wind Holding I LLC
+       0 MW     1 plants  Chevelle Wind Iowa LLC
+       0 MW     1 plants  Excelsior Energy Capital
+       0 MW     2 plants  Brookfield Renewable Energy Group
+       0 MW     1 plants  BlackRock Inc.
+       0 MW     1 plants  CROPP Cooperative
+       0 MW     1 plants  Starwood Energy Group Global
+       0 MW     1 plants  Apex Wind Energy Holdings, LLC
+       0 MW     1 plants  Atlantic Oklahoma Wind, LLC
+       0 MW     1 plants  BAIF Granite Holdings LLC
+       0 MW     1 plants  Freshet Wind Energy LLC
+       0 MW     2 plants  BayWa r.e. USA, LLC
+       0 MW     4 plants  Foundation CA Fund VI Owner, LLC
+       0 MW     3 plants  Foundation CA Fund V Owner, LLC
+       0 MW     1 plants  Pattern Panhandle Wind LLC
+       0 MW     1 plants  Cook Inlet Region, Inc.
+       0 MW     1 plants  Junction Hilltop 1 LLC
+       0 MW     1 plants  Junction Hilltop 2 LLC
+       0 MW     1 plants  Junction Hilltop 3 LLC
+       0 MW     1 plants  Junction Hilltop 4 LLC
+       0 MW     1 plants  Junction Hilltop 5 LLC
+       0 MW     2 plants  Brahms Wind, LLC
+       0 MW     1 plants  Wake Wind Energy LLC
+       0 MW     1 plants  Pilot Hill Wind, LLC
+       0 MW     2 plants  Anderson Wind Project, LLC
+       0 MW     1 plants  Fairfield Wind Owner, LLC
+       0 MW     1 plants  Passadumkeag Windpark LLC
+       0 MW     1 plants  Windthorst-2 LLC
+       0 MW     1 plants  RPG Windthorst-2 Investco
+       0 MW     1 plants  Town of West Warwick
+       0 MW     1 plants  Los Vientos Windpower III, LLC
+       0 MW     1 plants  Los Vientos Windpower IV, LLC
+       0 MW     1 plants  Mesquite Creek Wind, LLC
+       0 MW     1 plants  Logans Gap Wind LLC
+       0 MW     1 plants  Kay Wind LLC
+       0 MW     1 plants  Fowler Ridge Wind LLC
+       0 MW     1 plants  Bayonne Municipal Utilities Authority
+       0 MW     1 plants  Bearkat II TE Partnership LLC
+       0 MW     1 plants  Grant Wind, LLC
+       0 MW     5 plants  One Energy Capital LLC
+       0 MW     2 plants  Todd A.Stoller Living Trust
+       0 MW     1 plants  Los Vientos Windpower V, LLC
+       0 MW     1 plants  Craig A Stoller Revocable Living Trust
+       0 MW     3 plants  One Energy Capital Corporation LLC
+       0 MW     1 plants  Broadview Energy JN, LLC
+       0 MW     1 plants  Broadview Energy KW, LLC
+       0 MW     1 plants  Frontier Windpower, LLC
+       0 MW     1 plants  Blue Cloud Wind Energy LLC
+       0 MW     1 plants  Grady Wind Energy Center, LLC
+       0 MW     1 plants  Bethel Wind Farm LLC
+       0 MW     1 plants  Tyler Bluff Wind Project, LLC
+       0 MW     1 plants  Grant Plains Wind, LLC
+       0 MW     2 plants  NextEra Energy Operating Services LLC
+       0 MW     1 plants  Rock Creek Wind, LLC
+       0 MW     1 plants  Saltfork Wind, LLC
+       0 MW     1 plants  Reading Wind Energy, LLC
+       0 MW     1 plants  SP Cactus Flats Wind Energy, LLC
+       0 MW     4 plants  WEC Energy Group
+       0 MW     1 plants  Live Oak Wind Project, LLC
+       0 MW     1 plants  Wildhorse Wind Energy, LLC
+       0 MW     1 plants  Solomon Forks Wind Project, LLC
+       0 MW     1 plants  Bank of the West
+       0 MW     1 plants  East Fork Wind Project, LLC
+       0 MW     1 plants  Seymour Hills Wind Project, LLC
+       0 MW     1 plants  Mesteno Wind
+       0 MW     1 plants  Stoneray Power Partners, LLC
+       0 MW     1 plants  Tenaska Nobles 2 Holdings, LLC,
+       0 MW     1 plants  ALLETE South Wind, LLC
+       0 MW     1 plants  Beech Ridge Energy II, LLC
+       0 MW     1 plants  Jumbo Hill Wind Project, LLC
+       0 MW     1 plants  Maryneal Windpower, LLC
+       0 MW     1 plants  Frontier Windpower II, LLC
+       0 MW     2 plants  Great American West Wind, LLC
+       0 MW     1 plants  Deuel Harvest Wind Energy LLC
+       0 MW     1 plants  Tenaska Clear Creek Debt Holdco, LLC
+       0 MW     1 plants  Canadian Breaks Holdings, LLC
+       0 MW     1 plants  Prairie Hill Wind Project, LLC
+       0 MW     1 plants  Las Lomas Wind Project, LLC
+       0 MW     1 plants  Dakota Range III, LLC
+       0 MW     1 plants  Triple H Wind Project, LLC
+       0 MW     1 plants  King Plains Wind Project, LLC
+       0 MW     1 plants  Skookumchuck Wind Energy Project, LLC
+       0 MW     1 plants  Cheyenne Light Fuel & Power
+       0 MW     1 plants  Black Hills Power, Inc.
+       0 MW     1 plants  Glass Sands Wind Energy, LLC
+       0 MW     1 plants  Ledyard Windpower, LLC
+       0 MW     1 plants  Global Infrastructure Partners
+       0 MW     1 plants  Orsted US East Coast Offshore Wind HoldCo, LLC
+       0 MW     1 plants  Apex Clean Energy

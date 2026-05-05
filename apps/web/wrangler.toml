@@ -1,0 +1,14 @@
+name = "owljobs-web"
+compatibility_date = "2025-04-08"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = "./dist"
+
+# Secrets (set via `wrangler pages secret put <KEY>` per environment):
+#   SUPABASE_URL
+#   SUPABASE_ANON_KEY
+#   SUPABASE_SERVICE_KEY
+#   RESEND_API_KEY
+#   TURNSTILE_SECRET_KEY
+#   TURNSTILE_SITE_KEY
+#
+# For local dev, create apps/web/.dev.vars with the above values.

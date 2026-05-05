@@ -1,0 +1,147 @@
+---
+export interface Props {
+  siteKey: string;
+  confirmed?: boolean;
+}
+
+const { siteKey, confirmed = false } = Astro.props;
+const niche = Astro.locals.niche;
+---
+
+<section class="py-16 sm:py-24" id="subscribe" aria-labelledby="subscribe-heading">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="relative overflow-hidden rounded-2xl border border-border bg-card p-8 sm:p-12 lg:p-16">
+      <!-- Glow effect -->
+      <div class="pointer-events-none absolute -right-24 -top-24" aria-hidden="true">
+        <div class="h-64 w-64 rounded-full bg-accent/20 blur-[100px]"></div>
+      </div>
+
+      <div class="relative mx-auto max-w-2xl text-center">
+        {confirmed ? (
+          <div class="flex flex-col items-center gap-4">
+            <div class="flex h-14 w-14 items-center justify-center rounded-full bg-accent/10">
+              <svg class="h-6 w-6 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <p class="text-foreground">You're confirmed — {niche.name} job alerts will land in your inbox.</p>
+          </div>
+        ) : (
+          <>
+            <div class="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-full bg-accent/10">
+              <svg class="h-6 w-6 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+              </svg>
+            </div>
+
+            <h2 id="subscribe-heading" class="text-2xl font-bold text-foreground sm:text-3xl">
+              Get {niche.name} in your inbox
+            </h2>
+            <p class="mx-auto mt-4 max-w-lg text-muted-foreground">
+              New openings the moment they appear. No spam. Unsubscribe any time.
+            </p>
+
+            <form
+              id="subscribe-form"
+              class="mt-8"
+              novalidate
+              data-turnstile-key={siteKey}
+            >
+              <div class="flex flex-col gap-3 sm:flex-row sm:justify-center">
+                <label for="subscribe-email" class="sr-only">Email address</label>
+                <input
+                  type="email"
+                  id="subscribe-email"
+                  name="email"
+                  placeholder="your@email.com"
+                  required
+                  autocomplete="email"
+                  class="h-12 w-full rounded-md border border-border bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring sm:w-72"
+                />
+                <div
+                  class="cf-turnstile"
+                  data-sitekey={siteKey}
+                  data-theme="auto"
+                ></div>
+                <button
+                  type="submit"
+                  id="subscribe-submit"
+                  class="h-12 inline-flex items-center justify-center gap-2 rounded-md bg-primary px-6 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50 disabled:pointer-events-none"
+                >
+                  <span class="btn-text">Subscribe</span>
+                  <span class="btn-loading hidden" aria-hidden="true">Sending…</span>
+                  <svg class="btn-arrow h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                  </svg>
+                </button>
+              </div>
+              <p id="subscribe-error" class="mt-3 text-sm text-destructive min-h-[1.25rem]" role="alert" aria-live="polite"></p>
+              <p id="subscribe-success" class="mt-3 text-sm text-accent min-h-[1.25rem]" role="status" aria-live="polite"></p>
+            </form>
+
+            <p class="mt-4 text-xs text-muted-foreground">
+              No spam, unsubscribe anytime.
+            </p>
+          </>
+        )}
+      </div>
+    </div>
+  </div>
+</section>
+
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer is:inline></script>
+
+<script>
+  const form = document.getElementById("subscribe-form") as HTMLFormElement | null;
+  const emailInput = document.getElementById("subscribe-email") as HTMLInputElement | null;
+  const submitBtn = document.getElementById("subscribe-submit") as HTMLButtonElement | null;
+  const errorEl = document.getElementById("subscribe-error") as HTMLElement | null;
+  const successEl = document.getElementById("subscribe-success") as HTMLElement | null;
+
+  if (form) {
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (!emailInput || !submitBtn || !errorEl || !successEl) return;
+
+      const email = emailInput.value.trim();
+      if (!email) return;
+
+      const tokenInput = form.querySelector<HTMLInputElement>('[name="cf-turnstile-response"]');
+      const turnstileToken = tokenInput?.value ?? "";
+
+      submitBtn.disabled = true;
+      submitBtn.querySelector(".btn-text")?.classList.add("hidden");
+      submitBtn.querySelector(".btn-loading")?.classList.remove("hidden");
+      submitBtn.querySelector(".btn-arrow")?.classList.add("hidden");
+      errorEl.textContent = "";
+      successEl.textContent = "";
+
+      try {
+        const res = await fetch("/api/subscribe", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, turnstileToken }),
+        });
+
+        const json = (await res.json()) as { message?: string; error?: string };
+
+        if (res.ok) {
+          successEl.textContent = json.message ?? "Check your inbox to confirm.";
+          form.reset();
+          if (typeof (window as any).turnstile !== "undefined") {
+            (window as any).turnstile.reset();
+          }
+        } else {
+          errorEl.textContent = json.error ?? "Something went wrong. Try again.";
+        }
+      } catch {
+        errorEl.textContent = "Network error. Please try again.";
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.querySelector(".btn-text")?.classList.remove("hidden");
+        submitBtn.querySelector(".btn-loading")?.classList.add("hidden");
+        submitBtn.querySelector(".btn-arrow")?.classList.remove("hidden");
+      }
+    });
+  }
+</script>

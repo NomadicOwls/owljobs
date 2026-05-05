@@ -1,0 +1,91 @@
+---
+export interface Props {
+  count?: number;
+}
+
+const { count = 0 } = Astro.props;
+const niche = Astro.locals.niche;
+const jobCountLabel = count > 0 ? `${count.toLocaleString()}+ jobs available` : "Hiring now";
+
+const popularTerms = ["Wind Turbine Technician", "O&M Technician", "GWO Certified", "Field Service"];
+---
+
+<section class="relative overflow-hidden pt-32 pb-20 sm:pt-40 sm:pb-32">
+  <!-- Accent glow -->
+  <div class="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2" aria-hidden="true">
+    <div class="h-[600px] w-[600px] rounded-full bg-accent/30 blur-[120px]"></div>
+  </div>
+
+  <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-4xl text-center">
+
+      <!-- Count pill -->
+      <div class="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-secondary px-4 py-1.5 text-sm text-muted-foreground">
+        <span class="relative flex h-2 w-2" aria-hidden="true">
+          <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75"></span>
+          <span class="relative inline-flex h-2 w-2 rounded-full bg-accent"></span>
+        </span>
+        {jobCountLabel}
+      </div>
+
+      <!-- Heading -->
+      <h1 class="text-4xl font-bold tracking-tight text-foreground sm:text-6xl lg:text-7xl">
+        Find your next role<br />
+        <span class="text-accent">{niche.tagline.replace("Jobs", "").trim()}.</span>
+      </h1>
+
+      <p class="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground sm:text-xl">
+        Roles from top employers pulled directly from their career pages — updated hourly.
+      </p>
+
+      <!-- Search form — pure HTML, no JS needed -->
+      <div class="mx-auto mt-10 max-w-3xl">
+        <form method="GET" action="/jobs" class="flex flex-col gap-3 rounded-2xl border border-border bg-card p-2 sm:flex-row sm:items-center">
+          <div class="relative flex-1">
+            <svg class="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+            <input
+              type="text"
+              name="q"
+              placeholder="Job title or keyword"
+              class="h-12 w-full border-0 bg-transparent pl-10 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+            />
+          </div>
+          <div class="relative flex-1 border-t border-border pt-3 sm:border-l sm:border-t-0 sm:pl-3 sm:pt-0">
+            <svg class="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground sm:left-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>
+            </svg>
+            <input
+              type="text"
+              name="location"
+              placeholder="Country or Remote"
+              class="h-12 w-full border-0 bg-transparent pl-10 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none sm:pl-10"
+            />
+          </div>
+          <button
+            type="submit"
+            class="h-12 inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+          >
+            Search Jobs
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+        </form>
+      </div>
+
+      <!-- Popular searches -->
+      <div class="mt-6 flex flex-wrap items-center justify-center gap-2">
+        <span class="text-sm text-muted-foreground">Popular:</span>
+        {popularTerms.map((term) => (
+          <a
+            href={`/jobs?q=${encodeURIComponent(term)}`}
+            class="rounded-full border border-border bg-secondary px-3 py-1 text-sm text-foreground transition-colors hover:border-accent hover:text-accent hover:no-underline"
+          >
+            {term}
+          </a>
+        ))}
+      </div>
+
+    </div>
+  </div>
+</section>

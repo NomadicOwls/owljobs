@@ -1,0 +1,10 @@
+{
+  "name": "niches",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./wind-turbine.ts",
+  "dependencies": {
+    "@owljobs/niches": "workspace:*"
+  }
+}

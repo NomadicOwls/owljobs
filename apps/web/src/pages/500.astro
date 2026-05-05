@@ -1,0 +1,17 @@
+---
+import Layout from "../components/Layout.astro";
+---
+
+<Layout title="Server Error" description="Something went wrong on our end.">
+  <div class="flex min-h-[50vh] flex-col items-center justify-center px-4 py-24 text-center">
+    <div class="mb-2 text-8xl font-bold leading-none tracking-tight text-destructive/10" aria-hidden="true">500</div>
+    <h1 class="mb-3 text-3xl font-bold tracking-tight text-foreground">Something went wrong</h1>
+    <p class="mb-8 max-w-sm text-muted-foreground">We're having trouble loading this page. Job listings are updated hourly — try again in a moment.</p>
+    <a
+      href="/"
+      class="inline-flex items-center rounded-md bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent/90 hover:no-underline"
+    >
+      Try the homepage
+    </a>
+  </div>
+</Layout>

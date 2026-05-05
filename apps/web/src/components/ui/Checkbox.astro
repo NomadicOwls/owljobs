@@ -1,0 +1,33 @@
+---
+export interface Props {
+  name?: string;
+  value?: string;
+  checked?: boolean;
+  id?: string;
+  class?: string;
+  [key: string]: unknown;
+}
+
+const { name, value, checked, id, class: className = "", ...rest } = Astro.props;
+---
+
+<label class:list={["inline-flex cursor-pointer items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors", className]}>
+  <span class="relative flex h-4 w-4 shrink-0">
+    <input
+      type="checkbox"
+      name={name}
+      value={value}
+      id={id}
+      checked={checked}
+      class="peer h-4 w-4 cursor-pointer appearance-none rounded-sm border border-input bg-transparent transition-colors checked:border-primary checked:bg-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      {...rest}
+    />
+    <svg
+      class="pointer-events-none absolute inset-0 h-4 w-4 text-primary-foreground opacity-0 peer-checked:opacity-100 transition-opacity"
+      viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M3 8l3.5 3.5L13 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </span>
+  <slot />
+</label>

@@ -1,0 +1,63 @@
+---
+import JobCardModern from "./JobCardModern.astro";
+import FeaturedJobCard from "./FeaturedJobCard.astro";
+import type { JobWithEmployer } from "../lib/jobs.js";
+
+export interface Props {
+  jobs: JobWithEmployer[];
+  total: number;
+}
+
+const { jobs, total } = Astro.props;
+---
+
+<section id="jobs" class="py-16 sm:py-24">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <h2 class="text-2xl font-bold text-foreground sm:text-3xl">Latest Openings</h2>
+        <p class="mt-2 text-muted-foreground">Aggregated directly from employer career pages</p>
+      </div>
+    </div>
+
+    <div class="mt-8 grid gap-4">
+      <FeaturedJobCard
+        title="Senior Wind Turbine Field Service Technician"
+        employer="Vestas Wind Systems"
+        location="Amsterdam, NL · Multiple sites"
+        salary="€65K – €85K"
+        jobType="Full-time"
+        postedAgo="2h ago"
+        applyUrl="https://careers.vestas.com"
+        href="/jobs"
+        tags={["High Voltage", "SCADA", "Remote OK"]}
+      />
+      {jobs.map((job, index) => (
+        <JobCardModern job={job} index={index} />
+      ))}
+    </div>
+
+    {jobs.length === 0 && (
+      <div class="flex flex-col items-center justify-center rounded-xl border border-border bg-card py-16 text-center">
+        <svg class="h-12 w-12 text-muted-foreground/50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+        </svg>
+        <p class="mt-4 text-muted-foreground">No openings at the moment — check back soon.</p>
+      </div>
+    )}
+
+    <div class="mt-10 text-center">
+      <a
+        href="/jobs"
+        class="inline-flex items-center gap-2 rounded-md border border-border bg-transparent px-6 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-secondary hover:no-underline"
+      >
+        View All Jobs
+        {total > 0 && (
+          <span class="inline-flex items-center rounded-md border border-border bg-secondary px-2 py-0.5 text-xs font-medium text-muted-foreground">
+            {total.toLocaleString()}+
+          </span>
+        )}
+      </a>
+    </div>
+  </div>
+</section>

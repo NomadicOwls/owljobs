@@ -1,0 +1,136 @@
+---
+import Layout from "../../components/Layout.astro";
+import JobCardModern from "../../components/JobCardModern.astro";
+import { supabasePublic } from "../../lib/supabase.js";
+import { listEmployerJobs } from "../../lib/jobs.js";
+import { setCacheHeaders } from "../../lib/cache.js";
+import { getEnv } from "../../lib/env.js";
+
+const { niche } = Astro.locals;
+const env = getEnv(Astro.locals);
+
+const { slug } = Astro.params;
+if (!slug) return Astro.redirect("/404");
+
+const db = supabasePublic(env);
+const page = Math.max(1, parseInt(Astro.url.searchParams.get("page") ?? "1", 10));
+const perPage = 20;
+
+let jobs: Awaited<ReturnType<typeof listEmployerJobs>>["jobs"] = [];
+let employer: Awaited<ReturnType<typeof listEmployerJobs>>["employer"] = null;
+let total = 0;
+
+try {
+  const result = await listEmployerJobs(db, niche.supabaseSchema, slug, { page, perPage });
+  jobs = result.jobs;
+  employer = result.employer;
+  total = result.total;
+} catch {
+  // fall through
+}
+
+if (!employer) return Astro.redirect("/404");
+
+setCacheHeaders(Astro.response.headers, 600, 3600);
+
+const totalPages = Math.max(1, Math.ceil(total / perPage));
+function buildUrl(p: number): string {
+  const next = new URL(Astro.url);
+  next.searchParams.set("page", String(p));
+  return next.pathname + next.search;
+}
+
+const employerInitials = employer.name
+  .split(/\s+/)
+  .filter(Boolean)
+  .map((w: string) => w[0])
+  .join("")
+  .slice(0, 2)
+  .toUpperCase();
+---
+
+<Layout
+  title={`${employer.name} Jobs`}
+  description={`${total} open positions at ${employer.name}. Find your next role.`}
+>
+  <div class="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
+
+    <!-- Breadcrumb -->
+    <nav class="mb-8 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground" aria-label="Breadcrumb">
+      <a href="/" class="transition-colors hover:text-foreground hover:no-underline">Home</a>
+      <span aria-hidden="true">›</span>
+      <a href="/jobs" class="transition-colors hover:text-foreground hover:no-underline">Jobs</a>
+      <span aria-hidden="true">›</span>
+      <span class="text-foreground" aria-current="page">{employer.name}</span>
+    </nav>
+
+    <!-- Employer header card -->
+    <div class="mb-8 rounded-xl border border-border bg-card p-6">
+      <div class="flex items-center gap-4">
+        <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border border-border bg-secondary text-lg font-semibold text-muted-foreground">
+          {employerInitials}
+        </div>
+        <div>
+          <p class="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Employer</p>
+          <h1 class="text-2xl font-bold text-foreground">{employer.name}</h1>
+          {employer.careers_url && (
+            <a
+              href={employer.careers_url}
+              rel="nofollow noopener"
+              target="_blank"
+              class="mt-1 inline-block text-sm text-accent hover:underline"
+            >
+              Visit careers page →
+            </a>
+          )}
+        </div>
+      </div>
+    </div>
+
+    <!-- Position count -->
+    <p class="mb-4 text-sm tabular-nums text-muted-foreground">
+      {total} open position{total !== 1 ? "s" : ""}
+    </p>
+
+    <!-- Job list -->
+    {jobs.length > 0 ? (
+      <div class="grid gap-4">
+        {jobs.map((job, index) => (
+          <JobCardModern job={job} index={index} />
+        ))}
+      </div>
+    ) : (
+      <div class="flex flex-col items-center justify-center rounded-xl border border-border bg-card py-16 text-center">
+        <svg class="h-12 w-12 text-muted-foreground/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+        </svg>
+        <p class="mt-4 text-sm text-muted-foreground">No open positions found for this employer.</p>
+      </div>
+    )}
+
+    <!-- Pagination -->
+    {totalPages > 1 && (
+      <nav class="mt-10 flex items-center justify-center gap-4 border-t border-border pt-8" aria-label="Pagination">
+        {page > 1 && (
+          <a href={buildUrl(page - 1)} class="rounded-md border border-border px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:border-accent/50 hover:text-foreground hover:no-underline">
+            ← Previous
+          </a>
+        )}
+        <span class="text-sm text-muted-foreground">Page {page} of {totalPages}</span>
+        {page < totalPages && (
+          <a href={buildUrl(page + 1)} class="rounded-md border border-border px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:border-accent/50 hover:text-foreground hover:no-underline">
+            Next →
+          </a>
+        )}
+      </nav>
+    )}
+
+    <!-- Back link -->
+    <div class="mt-8 border-t border-border pt-6">
+      <a href="/jobs" class="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground hover:no-underline">
+        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        All jobs
+      </a>
+    </div>
+  </div>
+</Layout>

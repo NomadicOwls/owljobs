@@ -1,0 +1,318 @@
+# EIA Form 860 (2024) — New Employer Candidates
+
+Only companies with ≥50 MW installed wind capacity that show signals
+of directly employing wind technicians (not financial investors, cooperatives,
+or project-level SPEs).
+
+| Category | Count |
+|---|---|
+| Already in longlist | 57 |
+| **New candidates** | **237** |
+| Filtered out (non-employers / SPEs / small) | 635 |
+
+---
+
+## New Candidates
+
+Sorted by installed capacity — bigger operators are more likely to have
+in-house tech teams. Review and add confirmed employers to the longlist.
+
+- **MidAmerican Energy Co** — 7536.8 MW, 34 plants
+- **Southern Power Co** — 2531.5 MW, 15 plants
+- **Northern States Power Co - Minnesota** — 2373.2 MW, 17 plants
+- **DTE Electric Company** — 1489.8 MW, 12 plants
+- **BHE Renewables, LLC** — 1416.2 MW, 6 plants
+- **ALLETE Clean Energy** — 1262.5 MW, 12 plants
+- **Southwestern Electric Power Co** — 1199.6 MW, 4 plants
+- **Onward Energy** — 1044.3 MW, 7 plants
+- **Great Prairie Wind LLC** — 1027 MW, 1 plants
+- **Consumers Energy Co - (MI)** — 831.7 MW, 5 plants
+- **SunEdison LLC** — 830.7 MW, 4 plants
+- **Evergreen Wind, LLC** — 700 MW, 14 plants
+- **Union Electric Co - (MO)** — 699 MW, 2 plants
+- **Capricorn Ridge Wind LLC** — 662.5 MW, 1 plants
+- **High Banks Wind, LLC** — 643.4 MW, 1 plants
+- **Valcour Operating Services, LLC** — 612 MW, 6 plants
+- **Limon** — 600.6 MW, 3 plants
+- **Aviator Wind, LLC** — 525 MW, 1 plants
+- **ALLETE, Inc.** — 521.8 MW, 5 plants
+- **White Mesa Wind, LLC** — 500.6 MW, 1 plants
+- **Young Wind, LLC** — 500 MW, 1 plants
+- **High Lonesome Wind Power, LLC** — 499.5 MW, 1 plants
+- **Oklahoma Gas & Electric Co** — 448.7 MW, 3 plants
+- **Wisconsin Power & Light Co** — 421.2 MW, 4 plants
+- **Mesquite Star Special LLC** — 418.9 MW, 1 plants
+- **Mesquite Wind LLC** — 400 MW, 2 plants
+- **Stephens Ranch Wind Energy LLC** — 376 MW, 1 plants
+- **Clearwater Energy Resources LLC** — 365.5 MW, 1 plants
+- **Foard City Wind, LLC** — 352.8 MW, 1 plants
+- **BMP Wind LLC** — 340 MW, 1 plants
+- **Sage Draw Wind, LLC** — 338.4 MW, 1 plants
+- **Wisconsin Electric Power Co** — 337.2 MW, 3 plants
+- **Boswell Wind, LLC** — 329.8 MW, 1 plants
+- **Consolidated Edison Development Inc.** — 325.5 MW, 15 plants
+- **Flat Rock Windpower, LLC** — 321.2 MW, 1 plants
+- **TC Energy** — 303.8 MW, 2 plants
+- **Lincoln Land Wind, LLC** — 302 MW, 1 plants
+- **Lacy Creek Wind, LLC** — 301.3 MW, 1 plants
+- **FPLE Wind, LLC** — 300.8 MW, 3 plants
+- **Irish Creek Wind, LLC** — 300.6 MW, 1 plants
+- **Cedro Hill Wind, LLC** — 300 MW, 1 plants
+- **Tahoka Wind, LLC** — 300 MW, 1 plants
+- **Torrecillas Wind Energy, LLC** — 300 MW, 1 plants
+- **Bronco Plains Wind, LLC** — 300 MW, 1 plants
+- **Soldier Creek Wind LLC** — 300 MW, 1 plants
+- **Milligan 1 Wind, LLC** — 300 MW, 1 plants
+- **Hubbard Wind LLC** — 300 MW, 1 plants
+- **FPL Energy Vansycle LLC** — 299.7 MW, 2 plants
+- **Balko Wind LLC** — 299.7 MW, 1 plants
+- **TX Jumbo Road Wind, LLC** — 299.7 MW, 1 plants
+- **Kingfisher Wind LLC** — 298 MW, 1 plants
+- **Canadian Hills Wind LLC** — 293.7 MW, 1 plants
+- **Orion Energy Group LLC** — 280.5 MW, 2 plants
+- **FPL Energy Upton Wind LP** — 278 MW, 1 plants
+- **Helena Wind, LLC** — 268.2 MW, 1 plants
+- **Windy Flats Partners LLC** — 262.2 MW, 1 plants
+- **Dermott Wind, LLC** — 253 MW, 1 plants
+- **Cedar Point LLC** — 252 MW, 1 plants
+- **Golden West Power Partners, LLC** — 250 MW, 1 plants
+- **Willow Springs Windfarm, LLC** — 250 MW, 1 plants
+- **Amadeus Wind LLC** — 250 MW, 1 plants
+- **Nobles 2 Power Partners, LLC** — 250 MW, 1 plants
+- **Skeleton Creek Energy Center** — 250 MW, 1 plants
+- **Palo Duro Wind** — 249.9 MW, 1 plants
+- **Tucson Electric Power Co** — 249.8 MW, 1 plants
+- **Javelina Wind Energy, LLC** — 249.7 MW, 1 plants
+- **Pratt Wind, LLC** — 243.5 MW, 1 plants
+- **Clear Creek Wind, LLC** — 242 MW, 1 plants
+- **Rio Bravo Windpower, LLC** — 237.6 MW, 1 plants
+- **Chapman Ranch Wind LLC** — 236 MW, 1 plants
+- **Electra Wind, LLC** — 230 MW, 1 plants
+- **Horse Creek Wind, LLC** — 230 MW, 1 plants
+- **Plum Creek Wind, LLC** — 230 MW, 1 plants
+- **Roundhouse Renewable Energy, LLC** — 226 MW, 1 plants
+- **Griffin Trail Wind, LLC** — 225.6 MW, 1 plants
+- **Great Pathfinder Wind** — 224.4 MW, 1 plants
+- **Shamrock Wind LLC** — 223.9 MW, 1 plants
+- **FPL Energy Illinois Wind LLC** — 217.5 MW, 1 plants
+- **Kingman Wind Energy, LLC** — 214.8 MW, 1 plants
+- **Canadian Breaks LLC** — 210.1 MW, 1 plants
+- **Ninnescah Wind Energy LLC** — 208.3 MW, 1 plants
+- **Clearwater Wind East, LLC** — 207.9 MW, 1 plants
+- **Niyol Wind, LLC** — 205.6 MW, 1 plants
+- **FPL Energy New Mexico Wind LLC** — 204 MW, 1 plants
+- **Shannon Wind LLC** — 204 MW, 1 plants
+- **Sequitur Renewables, LLC** — 202.5 MW, 6 plants
+- **Horizon Hill Wind, LLC** — 201.5 MW, 1 plants
+- **White Rock Wind East, LLC** — 201.5 MW, 1 plants
+- **Logan Wind Energy LLC** — 201 MW, 1 plants
+- **Cloud County Windfarm, LLC** — 201 MW, 1 plants
+- **Osborn Wind Energy LLC** — 200.9 MW, 1 plants
+- **Sunflower Energy Center, LLC** — 200.6 MW, 1 plants
+- **Blue Summit III Wind, LLC** — 200.2 MW, 1 plants
+- **Crowned Ridge Wind, LLC** — 200.1 MW, 1 plants
+- **Emmons-Logan Wind, LLC** — 200 MW, 1 plants
+- **Ponderosa Wind, LLC** — 200 MW, 1 plants
+- **Cedar Springs Wind, LLC** — 200 MW, 1 plants
+- **FPL Peetz Table Wind Energy** — 199.5 MW, 1 plants
+- **Burke Wind LLC** — 199.4 MW, 1 plants
+- **Ridgeline Energy LLC** — 198.9 MW, 2 plants
+- **Cedar Bluff Wind, LLC** — 198.6 MW, 1 plants
+- **Elk City LLC** — 198.1 MW, 1 plants
+- **Bluestem Wind Energy, LLC** — 198 MW, 1 plants
+- **Castle Gap Wind Power, LLC** — 196.8 MW, 1 plants
+- **Bearkat Wind Energy 1, LLC** — 196.7 MW, 1 plants
+- **NaturEner Rim Rock Energy LLC** — 189 MW, 1 plants
+- **Timbermill Wind** — 189 MW, 1 plants
+- **Los Angeles Department of Water & Power** — 185 MW, 2 plants
+- **Glacier Sands Wind Power, LLC** — 185 MW, 1 plants
+- **Lockett Windfarm, LLC** — 183.8 MW, 1 plants
+- **Bull Creek Wind LLC** — 180 MW, 1 plants
+- **CP Bloom Wind LLC** — 178.2 MW, 1 plants
+- **Pegasus Wind, LLC** — 178 MW, 1 plants
+- **Northern Colorado Wind LLC** — 174.3 MW, 1 plants
+- **Appaloosa Run Wind, LLC** — 171.8 MW, 1 plants
+- **Moraine Sands Wind Power, LLC** — 171 MW, 1 plants
+- **Hackberry Wind LLC** — 165.6 MW, 1 plants
+- **Cimarron Wind Energy LLC** — 165.6 MW, 1 plants
+- **Astra Wind LLC** — 163 MW, 1 plants
+- **Babbitt Ranch Energy Center, LLC** — 163 MW, 1 plants
+- **Midway Wind, LLC** — 162.9 MW, 1 plants
+- **FPLE High Winds, LLC** — 162 MW, 1 plants
+- **Wildorado Wind, LLC** — 161 MW, 1 plants
+- **Rattlesnake Power, LLC** — 160 MW, 2 plants
+- **Sholes Wind Energy Center, LLC** — 160 MW, 1 plants
+- **Cedar Creek Wind, LLC** — 160 MW, 1 plants
+- **FPL Energy Langdon Wind LLC** — 159 MW, 2 plants
+- **Fluvanna Wind Energy LLC** — 158 MW, 2 plants
+- **CPV Keenan II Renewable Energy Co LLC** — 151.8 MW, 1 plants
+- **Old Settler Wind, LLC** — 151.2 MW, 1 plants
+- **FPL Energy Crystal Lake Wind LLC** — 150 MW, 1 plants
+- **FPL Energy Story Wind LLC** — 150 MW, 1 plants
+- **Langford Wind Power LLC** — 150 MW, 1 plants
+- **White Oak Energy LLC** — 150 MW, 1 plants
+- **Garden Wind LLC** — 150 MW, 1 plants
+- **Cardinal Point LLC** — 150 MW, 1 plants
+- **Brady Wind, LLC** — 150 MW, 1 plants
+- **Foxtail Wind, LLC** — 150 MW, 1 plants
+- **Goat Wind LLC** — 149.6 MW, 1 plants
+- **Rocksprings Val Verde Wind, LLC** — 149.3 MW, 1 plants
+- **Deerfield Wind Energy, LLC** — 149 MW, 1 plants
+- **UPC Power Solutions** — 148.6 MW, 8 plants
+- **FPL Energy Ashtabula Wind LLC** — 148.5 MW, 1 plants
+- **FPL Energy Weatherford, LLC** — 147 MW, 1 plants
+- **TransAlta Wyoming Wind LLC** — 144 MW, 1 plants
+- **Pioneer Hutt Wind Energy, LLC** — 140 MW, 1 plants
+- **Mountain Air Projects, LLC** — 138 MW, 6 plants
+- **Blue Summit Wind LLC** — 135.4 MW, 1 plants
+- **Helix Maine Wind Development, LLC** — 132 MW, 1 plants
+- **Taloga Wind LLC** — 130 MW, 1 plants
+- **Anticline Wind, LLC** — 124.3 MW, 1 plants
+- **Tuscola Bay Wind LLC** — 120 MW, 1 plants
+- **Bluff Point Wind, LLC** — 119.7 MW, 1 plants
+- **Black Rock Wind Force, LLC** — 115 MW, 1 plants
+- **FPL Energy Callahan Wind, LLC** — 114 MW, 1 plants
+- **Great Plains Windpark Legacy LLC** — 114 MW, 1 plants
+- **Gray County Wind Energy LLC** — 112.2 MW, 1 plants
+- **Deerfield Wind Energy 2, LLC** — 112.1 MW, 1 plants
+- **Bluestone Wind, LLC** — 111.8 MW, 1 plants
+- **Keechi Wind, LLC** — 110 MW, 1 plants
+- **Walleye Wind, LLC** — 110 MW, 1 plants
+- **Shady Oaks Wind 2, LLC** — 108.3 MW, 1 plants
+- **DTE Sustainable Generation** — 108 MW, 3 plants
+- **Ball Hill Wind Energy, LLC** — 107.5 MW, 1 plants
+- **Madison Gas & Electric Co** — 106.7 MW, 5 plants
+- **Buffalo Ridge Wind, LLC** — 106 MW, 1 plants
+- **Northwest Ohio Wind, LLC** — 105 MW, 1 plants
+- **Willow Creek Wind Power LLC** — 105 MW, 1 plants
+- **Shooting Star Power Partners, LLC** — 104 MW, 1 plants
+- **New Creek Wind, LLC** — 103 MW, 1 plants
+- **Baldwin Wind LLC** — 102.4 MW, 1 plants
+- **Red Mesa Wind LLC** — 102.4 MW, 1 plants
+- **FPL Energy Stateline II Inc** — 102.3 MW, 1 plants
+- **FPL Energy Oklahoma Wind LLC** — 102 MW, 1 plants
+- **Coram California Development, L.P.** — 102 MW, 1 plants
+- **NRG Energy Inc** — 101.2 MW, 1 plants
+- **Eight Point Wind, LLC** — 101.2 MW, 1 plants
+- **Telocaset Wind Power Partners** — 100.7 MW, 1 plants
+- **Sagebrush Power Partners, LLC** — 100.7 MW, 1 plants
+- **Apple Blossom Wind, LLC** — 100 MW, 1 plants
+- **Borderlands Wind, LLC** — 100 MW, 1 plants
+- **White Rock Wind West, LLC** — 99.5 MW, 1 plants
+- **Blue Summit II Wind, LLC** — 99.4 MW, 1 plants
+- **Perrin Ranch Wind LLC** — 99.2 MW, 1 plants
+- **Day County Wind LLC** — 99 MW, 1 plants
+- **Osceola Windpower LLC** — 98.2 MW, 1 plants
+- **FPL Energy Hancock County Wind, LLC** — 98 MW, 1 plants
+- **Hoopeston Wind LLC** — 98 MW, 1 plants
+- **Colorado Highlands Wind LLC** — 96.1 MW, 1 plants
+- **Energy Northwest** — 95.9 MW, 1 plants
+- **Strauss Wind LLC** — 95.3 MW, 1 plants
+- **Minonk Stewardship Wind LLC** — 93 MW, 1 plants
+- **Whitetail Wind Energy, LLC** — 92 MW, 1 plants
+- **Michigan Wind 2, LLC** — 90 MW, 1 plants
+- **Big Level Wind LLC** — 90 MW, 1 plants
+- **Black Hills Colorado Electric, LLC** — 89.8 MW, 2 plants
+- **Golden Hills Wind, LLC** — 85.9 MW, 1 plants
+- **FPL Energy Red Canyon LLC** — 84 MW, 1 plants
+- **Chopin Wind, LLC** — 82.8 MW, 7 plants
+- **Beebe Renewable Energy, LLC** — 81.6 MW, 1 plants
+- **Elkhorn Ridge Wind, LLC** — 81 MW, 1 plants
+- **Llano Estacado Wind Ranch** — 80 MW, 1 plants
+- **Old Gold Energy Center, LLC** — 80 MW, 1 plants
+- **NorthWestern Energy - (SD)** — 80 MW, 1 plants
+- **Lorenzo Wind, LLC** — 80 MW, 1 plants
+- **Sac County Wind** — 80 MW, 1 plants
+- **Laredo Ridge Wind LLC** — 79.9 MW, 1 plants
+- **Broken Bow Wind LLC** — 79.9 MW, 1 plants
+- **Vasco Winds, LLC** — 78.2 MW, 1 plants
+- **Black Oak Wind, LLC** — 78 MW, 1 plants
+- **Sendero Wind Energy, LLC** — 78 MW, 1 plants
+- **Pheasant Run Wind LLC** — 74.8 MW, 1 plants
+- **Blue Canyon Windpower LLC** — 74.3 MW, 1 plants
+- **Criterion Power Partners LLC** — 70 MW, 1 plants
+- **Kossuth County Wind, LLC** — 70 MW, 1 plants
+- **Michigan Wind 1, LLC** — 69 MW, 1 plants
+- **Kawailoa Wind LLC** — 69 MW, 1 plants
+- **Axium Arizona Renewables, LLC** — 65.1 MW, 1 plants
+- **Whitney Hill Wind Power LLC** — 65 MW, 1 plants
+- **Spring Canyon Expansion LLC** — 62.6 MW, 1 plants
+- **FPL Energy North Dakota Wind LLC** — 61.5 MW, 1 plants
+- **Whirlwind Energy LLC** — 59.8 MW, 1 plants
+- **Blackwell Wind, LLC** — 59.8 MW, 1 plants
+- **Harvest II Windfarm, LLC** — 59.4 MW, 1 plants
+- **Black Hills Electric Generation LLC** — 59.4 MW, 2 plants
+- **Independence Wind Energy LLC** — 55.4 MW, 1 plants
+- **Butler Ridge Wind Energy Center** — 54 MW, 1 plants
+- **Pinnacle Wind, LLC** — 53.7 MW, 1 plants
+- **Harvest Windfarm, LLC** — 52.8 MW, 1 plants
+- **Silver Star I Power Partners LLC** — 52.8 MW, 1 plants
+- **Lakeswind Power Partners** — 51.8 MW, 1 plants
+- **Wessington Wind** — 51 MW, 1 plants
+- **FPL Energy Oliver County Wind** — 50.6 MW, 1 plants
+- **Record Hill Wind LLC** — 50.6 MW, 1 plants
+- **Cow Branch Wind Power, LLC** — 50.4 MW, 1 plants
+- **CR Clearing, LLC** — 50.4 MW, 1 plants
+- **Beebe 1B Renewable Energy, LLC** — 50.4 MW, 1 plants
+
+---
+
+## Already in Longlist
+
+- Avangrid Power LLC (7811.3 MW) → *Avangrid Renewables*
+- Big Sky Wind, LLC (5560.6 MW) → *Sky Climber*
+- Invenergy Services LLC (4488.9 MW) → *Invenergy*
+- Pattern Operators LP (3595.1 MW) → *Pattern Energy*
+- Duke Energy Renewables Services (3361.2 MW) → *Duke Energy Renewables*
+- Engie North America (2615.4 MW) → *Engie*
+- PacifiCorp (2490.9 MW) → *PacifiCorp / Rocky Mountain Power*
+- AE Power Services LLC (1641.3 MW) → *AES Corporation*
+- Enel Green Power NA, Inc. (1582.4 MW) → *Enel Green Power North America*
+- Interstate Power and Light Co (1301.5 MW) → *Start with OEMs and O&M contractors — they hire at scale, year-round*
+- Algonquin Power Co (1288.7 MW) → *Algonquin Power & Utilities / Liberty Utilities*
+- AES Distributed Energy (1102.9 MW) → *AES Corporation*
+- Public Service Co of Colorado (1098.4 MW) → *Global Wind Service*
+- Terra-Gen Operating Co-Wind (1085.3 MW) → *Terra-Gen*
+- Southwestern Public Service Co (1000 MW) → *Global Wind Service*
+- Boralex US Operations LLC (894 MW) → *Boralex*
+- Portland General Electric Co (816.5 MW) → *Portland General Electric*
+- Puget Sound Energy Inc (771.9 MW) → *Puget Sound Energy*
+- Public Service Co of Oklahoma (641.5 MW) → *Global Wind Service*
+- AES Clean Energy (638.7 MW) → *AES Corporation*
+- Evergy Kansas Central, Inc (628.2 MW) → *Evergy*
+- Empire District Electric Co (599.8 MW) → *Tri Global Energy*
+- Acciona Wind Energy USA LLC (547.4 MW) → *Acciona Energy*
+- Acciona Energy USA Global, LLC (444.7 MW) → *Acciona Energy*
+- Orsted Onshore North America (366.6 MW) → *Ørsted*
+- Otter Tail Power Co (350.4 MW) → *Otter Tail Corporation*
+- Wisconsin Public Service Corp (319.6 MW) → *Global Wind Service*
+- EDP Renewables North America LLC (304 MW) → *EDP Renewables North America*
+- NextEra Energy Seiling Wind (297.6 MW) → *NextEra Energy*
+- Greenbacker Renewable Energy Corporation (292.7 MW) → *Greenbacker Renewable Energy*
+- Nextera Energy Resources (291.6 MW) → *NextEra Energy*
+- Shell Wind Energy Inc. (284.9 MW) → *Shell*
+- Clearway Energy Operating LLC (264 MW) → *Clearway Energy*
+- El Campo Wind, LLC (Longroad) (242.8 MW) → *Longroad Energy*
+- Big Sky Wind LLC (239.4 MW) → *Sky Climber*
+- Montana-Dakota Utilities Co (205 MW) → *Algonquin Power & Utilities / Liberty Utilities*
+- Milford Wind Corridor Phase I, LLC (Longroad) (203.5 MW) → *Longroad Energy*
+- Sugar Creek Wind One LLC (202 MW) → *Staffing agencies — signal or noise? They surface smaller operators we'd never find otherwise, but also duplicate direct postings. Worth running one agency as an experiment to measure duplicate rate before committing to the category.*
+- Enel Kansas, LLC (198.8 MW) → *Enel Green Power North America*
+- Scout Clean Energy LLC (180 MW) → *Scout Clean Energy*
+- North Sky River Energy LLC (162 MW) → *Sky Climber*
+- NextEra Energy Majestic Wind (159.1 MW) → *NextEra Energy*
+- Mustang Hills, LLC (Longroad) (150 MW) → *Longroad Energy*
+- Evergy Metro (148.5 MW) → *Evergy*
+- Turlock Irrigation District (136.3 MW) → *Tri Global Energy*
+- Orsted Wind Power North America LLC (130 MW) → *Ørsted*
+- AES Indiana (106 MW) → *AES Corporation*
+- NexteraEnergy (99 MW) → *NextEra Energy*
+- NextEra Energy Resources Ensign Wind (98.9 MW) → *NextEra Energy*
+- Weaver Wind, LLC (Longroad) (72.6 MW) → *Longroad Energy*
+- Green Mountain Power Corp (71 MW) → *PacifiCorp / Rocky Mountain Power*
+- Mountain Wind Power LLC (61 MW) → *PacifiCorp / Rocky Mountain Power*
+- Sky River Wind LLC (60.2 MW) → *Sky Climber*
+- Nebraska Public Power District (59.4 MW) → *Tri Global Energy*
+- Howard Wind LLC (Longroad) (55.4 MW) → *Longroad Energy*
+- Black Hills Service Company LLC (52.5 MW) → *Global Wind Service*
+- Casa Mesa Wind, LLC (50.9 MW) → *Casa dos Ventos*

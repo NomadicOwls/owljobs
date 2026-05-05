@@ -1,0 +1,74 @@
+---
+import ThemeToggle from "./ui/ThemeToggle.astro";
+
+const niche = Astro.locals.niche;
+const initials = niche.name.split(" ").map((w: string) => w[0]).join("").slice(0, 2).toUpperCase();
+---
+
+<header class="fixed left-0 right-0 top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
+  <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+
+    <!-- Brand -->
+    <a href="/" class="flex items-center gap-2 text-foreground no-underline hover:no-underline">
+      <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-accent text-accent-foreground text-xs font-bold">
+        {initials}
+      </div>
+      <span class="text-base font-semibold tracking-tight">{niche.name}</span>
+    </a>
+
+    <!-- Desktop nav -->
+    <nav class="hidden items-center gap-8 md:flex">
+      <a href="/jobs" class="text-sm text-muted-foreground transition-colors hover:text-foreground hover:no-underline">
+        Browse Jobs
+      </a>
+      <a href="/#companies" class="text-sm text-muted-foreground transition-colors hover:text-foreground hover:no-underline">
+        Employers
+      </a>
+    </nav>
+
+    <!-- Right controls -->
+    <div class="flex items-center gap-2">
+      <ThemeToggle />
+      <a
+        href={`mailto:hello@${niche.domain}`}
+        class="hidden sm:inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 hover:no-underline"
+      >
+        Post a Job
+      </a>
+
+      <!-- Mobile menu button -->
+      <button
+        type="button"
+        aria-label="Open menu"
+        class="inline-flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground hover:bg-secondary hover:text-foreground md:hidden"
+        data-mobile-menu-trigger
+      >
+        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile menu -->
+  <div class="hidden border-t border-border bg-background px-4 py-4 md:hidden" data-mobile-menu>
+    <nav class="flex flex-col gap-1">
+      <a href="/jobs" class="rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-secondary hover:text-foreground hover:no-underline transition-colors">Browse Jobs</a>
+      <a href="/#companies" class="rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-secondary hover:text-foreground hover:no-underline transition-colors">Employers</a>
+      <a href={`mailto:hello@${niche.domain}`} class="mt-2 rounded-md bg-primary px-3 py-2 text-center text-sm font-medium text-primary-foreground hover:bg-primary/90 hover:no-underline transition-colors">Post a Job</a>
+    </nav>
+  </div>
+</header>
+
+<!-- Spacer so content isn't hidden under fixed header -->
+<div class="h-16"></div>
+
+<script>
+  const trigger = document.querySelector("[data-mobile-menu-trigger]");
+  const menu = document.querySelector("[data-mobile-menu]");
+  if (trigger && menu) {
+    trigger.addEventListener("click", () => menu.classList.toggle("hidden"));
+  }
+</script>

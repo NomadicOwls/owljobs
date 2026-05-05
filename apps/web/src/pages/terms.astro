@@ -1,0 +1,120 @@
+---
+export const prerender = true;
+import Layout from "../components/Layout.astro";
+---
+
+<Layout
+  title="Terms of Use"
+  description="Terms of use for Wind Turbine Jobs."
+>
+  <div class="mx-auto max-w-2xl px-4 py-14 pb-20 sm:px-6">
+    <div class="prose-content">
+      <h1>Terms of Use</h1>
+      <p class="lead">By using this site you agree to these terms.</p>
+
+      <h2>About this service</h2>
+      <p>
+        Wind Turbine Jobs is an aggregation service. We collect publicly available job postings from
+        employer career pages and display them here. We are not the employer, recruiter, or hiring
+        party for any listed position.
+      </p>
+
+      <h2>Job listings</h2>
+      <ul>
+        <li>Listings are sourced automatically and may be out of date by the time you view them.</li>
+        <li>We make no warranty as to the accuracy, completeness, or availability of any listing.</li>
+        <li>
+          All "Apply" links go to the employer's own career page. We have no control over the
+          employer's hiring process, timeline, or decisions.
+        </li>
+        <li>
+          We are not responsible for any content on external employer sites.
+        </li>
+      </ul>
+
+      <h2>Acceptable use</h2>
+      <p>You agree not to:</p>
+      <ul>
+        <li>Scrape or systematically download listing data for commercial purposes</li>
+        <li>Use automated tools to submit spam or abuse the subscribe form</li>
+        <li>Attempt to circumvent Cloudflare Turnstile or other bot-protection mechanisms</li>
+      </ul>
+
+      <h2>Intellectual property</h2>
+      <p>
+        Job titles, descriptions, and employer names remain the property of their respective
+        employers. We aggregate and display this information as factual data about available
+        employment, which is permissible under copyright law.
+      </p>
+
+      <h2>Disclaimer</h2>
+      <p>
+        This site is provided "as is" without any warranty. We are not liable for any loss or
+        damage arising from your use of this site or from applying to jobs listed here.
+      </p>
+
+      <h2>Changes</h2>
+      <p>
+        We may update these terms at any time. Continued use of the site constitutes acceptance
+        of the updated terms.
+      </p>
+
+      <h2>Contact</h2>
+      <p>
+        For any questions, email <a href="mailto:legal@windturbinejobs.com">legal@windturbinejobs.com</a>.
+      </p>
+
+      <p class="updated">Last updated: May 2025</p>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .prose-content {
+    line-height: 1.75;
+    color: var(--muted-foreground);
+  }
+  .prose-content h1 {
+    font-size: clamp(1.875rem, 5vw, 2.5rem);
+    font-weight: 800;
+    color: var(--foreground);
+    margin: 0 0 0.5rem;
+    letter-spacing: -0.025em;
+  }
+  .prose-content .lead {
+    font-size: 1rem;
+    margin-bottom: 2.5rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 1.5rem;
+  }
+  .prose-content h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--foreground);
+    margin: 2.25rem 0 0.625rem;
+    letter-spacing: -0.015em;
+  }
+  .prose-content p,
+  .prose-content li {
+    font-size: 0.9375rem;
+  }
+  .prose-content ul {
+    padding-left: 1.25rem;
+  }
+  .prose-content li {
+    margin-bottom: 0.3rem;
+  }
+  .prose-content a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+  .prose-content a:hover {
+    text-decoration: underline;
+  }
+  .prose-content .updated {
+    font-size: 0.8rem;
+    margin-top: 3rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+  }
+</style>

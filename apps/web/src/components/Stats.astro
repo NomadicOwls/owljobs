@@ -1,0 +1,48 @@
+---
+import { supabasePublic } from "../lib/supabase.js";
+import { getStats } from "../lib/jobs.js";
+import { getEnv } from "../lib/env.js";
+
+const niche = Astro.locals.niche;
+const env = getEnv(Astro.locals);
+const db = supabasePublic(env);
+
+let stats = { activeJobs: 0, totalEmployers: 0, newThisWeek: 0 };
+try {
+  stats = await getStats(db, niche.supabaseSchema);
+} catch {
+  // silently skip if DB unavailable
+}
+---
+
+<section class="py-16 sm:py-20">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-2 gap-8 lg:grid-cols-4">
+      <div class="text-center">
+        <div class="text-3xl font-bold text-foreground sm:text-4xl lg:text-5xl">
+          {stats.activeJobs > 0 ? `${stats.activeJobs.toLocaleString()}+` : "—"}
+        </div>
+        <div class="mt-2 text-sm text-muted-foreground sm:text-base">Active Jobs</div>
+      </div>
+
+      <div class="text-center">
+        <div class="text-3xl font-bold text-foreground sm:text-4xl lg:text-5xl">
+          {stats.totalEmployers > 0 ? `${stats.totalEmployers.toLocaleString()}+` : "—"}
+        </div>
+        <div class="mt-2 text-sm text-muted-foreground sm:text-base">Employers</div>
+      </div>
+
+      <div class="text-center">
+        <div class="text-3xl font-bold text-foreground sm:text-4xl lg:text-5xl">
+          {stats.newThisWeek > 0 ? `${stats.newThisWeek.toLocaleString()}+` : "—"}
+        </div>
+        <div class="mt-2 text-sm text-muted-foreground sm:text-base">New This Week</div>
+      </div>
+
+      <div class="text-center">
+        <div class="text-3xl font-bold text-foreground sm:text-4xl lg:text-5xl">Hourly</div>
+        <div class="mt-2 text-sm text-muted-foreground sm:text-base">Updates</div>
+      </div>
+    </div>
+  </div>
+</section>
