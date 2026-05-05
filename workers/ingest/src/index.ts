@@ -19,6 +19,7 @@ export interface Env {
   AI: Ai;
   CLASSIFY_QUEUE: Queue<NicheMessage>;
   ENRICH_QUEUE: Queue<NicheMessage>;
+  PAGES_DEPLOY_HOOK?: string;
 }
 
 function makeSupabase(env: Env) {
@@ -81,6 +82,10 @@ const handler: ExportedHandler<Env, NicheMessage> = {
             console.log(
               `[${nicheId}] enrich complete: ${stats.enriched} enriched, ${stats.skipped} skipped, ${stats.errors} errors`
             );
+            if (env.PAGES_DEPLOY_HOOK) {
+              await fetch(env.PAGES_DEPLOY_HOOK, { method: "POST" });
+              console.log(`[${nicheId}] triggered Pages rebuild`);
+            }
           }
           msg.ack();
         } catch (err) {
