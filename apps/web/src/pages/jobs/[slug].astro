@@ -2,6 +2,7 @@
 import Layout from "../../components/Layout.astro";
 import { supabasePublic } from "../../lib/supabase.js";
 import { getJobBySlug, slugFromId } from "../../lib/jobs.js";
+import type { JobSource } from "@owljobs/schema";
 import { setCacheHeaders } from "../../lib/cache.js";
 import { getEnv } from "../../lib/env.js";
 import { relativeDate } from "../../lib/relative-date.js";
@@ -23,7 +24,17 @@ try {
 
 if (!job) return Astro.redirect("/404");
 
-setCacheHeaders(Astro.response.headers, 600, 3600);
+// DATA-02: expired jobs return HTTP 410 (gone) — NOT 404 — so Google deindexes permanently.
+// Short cache (5 min, no SWR) per RESEARCH Pitfall 6 — without this override, the
+// existing 600s/3600s cache would lag the 410 transition by an hour, causing Google's
+// post-Indexing-API recrawl to see stale 200 OK and ignore the expiry.
+const isExpired = job.status === "expired";
+if (isExpired) {
+  Astro.response.status = 410;
+  setCacheHeaders(Astro.response.headers, 300, 0);
+} else {
+  setCacheHeaders(Astro.response.headers, 600, 3600);
+}
 
 const isFeatured = job.is_sponsored || (job.featured_until ? new Date(job.featured_until) > new Date() : false);
 const location = [job.location, job.country].filter(Boolean).join(", ");
@@ -47,6 +58,29 @@ const employerInitials = employerName
   .toUpperCase();
 ---
 
+{isExpired ? (
+  <Layout
+    title="Job no longer available"
+    description="This role has been filled or removed by the employer."
+  >
+    <main class="pb-16 pt-6">
+      <div class="mx-auto max-w-2xl px-4 py-24 text-center sm:px-6">
+        <h1 class="text-3xl font-bold tracking-tight text-foreground">
+          This job is no longer available
+        </h1>
+        <p class="mt-4 text-muted-foreground">
+          It may have been filled or withdrawn by the employer.
+        </p>
+        <a
+          href="/jobs"
+          class="mt-8 inline-flex items-center rounded-md bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent/90 hover:no-underline"
+        >
+          Browse open roles →
+        </a>
+      </div>
+    </main>
+  </Layout>
+) : (
 <Layout
   title={`${job.title}${employerName ? ` — ${employerName}` : ""}`}
   description={`${job.title}${employerName ? ` at ${employerName}` : ""}${location ? ` in ${location}` : ""}. Apply now on ${niche.name}.`}
@@ -183,7 +217,7 @@ const employerInitials = employerName
             <div class="rounded-xl border border-border bg-card px-6 py-5">
               <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Also listed on</p>
               <div class="flex flex-wrap gap-2">
-                {job.job_sources.map((s) => (
+                {job.job_sources.map((s: JobSource) => (
                   <a
                     href={s.source_url}
                     rel="nofollow noopener"
@@ -265,6 +299,7 @@ const employerInitials = employerName
     </div>
   </main>
 </Layout>
+)}
 
 <style>
   .job-description :global(h2),
