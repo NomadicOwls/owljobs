@@ -2,6 +2,14 @@ interface ResendEnv {
   RESEND_API_KEY: string;
 }
 
+function htmlEncode(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
 interface SendEmailParams {
   to: string;
   subject: string;
@@ -102,7 +110,7 @@ export async function sendDeletionRequest(
     subject: `[GDPR] Data deletion request — ${opts.siteName}`,
     html: `
       <p>A user has requested deletion of their personal data under GDPR Article 17.</p>
-      <p><strong>Requester email:</strong> ${opts.requesterEmail}</p>
+      <p><strong>Requester email:</strong> ${htmlEncode(opts.requesterEmail)}</p>
       <p>Process within 30 days. Look up the email in Supabase and delete the row from the
       <code>subscribers</code> table for the matching niche schema.</p>
       <hr>
