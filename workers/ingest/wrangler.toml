@@ -41,3 +41,15 @@ max_retries = 2
 # For local dev, create workers/ingest/.dev.vars:
 #   SUPABASE_URL=https://<ref>.supabase.co
 #   SUPABASE_SERVICE_KEY=<service_role_key>
+
+# Google Indexing API service-account JSON — set as a Worker secret, never in plaintext.
+# Used by src/google-indexing.ts to ping URL_UPDATED on stale-job expiry (CONTEXT D-08, D-09).
+# This is a WORKER secret on owljobs-ingest, NOT a Cloudflare Pages secret
+# (Pages secrets list is in apps/web/src/lib/env.ts; Indexing API runs in this Worker).
+#
+# Run once per environment:
+#   wrangler secret put GOOGLE_INDEXING_KEY
+# (Paste the entire downloaded service-account JSON when prompted.)
+#
+# For local dev, append to workers/ingest/.dev.vars:
+#   GOOGLE_INDEXING_KEY={"client_email":"...","private_key":"-----BEGIN PRIVATE KEY-----\\n...","token_uri":"https://oauth2.googleapis.com/token"}
