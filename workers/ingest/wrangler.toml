@@ -23,13 +23,13 @@ binding = "ENRICH_QUEUE"
 
 [[queues.consumers]]
 queue = "owljobs-classify"
-max_batch_size = 10
+max_batch_size = 2
 max_batch_timeout = 0
 max_retries = 2
 
 [[queues.consumers]]
 queue = "owljobs-enrich"
-max_batch_size = 10
+max_batch_size = 2
 max_batch_timeout = 0
 max_retries = 2
 
