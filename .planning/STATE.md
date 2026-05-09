@@ -12,18 +12,18 @@ _Project memory. Updated continuously across sessions._
 
 ## Current Position
 
-- **Phase:** 1 — Production Foundation (Planned — ready to execute)
-- **Plan:** 6 plans in 4 waves (see `.planning/phases/01-production-foundation/`)
-- **Status:** Phase 1 planned, run `/gsd-execute-phase 1` to begin
-- **Progress:** [░░░░░░░░░░] 0% (0/5 phases complete)
+- **Phase:** 2 — Employer Breadth & SEO (Not started)
+- **Plan:** TBD — run `/gsd-discuss-phase 2` to plan
+- **Status:** Phase 1 complete (verified 2026-05-10). Ready for Phase 2.
+- **Progress:** [██░░░░░░░░] 20% (1/5 phases complete)
 
 ## Performance Metrics
 
 | Metric | Value |
 |--------|-------|
-| Phases complete | 0 / 5 |
-| Plans complete | 0 / 6 |
-| Requirements satisfied | 0 / 43 |
+| Phases complete | 1 / 5 |
+| Plans complete | 6 / 6 (phase 1) |
+| Requirements satisfied | 8 / 43 (DATA-01, DATA-02, DATA-03 code, INFRA-06, INFRA-07, INFRA-08, INFRA-02 runbook; INFRA-03/04 deferred) |
 | Confirmed subscribers | 0 / 100 (hard gate for Phase 5) |
 | Employers ingested | 3 / 20 (hard gate for Phase 5) |
 | Paying customers | 0 |
@@ -42,7 +42,7 @@ _Project memory. Updated continuously across sessions._
 
 ### Active Todos
 
-- Execute Phase 1: run `/gsd-execute-phase 1`
+- Complete deferred ops before Phase 5: Resend DNS, Pages/Worker secrets, GCP service account, production deploy, RFC 8058 live smoke test (see RUNBOOK.md)
 
 ### Blockers
 
@@ -61,11 +61,10 @@ _Project memory. Updated continuously across sessions._
 
 ### Last Session
 
-- **Date:** 2026-05-09
-- **Action:** Phase 1 planned — 6 plans in 4 waves. Research: jose@6.2.3 for Google JWT on Workers, INFRA-07 already implemented, Supabase migration 0004 (status+expired_at on jobs, consent_given_at on subscribers). Plans verified by plan-checker (2 blockers fixed: VALIDATION.md created, Plan 05 Task 7 acceptance_criteria corrected).
-- **Stopped at:** Phase 1 planning complete
-- **Resume file:** `.planning/phases/01-production-foundation/01-01-PLAN.md`
-- **Next action:** Run `/gsd-execute-phase 1` to execute Phase 1 plans
+- **Date:** 2026-05-10
+- **Action:** Phase 1 executed — 6 plans in 4 waves. Migration 0004 applied to production Supabase. 35 tests passing. 3 critical security fixes applied (XSS, GDPR re-subscribe token rotation, HTML injection). Verification passed 7/9 (2 deferred ops tasks). Code review clean post-fixes.
+- **Stopped at:** Phase 1 complete
+- **Next action:** `/gsd-discuss-phase 2` — Employer Breadth & SEO
 
 ### Files of Record
 
