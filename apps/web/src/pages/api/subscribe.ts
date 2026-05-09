@@ -41,6 +41,8 @@ export const POST: APIRoute = async ({ locals, request }) => {
 
   const db = supabaseAdmin(env);
 
+  // ignoreDuplicates: true — re-submission is a no-op on the row, preserving
+  // confirmed_at and unsubscribe_token for already-confirmed subscribers (CR-02).
   const { error: upsertError } = await db
     .schema(niche.supabaseSchema)
     .from("subscribers")
@@ -56,7 +58,7 @@ export const POST: APIRoute = async ({ locals, request }) => {
         created_at: new Date().toISOString(),
         consent_given_at: new Date().toISOString(),
       },
-      { onConflict: "email,niche", ignoreDuplicates: false },
+      { onConflict: "email,niche", ignoreDuplicates: true },
     );
 
   if (upsertError) {
@@ -64,20 +66,27 @@ export const POST: APIRoute = async ({ locals, request }) => {
     return Response.json({ error: "Something went wrong. Please try again." }, { status: 500 });
   }
 
-  // Fetch the current (possibly pre-existing) confirmation token for this subscriber
-  const { data: subData } = await db
+  // Fetch the actual (pre-existing or just-inserted) tokens
+  const { data: subData, error: selectError } = await db
     .schema(niche.supabaseSchema)
     .from("subscribers")
-    .select("confirmation_token, unsubscribe_token")
+    .select("confirmation_token, unsubscribe_token, confirmed_at")
     .eq("email", email)
     .eq("niche", niche.id)
     .single();
 
-  const actualConfirmToken = (subData as { confirmation_token: string | null; unsubscribe_token: string } | null)?.confirmation_token ?? confirmationToken;
-  const actualUnsubToken = (subData as { confirmation_token: string | null; unsubscribe_token: string } | null)?.unsubscribe_token ?? unsubscribeToken;
+  if (selectError || !subData) {
+    console.error("Subscribe select error:", selectError);
+    return Response.json({ error: "Something went wrong. Please try again." }, { status: 500 });
+  }
 
-  const confirmUrl = `https://${niche.domain}/api/confirm?token=${actualConfirmToken}`;
-  const unsubscribeUrl = `https://${niche.domain}/api/unsubscribe?token=${actualUnsubToken}`;
+  // Already confirmed — no need to resend confirmation email
+  if (subData.confirmed_at) {
+    return Response.json({ message: "Check your inbox to confirm your subscription." });
+  }
+
+  const confirmUrl = `https://${niche.domain}/api/confirm?token=${subData.confirmation_token}`;
+  const unsubscribeUrl = `https://${niche.domain}/api/unsubscribe?token=${subData.unsubscribe_token}`;
 
   try {
     await sendConfirmation(env, {
