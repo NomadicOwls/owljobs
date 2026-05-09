@@ -13,7 +13,8 @@
     "@owljobs/ats-adapters": "workspace:*",
     "@owljobs/niches": "workspace:*",
     "@owljobs/schema": "workspace:*",
-    "@supabase/supabase-js": "^2.49.4"
+    "@supabase/supabase-js": "^2.49.4",
+    "jose": "^6.2.3"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250430.0",
