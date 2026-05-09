@@ -30,7 +30,8 @@ findings:
   warning: 3
   info: 1
   total: 7
-status: issues_found
+status: fixed
+fixed_at: 2026-05-10T00:00:00Z
 ---
 
 # Phase 01: Code Review Report
@@ -49,6 +50,8 @@ Phase 1 added stale-job expiry with Google Indexing API pings, GDPR consent on s
 ## Critical Issues
 
 ### CR-01: Unsanitized employer HTML rendered with `set:html` — stored XSS
+
+**Status:** fixed — commit 31b85e4
 
 **File:** `apps/web/src/pages/jobs/[slug].astro:207`
 
@@ -80,6 +83,8 @@ Or for the Worker edge environment (no DOM), use `dompurify` in Workers no-DOM m
 ---
 
 ### CR-02: Re-subscription upsert un-confirms existing confirmed subscribers and rotates sent unsubscribe tokens
+
+**Status:** fixed — commit 70870fd
 
 **File:** `apps/web/src/pages/api/subscribe.ts:44–60`
 
@@ -133,6 +138,8 @@ if (subData?.confirmed_at) {
 
 ### CR-03: HTML injection in GDPR deletion request email body
 
+**Status:** fixed — commit 095e7ca
+
 **File:** `apps/web/src/lib/resend.ts:105`
 
 **Issue:** `opts.requesterEmail` is interpolated raw into an HTML email body:
@@ -168,6 +175,8 @@ html: `
 
 ### WR-01: `privacy.astro` hardcodes "Wind Turbine Jobs" and `privacy@windturbinejobs.com` — multi-niche violation
 
+**Status:** fixed — commit 7f0ebcb
+
 **File:** `apps/web/src/pages/privacy.astro:12,21,91,109`
 
 **Issue:** The page is `export const prerender = true` but it reads `env` and `niche` is available via `Astro.locals`. The privacy policy text hardcodes "Wind Turbine Jobs" (lines 12, 21), `privacy@windturbinejobs.com` (line 91), and "May 2025" (line 109). CLAUDE.md: "Never hardcode `wind_turbine` schema in new code." When a second niche is added, this page will show the wrong brand to users of that niche.
@@ -181,6 +190,8 @@ At minimum, replace the hardcoded contact email and site name with props/locals 
 ---
 
 ### WR-02: `/jobs.json` debug endpoint returns expired jobs
+
+**Status:** fixed — commit 8fcac4b
 
 **File:** `workers/ingest/src/index.ts:166–175`
 
@@ -201,6 +212,8 @@ const { data, error } = await db
 ---
 
 ### WR-03: `wrangler.toml` queue consumers use `max_batch_size = 10` — violates CLAUDE.md email digest pattern
+
+**Status:** fixed — commit 60efcb7
 
 **File:** `workers/ingest/wrangler.toml:25,30`
 
