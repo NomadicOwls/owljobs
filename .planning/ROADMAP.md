@@ -18,16 +18,15 @@ Reach consistent MRR from employer subscriptions (€499 / €999 / €1999/mo) 
 ## Phase Details
 
 ### Phase 1: Production Foundation
-**Goal:** Site is on a real domain, legally compliant, and never serves dead jobs — the credibility floor for any future outreach.
+**Goal:** Site is legally compliant, email infrastructure is ready, and dead jobs are never served — the technical credibility floor regardless of which domain it runs on.
 **Mode:** mvp
 **Depends on:** Nothing (first phase)
-**Requirements:** INFRA-01, INFRA-02, INFRA-03, INFRA-04, INFRA-05, INFRA-06, INFRA-07, INFRA-08, DATA-01, DATA-02, DATA-03
+**Requirements:** INFRA-02, INFRA-03, INFRA-04, INFRA-05, INFRA-06, INFRA-07, INFRA-08, DATA-01, DATA-02, DATA-03
 **Success Criteria** (what must be TRUE):
-  1. A visitor reaches the site at the registered production domain over HTTPS (no `*.pages.dev`)
-  2. A visitor can read the privacy policy, subscribe with explicit consent, receive a confirmation email from the verified sending domain, and unsubscribe in one click
-  3. A user can submit a GDPR data deletion request and have all their data removed
-  4. A job that disappears from its ATS feed returns HTTP 410 within 24 hours, drops out of listings/sitemap/RSS, and has its `JobPosting` schema removed and re-pinged to Google
-  5. All required Cloudflare Pages secrets are set and the production deploy boots without missing-env errors
+  1. A visitor can read the privacy policy, subscribe with explicit consent, receive a confirmation email from the verified sending domain, and unsubscribe in one click
+  2. A user can submit a GDPR data deletion request and have all their data removed
+  3. A job that disappears from its ATS feed returns HTTP 410 within 24 hours, drops out of listings/sitemap/RSS, and has its `JobPosting` schema removed and re-pinged to Google
+  4. All required Cloudflare Pages secrets are set and the production deploy boots without missing-env errors
 **Plans:** TBD
 
 ### Phase 2: Employer Breadth & SEO
@@ -95,11 +94,11 @@ Reach consistent MRR from employer subscriptions (€499 / €999 / €1999/mo) 
 
 ## Coverage
 
-All 38 v1 requirements mapped to exactly one phase. No orphans.
+42 v1 requirements mapped to phases. INFRA-01 (domain registration) moved to Out of Scope — ops task, not a code deliverable.
 
 | Category | REQ count | Phase(s) |
 |----------|-----------|----------|
-| INFRA | 8 | Phase 1 |
+| INFRA | 7 | Phase 1 |
 | DATA | 3 | Phase 1 |
 | SEO | 3 | Phase 2 |
 | COVG | 3 | Phase 2 |
@@ -109,7 +108,7 @@ All 38 v1 requirements mapped to exactly one phase. No orphans.
 | ANLYT | 2 | Phase 4 |
 | BILL | 8 | Phase 5 |
 | GTM | 2 | Phase 5 |
-| **Total** | **43** | **5 phases** |
+| **Total** | **42** | **5 phases** |
 
 ## Notes
 

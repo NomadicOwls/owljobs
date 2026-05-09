@@ -6,7 +6,6 @@ _Generated: 2026-05-09_
 
 ### Infrastructure & Compliance (INFRA)
 
-- [ ] **INFRA-01**: Domain (`windturbinejobs.com` or chosen domain) registered and pointing to Cloudflare Pages
 - [ ] **INFRA-02**: Supabase migrations 0002+0003 applied (RLS policies + multi-niche subscribers schema)
 - [ ] **INFRA-03**: Resend sending domain verified — SPF, DKIM, DMARC aligned before first email send
 - [ ] **INFRA-04**: All 6 Cloudflare Pages secrets configured via `wrangler pages secret put`
@@ -103,6 +102,7 @@ These were considered and explicitly deferred until v1 MRR is established:
 - **Niche 2 in v1** — wind-turbine is the proof-of-concept; multi-niche architecture is in place but not activated
 - **Talent pool / candidate database** — GDPR cost high, monetization unclear; v1 candidate alerts via email is sufficient
 - **Workday as a paid partner target** — Workday EUA prohibits scraping; high-value Workday employers to be converted to partnership conversation, not cold-pitched at this time
+- **Domain registration (INFRA-01)** — business/ops task independent of the codebase; framework must work with any domain or subdomain; register when ready to pitch employers
 
 ---
 
@@ -112,7 +112,7 @@ _Filled by roadmapper agent — every v1 requirement maps to exactly one phase._
 
 | REQ-ID | Phase |
 |--------|-------|
-| INFRA-01 | Phase 1 |
+| INFRA-01 | Out of Scope |
 | INFRA-02 | Phase 1 |
 | INFRA-03 | Phase 1 |
 | INFRA-04 | Phase 1 |
