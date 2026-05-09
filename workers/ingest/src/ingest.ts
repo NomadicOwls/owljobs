@@ -6,6 +6,7 @@ import { fetchAllSuccessFactorsJobs, SuccessFactorsAdapterError } from "@owljobs
 import { fetchAllRecruiteeJobs, RecruiteeAdapterError } from "@owljobs/ats-adapters/recruitee";
 import { fetchAllSoftgardenJobs, SoftgardenAdapterError } from "@owljobs/ats-adapters/softgarden";
 import { sha256Hex, normalizeForKey } from "@owljobs/schema";
+import { sanitizeJobDescription } from "@owljobs/ats-adapters/sanitize";
 import { expireMissingJobs, type ExpireResult } from "./expire.js";
 
 // The `db` param is a schema-scoped Supabase client: supabase.schema(niche.supabaseSchema)
@@ -451,7 +452,7 @@ async function upsertJob(db: SchemaClient, input: JobInput): Promise<boolean> {
       country: input.country ?? null,
       posted_at: input.postedAt ?? null,
       canonical_url: input.canonicalUrl,
-      description: input.description ?? null,
+      description: input.description ? sanitizeJobDescription(input.description) : null,
     })
     .select("id");
 
@@ -460,7 +461,7 @@ async function upsertJob(db: SchemaClient, input: JobInput): Promise<boolean> {
     if (error.code === "23505") {
       // Backfill description if we have one and the stored row doesn't
       if (input.description) {
-        await db.from("jobs").update({ description: input.description }).eq("id", input.id).is("description", null);
+        await db.from("jobs").update({ description: sanitizeJobDescription(input.description) }).eq("id", input.id).is("description", null);
       }
       // CONTEXT D-05: if existing row was expired (came back in the ATS feed), re-activate it.
       // The .eq("status", "expired") filter makes this a no-op for already-active rows.
