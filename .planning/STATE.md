@@ -12,9 +12,9 @@ _Project memory. Updated continuously across sessions._
 
 ## Current Position
 
-- **Phase:** 1 — Production Foundation (Not started)
-- **Plan:** none yet (run `/gsd-plan-phase 1`)
-- **Status:** Roadmap created, awaiting first phase planning
+- **Phase:** 1 — Production Foundation (Planned — ready to execute)
+- **Plan:** 6 plans in 4 waves (see `.planning/phases/01-production-foundation/`)
+- **Status:** Phase 1 planned, run `/gsd-execute-phase 1` to begin
 - **Progress:** [░░░░░░░░░░] 0% (0/5 phases complete)
 
 ## Performance Metrics
@@ -22,7 +22,7 @@ _Project memory. Updated continuously across sessions._
 | Metric | Value |
 |--------|-------|
 | Phases complete | 0 / 5 |
-| Plans complete | 0 / 0 |
+| Plans complete | 0 / 6 |
 | Requirements satisfied | 0 / 43 |
 | Confirmed subscribers | 0 / 100 (hard gate for Phase 5) |
 | Employers ingested | 3 / 20 (hard gate for Phase 5) |
@@ -42,7 +42,7 @@ _Project memory. Updated continuously across sessions._
 
 ### Active Todos
 
-- None — awaiting Phase 1 planning
+- Execute Phase 1: run `/gsd-execute-phase 1`
 
 ### Blockers
 
@@ -62,10 +62,10 @@ _Project memory. Updated continuously across sessions._
 ### Last Session
 
 - **Date:** 2026-05-09
-- **Action:** Phase 1 context gathered — decisions captured on stale job expiry (status column + soft-delete + ID comparison), GDPR deletion form (embedded in /privacy, emails founder), consent checkbox (required, consent_given_at in DB), and Google Indexing API (full setup in Phase 1 for removal pings)
-- **Stopped at:** Phase 1 context gathered
-- **Resume file:** `.planning/phases/01-production-foundation/01-CONTEXT.md`
-- **Next action:** Run `/gsd-plan-phase 1` to decompose Phase 1 (Production Foundation) into executable plans
+- **Action:** Phase 1 planned — 6 plans in 4 waves. Research: jose@6.2.3 for Google JWT on Workers, INFRA-07 already implemented, Supabase migration 0004 (status+expired_at on jobs, consent_given_at on subscribers). Plans verified by plan-checker (2 blockers fixed: VALIDATION.md created, Plan 05 Task 7 acceptance_criteria corrected).
+- **Stopped at:** Phase 1 planning complete
+- **Resume file:** `.planning/phases/01-production-foundation/01-01-PLAN.md`
+- **Next action:** Run `/gsd-execute-phase 1` to execute Phase 1 plans
 
 ### Files of Record
 
