@@ -75,6 +75,19 @@ const niche = Astro.locals.niche;
                   </svg>
                 </button>
               </div>
+              <label class="mt-4 flex items-start gap-2 text-left text-xs text-muted-foreground">
+                <input
+                  type="checkbox"
+                  name="consent"
+                  id="subscribe-consent"
+                  required
+                  class="mt-0.5 h-4 w-4 cursor-pointer rounded-sm border border-border bg-transparent text-primary focus:ring-2 focus:ring-ring"
+                />
+                <span>
+                  I agree to receive {niche.name.toLowerCase()} job alerts by email. I can unsubscribe at any time.
+                  <a href="/privacy" class="underline hover:text-foreground">Read our Privacy Policy.</a>
+                </span>
+              </label>
               <p id="subscribe-error" class="mt-3 text-sm text-destructive min-h-[1.25rem]" role="alert" aria-live="polite"></p>
               <p id="subscribe-success" class="mt-3 text-sm text-accent min-h-[1.25rem]" role="status" aria-live="polite"></p>
             </form>
@@ -106,6 +119,12 @@ const niche = Astro.locals.niche;
       const email = emailInput.value.trim();
       if (!email) return;
 
+      const consentInput = form.querySelector<HTMLInputElement>('[name="consent"]');
+      if (!consentInput?.checked) {
+        errorEl.textContent = "Please confirm you agree to receive job alerts.";
+        return;
+      }
+
       const tokenInput = form.querySelector<HTMLInputElement>('[name="cf-turnstile-response"]');
       const turnstileToken = tokenInput?.value ?? "";
 
@@ -120,7 +139,7 @@ const niche = Astro.locals.niche;
         const res = await fetch("/api/subscribe", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, turnstileToken }),
+          body: JSON.stringify({ email, turnstileToken, consent: true }),
         });
 
         const json = (await res.json()) as { message?: string; error?: string };
