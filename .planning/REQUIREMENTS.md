@@ -108,17 +108,52 @@ These were considered and explicitly deferred until v1 MRR is established:
 
 ## Traceability
 
-_Filled by roadmapper agent._
+_Filled by roadmapper agent — every v1 requirement maps to exactly one phase._
 
 | REQ-ID | Phase |
 |--------|-------|
-| INFRA-01–08 | Phase 1 |
-| DATA-01–03 | Phase 1 |
-| SEO-01–03 | Phase 1–2 |
-| COVG-01–03 | Phase 2 |
-| CAND-01–04 | Phase 3 |
-| PROF-01–06 | Phase 4 |
-| FEAT-01–04 | Phase 4 |
-| ANLYT-01–02 | Phase 4 |
-| BILL-01–08 | Phase 5 |
-| GTM-01–02 | Phase 5 |
+| INFRA-01 | Phase 1 |
+| INFRA-02 | Phase 1 |
+| INFRA-03 | Phase 1 |
+| INFRA-04 | Phase 1 |
+| INFRA-05 | Phase 1 |
+| INFRA-06 | Phase 1 |
+| INFRA-07 | Phase 1 |
+| INFRA-08 | Phase 1 |
+| DATA-01 | Phase 1 |
+| DATA-02 | Phase 1 |
+| DATA-03 | Phase 1 |
+| SEO-01 | Phase 2 |
+| SEO-02 | Phase 2 |
+| SEO-03 | Phase 2 |
+| COVG-01 | Phase 2 |
+| COVG-02 | Phase 2 |
+| COVG-03 | Phase 2 |
+| CAND-01 | Phase 3 |
+| CAND-02 | Phase 3 |
+| CAND-03 | Phase 3 |
+| CAND-04 | Phase 3 |
+| PROF-01 | Phase 4 |
+| PROF-02 | Phase 4 |
+| PROF-03 | Phase 4 |
+| PROF-04 | Phase 4 |
+| PROF-05 | Phase 4 |
+| PROF-06 | Phase 4 |
+| FEAT-01 | Phase 4 |
+| FEAT-02 | Phase 4 |
+| FEAT-03 | Phase 4 |
+| FEAT-04 | Phase 4 |
+| ANLYT-01 | Phase 4 |
+| ANLYT-02 | Phase 4 |
+| BILL-01 | Phase 5 |
+| BILL-02 | Phase 5 |
+| BILL-03 | Phase 5 |
+| BILL-04 | Phase 5 |
+| BILL-05 | Phase 5 |
+| BILL-06 | Phase 5 |
+| BILL-07 | Phase 5 |
+| BILL-08 | Phase 5 |
+| GTM-01 | Phase 5 |
+| GTM-02 | Phase 5 |
+
+**Total: 43 requirements mapped to 5 phases. Coverage: 100%.**
