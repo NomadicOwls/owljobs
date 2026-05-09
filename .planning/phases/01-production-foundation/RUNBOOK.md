@@ -166,3 +166,29 @@ pnpm deploy   # or: pnpm wrangler deploy
 ## 9. Open issue to track post-Phase-1
 
 - [ ] **JobPosting Indexing API approval status** — track via Search Console for the next 7 days. If approval doesn't land, flag DATA-03 effectiveness as deferred even though code ships green.
+
+---
+
+## 10. Smoke Test Results
+
+### Source-contract pre-check (Plan 01-06 Task 1)
+
+Verified on 2026-05-10. All four source-contract greps passed:
+
+- `"List-Unsubscribe":` in `apps/web/src/lib/resend.ts` → 1 match
+- `List-Unsubscribe-Post.*One-Click` in `apps/web/src/lib/resend.ts` → 1 match
+- `export const GET` in `apps/web/src/pages/api/unsubscribe.ts` → 1 match
+- `export const POST` in `apps/web/src/pages/api/unsubscribe.ts` → 1 match
+
+No regressions from Plans 01–05. INFRA-07 implementation intact in source.
+
+### INFRA-07 verification
+
+_Pending operator live verification (Plan 01-06 Task 2 checkpoint). Operator to fill in:_
+
+- **curl HTTP code:** [TODO]
+- **curl response body:** [TODO]
+- **Gmail one-click test:** [TODO — passed/failed]
+- **DB row deleted post-Gmail-click:** [TODO — confirmed/not confirmed]
+- **Verified by:** [operator handle]
+- **Date:** [TODO]
