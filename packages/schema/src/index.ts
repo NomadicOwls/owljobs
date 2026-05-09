@@ -32,7 +32,9 @@ export interface Job {
   location: string | null;
   country: string | null;
   posted_at: string | null;
-  expires_at: string | null;
+  expires_at: string | null;           // Employer-stated closing date. KEEP. See 0001_initial.sql.
+  status: "active" | "expired";        // Stale-job lifecycle — added by migration 0004
+  expired_at: string | null;           // Our soft-delete detection timestamp — added by migration 0004
   description: string | null;
   canonical_url: string;
   apply_url: string | null;
@@ -63,6 +65,7 @@ export interface Subscriber {
   confirmation_token: string | null;
   unsubscribe_token: string;
   created_at: string;
+  consent_given_at: string | null;     // GDPR Art 7 consent timestamp — added by migration 0004
 }
 
 export interface EmailSend {
