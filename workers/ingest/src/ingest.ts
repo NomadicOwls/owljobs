@@ -6,6 +6,7 @@ import { fetchAllSuccessFactorsJobs, SuccessFactorsAdapterError } from "@owljobs
 import { fetchAllRecruiteeJobs, RecruiteeAdapterError } from "@owljobs/ats-adapters/recruitee";
 import { fetchAllSoftgardenJobs, SoftgardenAdapterError } from "@owljobs/ats-adapters/softgarden";
 import { sha256Hex, normalizeForKey } from "@owljobs/schema";
+import { expireMissingJobs, type ExpireResult } from "./expire.js";
 
 // The `db` param is a schema-scoped Supabase client: supabase.schema(niche.supabaseSchema)
 type SchemaClient = ReturnType<SupabaseClient["schema"]>;
@@ -14,27 +15,35 @@ interface IngestStats {
   inserted: number;
   skipped: number;
   errors: number;
+  expired: number;
+  pinged: number;
+  pingFailures: number;
 }
 
-export async function ingestNiche(niche: NicheConfig, db: SchemaClient, onlyTargetIndex?: number): Promise<IngestStats> {
+export async function ingestNiche(
+  niche: NicheConfig,
+  db: SchemaClient,
+  onlyTargetIndex?: number,
+  saJson?: string,
+): Promise<IngestStats> {
   const targets = onlyTargetIndex !== undefined
     ? niche.atsTargets.slice(onlyTargetIndex, onlyTargetIndex + 1)
     : niche.atsTargets;
 
   const results = await Promise.allSettled(
     targets.map(async (target) => {
-      const localStats: IngestStats = { inserted: 0, skipped: 0, errors: 0 };
+      const localStats: IngestStats = { inserted: 0, skipped: 0, errors: 0, expired: 0, pinged: 0, pingFailures: 0 };
       try {
         if (target.atsType === "workday") {
-          await ingestWorkday(target, db, localStats);
+          await ingestWorkday(target, db, localStats, saJson);
         } else if (target.atsType === "greenhouse") {
-          await ingestGreenhouse(target, db, localStats);
+          await ingestGreenhouse(target, db, localStats, saJson);
         } else if (target.atsType === "successfactors") {
-          await ingestSuccessFactors(target, db, localStats);
+          await ingestSuccessFactors(target, db, localStats, saJson);
         } else if (target.atsType === "recruitee") {
-          await ingestRecruitee(target, db, localStats);
+          await ingestRecruitee(target, db, localStats, saJson);
         } else if (target.atsType === "softgarden") {
-          await ingestSoftgarden(target, db, localStats);
+          await ingestSoftgarden(target, db, localStats, saJson);
         } else {
           console.log(`[ingest] skipping unknown atsType (not yet implemented)`);
         }
@@ -46,12 +55,15 @@ export async function ingestNiche(niche: NicheConfig, db: SchemaClient, onlyTarg
     })
   );
 
-  const stats: IngestStats = { inserted: 0, skipped: 0, errors: 0 };
+  const stats: IngestStats = { inserted: 0, skipped: 0, errors: 0, expired: 0, pinged: 0, pingFailures: 0 };
   for (const result of results) {
     if (result.status === "fulfilled") {
       stats.inserted += result.value.inserted;
       stats.skipped += result.value.skipped;
       stats.errors += result.value.errors;
+      stats.expired += result.value.expired;
+      stats.pinged += result.value.pinged;
+      stats.pingFailures += result.value.pingFailures;
     } else {
       stats.errors++;
     }
@@ -62,7 +74,8 @@ export async function ingestNiche(niche: NicheConfig, db: SchemaClient, onlyTarg
 async function ingestWorkday(
   target: WorkdayTarget,
   db: SchemaClient,
-  stats: IngestStats
+  stats: IngestStats,
+  saJson?: string,
 ): Promise<void> {
   let jobs;
   try {
@@ -85,7 +98,10 @@ async function ingestWorkday(
     atsSite: target.site,
   });
 
+  const fetchedJobIds = new Set<string>();
   for (const job of jobs) {
+    // jobs.id is set to job.sourceId by upsertJob — accumulate the same value to match for expiry
+    fetchedJobIds.add(job.sourceId);
     try {
       const inserted = await upsertJob(db, {
         id: job.sourceId,
@@ -103,12 +119,23 @@ async function ingestWorkday(
       stats.errors++;
     }
   }
+
+  try {
+    const r = await expireMissingJobs(db, employerId, fetchedJobIds, saJson);
+    stats.expired += r.marked;
+    stats.pinged += r.pinged;
+    stats.pingFailures += r.pingFailures;
+  } catch (err) {
+    console.error(`[expire] ${target.employer}:`, err);
+    stats.errors++;
+  }
 }
 
 async function ingestGreenhouse(
   target: GreenhouseTarget,
   db: SchemaClient,
-  stats: IngestStats
+  stats: IngestStats,
+  saJson?: string,
 ): Promise<void> {
   const jobs = await fetchAllGreenhouseJobs(target);
 
@@ -118,7 +145,10 @@ async function ingestGreenhouse(
     atsSite: target.boardToken,
   });
 
+  const fetchedJobIds = new Set<string>();
   for (const job of jobs) {
+    // jobs.id is set to job.sourceId by upsertJob — accumulate the same value to match for expiry
+    fetchedJobIds.add(job.sourceId);
     try {
       const inserted = await upsertJob(db, {
         id: job.sourceId,
@@ -138,12 +168,23 @@ async function ingestGreenhouse(
       stats.errors++;
     }
   }
+
+  try {
+    const r = await expireMissingJobs(db, employerId, fetchedJobIds, saJson);
+    stats.expired += r.marked;
+    stats.pinged += r.pinged;
+    stats.pingFailures += r.pingFailures;
+  } catch (err) {
+    console.error(`[expire] ${target.employer}:`, err);
+    stats.errors++;
+  }
 }
 
 async function ingestSuccessFactors(
   target: SuccessFactorsTarget,
   db: SchemaClient,
-  stats: IngestStats
+  stats: IngestStats,
+  saJson?: string,
 ): Promise<void> {
   let jobs;
   try {
@@ -163,7 +204,10 @@ async function ingestSuccessFactors(
     careersUrl: target.careersBaseUrl,
   });
 
+  const fetchedJobIds = new Set<string>();
   for (const job of jobs) {
+    // jobs.id is set to job.sourceId by upsertJob — accumulate the same value to match for expiry
+    fetchedJobIds.add(job.sourceId);
     try {
       const inserted = await upsertJob(db, {
         id: job.sourceId,
@@ -181,12 +225,23 @@ async function ingestSuccessFactors(
       stats.errors++;
     }
   }
+
+  try {
+    const r = await expireMissingJobs(db, employerId, fetchedJobIds, saJson);
+    stats.expired += r.marked;
+    stats.pinged += r.pinged;
+    stats.pingFailures += r.pingFailures;
+  } catch (err) {
+    console.error(`[expire] ${target.employer}:`, err);
+    stats.errors++;
+  }
 }
 
 async function ingestRecruitee(
   target: RecruiteeTarget,
   db: SchemaClient,
-  stats: IngestStats
+  stats: IngestStats,
+  saJson?: string,
 ): Promise<void> {
   let jobs;
   try {
@@ -204,7 +259,10 @@ async function ingestRecruitee(
     careersUrl: `https://${target.companySlug}.recruitee.com`,
   });
 
+  const fetchedJobIds = new Set<string>();
   for (const job of jobs) {
+    // jobs.id is set to job.sourceId by upsertJob — accumulate the same value to match for expiry
+    fetchedJobIds.add(job.sourceId);
     try {
       const inserted = await upsertJob(db, {
         id: job.sourceId,
@@ -222,12 +280,23 @@ async function ingestRecruitee(
       stats.errors++;
     }
   }
+
+  try {
+    const r = await expireMissingJobs(db, employerId, fetchedJobIds, saJson);
+    stats.expired += r.marked;
+    stats.pinged += r.pinged;
+    stats.pingFailures += r.pingFailures;
+  } catch (err) {
+    console.error(`[expire] ${target.employer}:`, err);
+    stats.errors++;
+  }
 }
 
 async function ingestSoftgarden(
   target: SoftgardenTarget,
   db: SchemaClient,
-  stats: IngestStats
+  stats: IngestStats,
+  saJson?: string,
 ): Promise<void> {
   let jobs;
   try {
@@ -245,7 +314,10 @@ async function ingestSoftgarden(
     careersUrl: target.feedUrl,
   });
 
+  const fetchedJobIds = new Set<string>();
   for (const job of jobs) {
+    // jobs.id is set to job.sourceId by upsertJob — accumulate the same value to match for expiry
+    fetchedJobIds.add(job.sourceId);
     try {
       const inserted = await upsertJob(db, {
         id: job.sourceId,
@@ -263,6 +335,16 @@ async function ingestSoftgarden(
       console.error(`[ingest] failed to upsert job "${job.title}":`, err);
       stats.errors++;
     }
+  }
+
+  try {
+    const r = await expireMissingJobs(db, employerId, fetchedJobIds, saJson);
+    stats.expired += r.marked;
+    stats.pinged += r.pinged;
+    stats.pingFailures += r.pingFailures;
+  } catch (err) {
+    console.error(`[expire] ${target.employer}:`, err);
+    stats.errors++;
   }
 }
 
@@ -380,6 +462,13 @@ async function upsertJob(db: SchemaClient, input: JobInput): Promise<boolean> {
       if (input.description) {
         await db.from("jobs").update({ description: input.description }).eq("id", input.id).is("description", null);
       }
+      // CONTEXT D-05: if existing row was expired (came back in the ATS feed), re-activate it.
+      // The .eq("status", "expired") filter makes this a no-op for already-active rows.
+      await db
+        .from("jobs")
+        .update({ status: "active", expired_at: null })
+        .eq("id", input.id)
+        .eq("status", "expired");
       return false;
     }
     throw new Error(`upsertJob failed: ${error.message}`);

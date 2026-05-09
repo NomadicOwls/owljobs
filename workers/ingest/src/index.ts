@@ -2,7 +2,8 @@ import { createClient } from "@supabase/supabase-js";
 import { getAllNiches, nicheFromHost, registerNiche } from "@owljobs/niches";
 import windTurbine from "../../../niches/wind-turbine.js";
 import { ingestNiche } from "./ingest.js";
-import { classifyPendingJobs, CLASSIFY_LIMIT } from "./classify.js";
+import { cleanupExpired } from "./expire.js";
+import { classifyPendingJobs, reclassifyAmbiguous, CLASSIFY_LIMIT } from "./classify.js";
 import { enrichPendingJobs } from "./enrich.js";
 
 // Register all niches at module load time.
@@ -20,6 +21,7 @@ export interface Env {
   CLASSIFY_QUEUE: Queue<NicheMessage>;
   ENRICH_QUEUE: Queue<NicheMessage>;
   PAGES_DEPLOY_HOOK?: string;
+  GOOGLE_INDEXING_KEY?: string;     // Service-account JSON blob (CONTEXT D-08); optional — skip pings if absent
 }
 
 function makeSupabase(env: Env) {
@@ -38,10 +40,17 @@ const handler: ExportedHandler<Env, NicheMessage> = {
         niches.map(async (niche) => {
           const db = supabase.schema(niche.supabaseSchema);
           try {
-            const stats = await ingestNiche(niche, db);
+            const stats = await ingestNiche(niche, db, undefined, env.GOOGLE_INDEXING_KEY);
             console.log(
-              `[${niche.id}] ingest complete: ${stats.inserted} new, ${stats.skipped} skipped, ${stats.errors} errors`
+              `[${niche.id}] ingest complete: ${stats.inserted} new, ${stats.skipped} skipped, ${stats.errors} errors, ${stats.expired} expired, ${stats.pinged} pinged, ${stats.pingFailures} ping-failures`
             );
+            // CONTEXT D-06: same cron handler hard-deletes 90-day-old expired rows
+            try {
+              const cleaned = await cleanupExpired(db);
+              if (cleaned > 0) console.log(`[${niche.id}] cleanup: hard-deleted ${cleaned} jobs (>90d expired)`);
+            } catch (err) {
+              console.error(`[${niche.id}] cleanupExpired failed:`, err);
+            }
             await env.CLASSIFY_QUEUE.send({ nicheId: niche.id });
           } catch (err) {
             console.error(`[${niche.id}] ingest failed:`, err);
@@ -115,9 +124,19 @@ const handler: ExportedHandler<Env, NicheMessage> = {
       // ?target=N runs only that target index (0-based); omit to run all (may timeout with many targets)
       const targetParam = url.searchParams.get("target");
       const targetIndex = targetParam !== null ? parseInt(targetParam, 10) : null;
-      const stats = await ingestNiche(niche, db, targetIndex ?? undefined);
+      const stats = await ingestNiche(niche, db, targetIndex ?? undefined, env.GOOGLE_INDEXING_KEY);
       ctx.waitUntil(env.CLASSIFY_QUEUE.send({ nicheId: niche.id }));
       return Response.json({ niche: niche.id, target: targetIndex, ...stats });
+    }
+
+    if (url.pathname === "/reclassify-ambiguous") {
+      const niche = getAllNiches()[0];
+      if (!niche) return new Response("No niches configured", { status: 500 });
+      const db = makeSupabase(env).schema(niche.supabaseSchema);
+      const limit = Math.min(parseInt(url.searchParams.get("limit") ?? "100", 10), 500);
+      const dry = url.searchParams.get("dry") === "1";
+      const stats = await reclassifyAmbiguous(niche, db, env.AI, { limit, dry });
+      return Response.json({ niche: niche.id, dry, ...stats });
     }
 
     if (url.pathname === "/enrich-now") {
