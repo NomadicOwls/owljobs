@@ -166,6 +166,7 @@ const handler: ExportedHandler<Env, NicheMessage> = {
     const { data, error } = await db
       .from("jobs")
       .select("id, title, employer_id, location, country, posted_at, canonical_url, is_sponsored, classification_score, classifier")
+      .eq("status", "active")
       .order("is_sponsored", { ascending: false })
       .order("posted_at", { ascending: false })
       .limit(100);
