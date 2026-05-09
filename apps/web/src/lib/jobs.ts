@@ -28,6 +28,7 @@ export async function listJobs(
     .from("jobs")
     .select("id, title, location, country, posted_at, canonical_url, is_sponsored, featured_until, classification_score, employer_id, employers!inner(name, normalized_name)", { count: "exact" })
     .or("classification_score.gte.0.5,classification_score.is.null")
+    .eq("status", "active")
     .order("is_sponsored", { ascending: false })
     .order("posted_at", { ascending: false, nullsFirst: false })
     .range(offset, offset + perPage - 1);
@@ -91,6 +92,7 @@ export async function listEmployerJobs(
     .select("id, title, location, country, posted_at, canonical_url, is_sponsored, featured_until, classification_score, employer_id, employers!inner(name, normalized_name)", { count: "exact" })
     .eq("employer_id", employer.id)
     .or("classification_score.gte.0.5,classification_score.is.null")
+    .eq("status", "active")
     .order("is_sponsored", { ascending: false })
     .order("posted_at", { ascending: false, nullsFirst: false })
     .range(offset, offset + perPage - 1);
@@ -111,6 +113,7 @@ export async function listFeedJobs(
     .from("jobs")
     .select("id, title, location, country, posted_at, canonical_url, is_sponsored, featured_until, classification_score, employer_id, employers!inner(name, normalized_name)")
     .or("classification_score.gte.0.5,classification_score.is.null")
+    .eq("status", "active")
     .order("is_sponsored", { ascending: false })
     .order("posted_at", { ascending: false, nullsFirst: false })
     .limit(limit);
@@ -128,6 +131,7 @@ export async function listSitemapJobs(
     .from("jobs")
     .select("id, updated_at")
     .gte("classification_score", 0.5)
+    .eq("status", "active")
     .order("posted_at", { ascending: false, nullsFirst: false })
     .limit(5000);
 
@@ -150,10 +154,12 @@ export async function getStats(db: SupabaseClient, schema: string): Promise<JobS
   const [active, employers, recent] = await Promise.all([
     db.schema(schema).from("jobs").select("id", { count: "exact", head: true })
       .gte("classification_score", 0.5)
+      .eq("status", "active")
       .or(`expires_at.is.null,expires_at.gt.${now}`),
     db.schema(schema).from("employers").select("id", { count: "exact", head: true }),
     db.schema(schema).from("jobs").select("id", { count: "exact", head: true })
       .gte("classification_score", 0.5)
+      .eq("status", "active")
       .gte("posted_at", weekAgo),
   ]);
 

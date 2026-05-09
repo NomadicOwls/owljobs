@@ -7,12 +7,16 @@ describe("lib/jobs.ts — DATA-02 status='active' filter", () => {
     src = await readFile(new URL("../src/lib/jobs.ts", import.meta.url), "utf-8");
   });
 
-  // Helper: extract the body of an exported async function by name
+  // Helper: extract the body of an exported async function by name.
+  // Finds the next `export async function` after the current one to bound the slice.
   function extractFnBody(source: string, fnName: string): string {
-    const startIdx = source.indexOf(`export async function ${fnName}`);
+    const marker = `export async function ${fnName}`;
+    const startIdx = source.indexOf(marker);
     if (startIdx === -1) throw new Error(`Function ${fnName} not found`);
-    // crude: grab next 2000 chars — sufficient for these short fns
-    return source.slice(startIdx, startIdx + 2000);
+    // Find the start of the next exported function to bound the slice
+    const nextFnIdx = source.indexOf("export async function ", startIdx + marker.length);
+    const endIdx = nextFnIdx === -1 ? startIdx + 3000 : nextFnIdx;
+    return source.slice(startIdx, endIdx);
   }
 
   it('listJobs filters .eq("status", "active")', () => {
