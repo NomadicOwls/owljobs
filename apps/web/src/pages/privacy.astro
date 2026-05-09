@@ -1,6 +1,10 @@
 ---
 export const prerender = true;
 import Layout from "../components/Layout.astro";
+import { getEnv } from "../lib/env.js";
+
+const env = getEnv(Astro.locals);
+const turnstileSiteKey = env.TURNSTILE_SITE_KEY;
 ---
 
 <Layout
@@ -104,8 +108,94 @@ import Layout from "../components/Layout.astro";
 
       <p class="updated">Last updated: May 2025</p>
     </div>
+
+    <section class="mt-12 pt-8 border-t border-border">
+      <h2 class="text-xl font-bold text-foreground">Request data deletion</h2>
+      <p class="mt-2 text-sm text-muted-foreground">
+        Under GDPR Article 17 you may request that we delete all personal data we hold
+        about you. Submit your email below and we will process the request within 30 days.
+      </p>
+      <form
+        id="delete-form"
+        novalidate
+        class="mt-4 space-y-3"
+        data-turnstile-key={turnstileSiteKey}
+      >
+        <input
+          type="email"
+          name="email"
+          id="delete-email"
+          placeholder="your@email.com"
+          required
+          autocomplete="email"
+          class="h-12 w-full rounded-md border border-border bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+        />
+        <div class="cf-turnstile" data-sitekey={turnstileSiteKey} data-theme="auto"></div>
+        <button
+          type="submit"
+          id="delete-submit"
+          class="inline-flex h-12 items-center rounded-md bg-primary px-6 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50 disabled:pointer-events-none"
+        >
+          Submit request
+        </button>
+        <p id="delete-error" class="text-sm text-destructive min-h-[1.25rem]" role="alert" aria-live="polite"></p>
+        <p id="delete-success" class="text-sm text-accent min-h-[1.25rem]" role="status" aria-live="polite"></p>
+      </form>
+    </section>
   </div>
 </Layout>
+
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer is:inline></script>
+
+<script>
+  const f = document.getElementById("delete-form") as HTMLFormElement | null;
+  if (f) {
+    f.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const emailEl = document.getElementById("delete-email") as HTMLInputElement | null;
+      const errEl = document.getElementById("delete-error");
+      const okEl = document.getElementById("delete-success");
+      const submitEl = document.getElementById("delete-submit") as HTMLButtonElement | null;
+      if (!emailEl || !errEl || !okEl || !submitEl) return;
+
+      errEl.textContent = "";
+      okEl.textContent = "";
+
+      const email = emailEl.value.trim();
+      if (!email) {
+        errEl.textContent = "Please enter your email address.";
+        return;
+      }
+
+      const tokenInput = f.querySelector<HTMLInputElement>('[name="cf-turnstile-response"]');
+      const turnstileToken = tokenInput?.value ?? "";
+
+      submitEl.disabled = true;
+
+      try {
+        const res = await fetch("/api/delete-request", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, turnstileToken }),
+        });
+        const json = (await res.json()) as { message?: string; error?: string };
+        if (res.ok) {
+          okEl.textContent = json.message ?? "We received your request and will process it within 30 days.";
+          f.reset();
+          if (typeof (window as any).turnstile !== "undefined") {
+            (window as any).turnstile.reset();
+          }
+        } else {
+          errEl.textContent = json.error ?? "Something went wrong. Try again.";
+        }
+      } catch {
+        errEl.textContent = "Network error. Please try again.";
+      } finally {
+        submitEl.disabled = false;
+      }
+    });
+  }
+</script>
 
 <style>
   .prose-content {
