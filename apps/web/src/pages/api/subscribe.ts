@@ -8,9 +8,9 @@ export const POST: APIRoute = async ({ locals, request }) => {
   const { niche } = locals;
   const env = getEnv(locals);
 
-  let body: { email?: string; turnstileToken?: string };
+  let body: { email?: string; turnstileToken?: string; consent?: boolean };
   try {
-    body = (await request.json()) as { email?: string; turnstileToken?: string };
+    body = (await request.json()) as { email?: string; turnstileToken?: string; consent?: boolean };
   } catch {
     return Response.json({ error: "Invalid request body." }, { status: 400 });
   }
@@ -24,6 +24,10 @@ export const POST: APIRoute = async ({ locals, request }) => {
 
   if (!turnstileToken) {
     return Response.json({ error: "Please complete the security check." }, { status: 400 });
+  }
+
+  if (!body.consent) {
+    return Response.json({ error: "Consent required." }, { status: 400 });
   }
 
   const ip = request.headers.get("CF-Connecting-IP") ?? undefined;
@@ -50,6 +54,7 @@ export const POST: APIRoute = async ({ locals, request }) => {
         confirmed_at: null,
         locations: null,
         created_at: new Date().toISOString(),
+        consent_given_at: new Date().toISOString(),
       },
       { onConflict: "email,niche", ignoreDuplicates: false },
     );

@@ -22,7 +22,8 @@ describe("api/subscribe.ts — INFRA-06 consent enforcement (source contract)", 
 
   it("consent check fires BEFORE Turnstile fetch (saves quota on bad submits)", () => {
     const consentIdx = src.indexOf("Consent required.");
-    const verifyIdx = src.indexOf("verifyTurnstile");
+    // Use "verifyTurnstile(" to skip the import statement and find the actual call
+    const verifyIdx = src.indexOf("verifyTurnstile(");
     expect(consentIdx).toBeGreaterThan(-1);
     expect(verifyIdx).toBeGreaterThan(-1);
     expect(consentIdx).toBeLessThan(verifyIdx);
