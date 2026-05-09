@@ -62,7 +62,9 @@ _Project memory. Updated continuously across sessions._
 ### Last Session
 
 - **Date:** 2026-05-09
-- **Action:** Initial project planning — PROJECT.md, REQUIREMENTS.md, research/SUMMARY.md, ROADMAP.md created
+- **Action:** Phase 1 context gathered — decisions captured on stale job expiry (status column + soft-delete + ID comparison), GDPR deletion form (embedded in /privacy, emails founder), consent checkbox (required, consent_given_at in DB), and Google Indexing API (full setup in Phase 1 for removal pings)
+- **Stopped at:** Phase 1 context gathered
+- **Resume file:** `.planning/phases/01-production-foundation/01-CONTEXT.md`
 - **Next action:** Run `/gsd-plan-phase 1` to decompose Phase 1 (Production Foundation) into executable plans
 
 ### Files of Record
