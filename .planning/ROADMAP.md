@@ -54,7 +54,7 @@ Reach consistent MRR from employer subscriptions (€499 / €999 / €1999/mo) 
   - [ ] 02-05-PLAN.md — SmartRecruiters adapter: list endpoint + ingest function + 2+ wind employers (COVG-02)
   - [ ] 02-06-PLAN.md — Adzuna + JSearch aggregator adapters: no-expire guard + wrangler secrets (COVG-03)
   - [ ] 02-07-PLAN.md — Trakstar adapter for Ørsted: probe + proceed/abort decision + source-contract tests (COVG-02)
-  - [ ] 02-08-PLAN.md — Discovery Worker workers/discover: POST /probe + ATS detection (8 platforms) + DISCOVER_SECRET auth (COVG-01)
+  - [x] 02-08-PLAN.md — Discovery Worker workers/discover: POST /probe + ATS detection (8 platforms) + DISCOVER_SECRET auth (COVG-01) _(completed 2026-05-11)_
 
 ### Phase 3: Candidate Activation
 **Goal:** A real, growing candidate audience exists — the prerequisite that unlocks the employer FOMO pitch.
