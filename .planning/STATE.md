@@ -6,15 +6,15 @@ _Project memory. Updated continuously across sessions._
 
 - **Name:** OwlJobs (niche 1: Wind Turbine Jobs)
 - **Core value:** Be the only place wind turbine technicians find all relevant open roles — creating a candidate audience employers will pay to reach before competitors do.
-- **Current focus:** Phase 1 — Production Foundation
+- **Current focus:** Phase 2 — Employer Breadth & SEO
 - **Mode:** mvp
 - **Granularity:** standard
 
 ## Current Position
 
 - **Phase:** 2 — Employer Breadth & SEO (Not started)
-- **Plan:** TBD — run `/gsd-discuss-phase 2` to plan
-- **Status:** Phase 1 complete (verified 2026-05-10). Ready for Phase 2.
+- **Plan:** TBD — run `/gsd-plan-phase 2` to plan
+- **Status:** Phase 2 context gathered (2026-05-10). Ready to plan.
 - **Progress:** [██░░░░░░░░] 20% (1/5 phases complete)
 
 ## Performance Metrics
@@ -62,9 +62,9 @@ _Project memory. Updated continuously across sessions._
 ### Last Session
 
 - **Date:** 2026-05-10
-- **Action:** Phase 1 executed — 6 plans in 4 waves. Migration 0004 applied to production Supabase. 35 tests passing. 3 critical security fixes applied (XSS, GDPR re-subscribe token rotation, HTML injection). Verification passed 7/9 (2 deferred ops tasks). Code review clean post-fixes.
-- **Stopped at:** Phase 1 complete
-- **Next action:** `/gsd-discuss-phase 2` — Employer Breadth & SEO
+- **Action:** Phase 2 context gathered — 4 areas discussed (discovery script, Adzuna integration, JSON-LD missing fields, employer expansion). 20 implementation decisions captured in 02-CONTEXT.md. Key decisions: `workers/discover` Worker with Supabase `candidates` table, Adzuna+JSearch as dual aggregator, JSON-LD only for enriched jobs, SmartRecruiters adapter to build, Trakstar adapter for Ørsted (with aggregator fallback if fragile).
+- **Stopped at:** Phase 2 context gathered
+- **Next action:** `/gsd-plan-phase 2` — plan employer breadth & SEO
 
 ### Files of Record
 
