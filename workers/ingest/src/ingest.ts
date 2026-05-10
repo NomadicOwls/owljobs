@@ -64,8 +64,22 @@ export async function ingestNiche(
           await ingestRecruitee(target, niche, db, localStats, saJson, budget);
         } else if (target.atsType === "softgarden") {
           await ingestSoftgarden(target, niche, db, localStats, saJson, budget);
+        } else if (target.atsType === "smartrecruiters") {
+          // STUB — real implementation in Plan 05
+          console.log(`[ingest] smartrecruiters adapter not yet implemented (Plan 05): ${target.employer}`);
+        } else if (target.atsType === "trakstar") {
+          // STUB — real implementation in Plan 07
+          console.log(`[ingest] trakstar adapter not yet implemented (Plan 07): ${target.employer}`);
+        } else if (target.atsType === "adzuna") {
+          // STUB — real implementation in Plan 06
+          console.log(`[ingest] adzuna adapter not yet implemented (Plan 06): ${target.employer}`);
+        } else if (target.atsType === "jsearch") {
+          // STUB — real implementation in Plan 06
+          console.log(`[ingest] jsearch adapter not yet implemented (Plan 06): ${target.employer}`);
         } else {
-          console.log(`[ingest] skipping unknown atsType (not yet implemented)`);
+          // Exhaustiveness guard: union is closed; this branch is unreachable but TS requires it.
+          const _exhaustive: never = target;
+          console.log(`[ingest] unreachable atsType:`, _exhaustive);
         }
       } catch (err) {
         console.error(`[ingest] error processing ${target.employer}:`, err);
@@ -497,7 +511,7 @@ function parseWorkdayDate(postedOn: string): string | null {
 
 interface EmployerInput {
   name: string;
-  atsType: "workday" | "greenhouse" | "successfactors" | "recruitee" | "softgarden" | "direct";
+  atsType: "workday" | "greenhouse" | "successfactors" | "recruitee" | "softgarden" | "smartrecruiters" | "trakstar" | "adzuna" | "jsearch" | "direct";
   atsTenant?: string;
   atsInstance?: string;
   atsSite?: string;
