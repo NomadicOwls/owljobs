@@ -47,8 +47,8 @@ Reach consistent MRR from employer subscriptions (€499 / €999 / €1999/mo) 
   4. The auto-discovery script reports a ranked list of new employer candidates with detected ATS platform and confidence score
   5. Job creation, expiry, and description updates ping the Google Indexing API and the URL appears in Search Console within 48 hours
 **Plans:** 8 plans
-  - [ ] 02-01-PLAN.md — [BLOCKING] migration 0005 (public.candidates) + Wave 1 activation (6 employers) + wave1.test.ts
-  - [ ] 02-02-PLAN.md — JSON-LD JobPosting on [slug].astro (SEO-01): conditional render + validThrough + location guard
+  - [x] 02-01-PLAN.md — [BLOCKING] migration 0005 (public.candidates) + Wave 1 activation (6 employers) + wave1.test.ts _(completed 2026-05-11; requires supabase db push to activate in production)_
+  - [x] 02-02-PLAN.md — JSON-LD JobPosting on [slug].astro (SEO-01): conditional render + validThrough + location guard _(completed 2026-05-11)_
   - [ ] 02-03-PLAN.md — Indexing API creation + description pings in ingest.ts + enrich.ts (SEO-03)
   - [ ] 02-04-PLAN.md — fetch-description.ts commit + AtsTarget union extension + SmartRecruiters/Trakstar/Adzuna/JSearch stubs (SEO-02)
   - [ ] 02-05-PLAN.md — SmartRecruiters adapter: list endpoint + ingest function + 2+ wind employers (COVG-02)
