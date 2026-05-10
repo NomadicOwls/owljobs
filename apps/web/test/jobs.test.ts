@@ -53,3 +53,57 @@ describe("lib/jobs.ts — DATA-02 status='active' filter", () => {
     expect(body).not.toMatch(/\.eq\(\s*"status"\s*,/);
   });
 });
+
+describe("[slug].astro — JSON-LD JobPosting structured data (SEO-01, D-15..D-18)", () => {
+  let astroSrc = "";
+  beforeAll(async () => {
+    astroSrc = await readFile(
+      new URL("../src/pages/jobs/[slug].astro", import.meta.url),
+      "utf-8",
+    );
+  });
+
+  it("contains an application/ld+json script tag", () => {
+    expect(astroSrc).toContain("application/ld+json");
+  });
+
+  it("@type is JobPosting", () => {
+    expect(astroSrc).toMatch(/"@type":\s*"JobPosting"/);
+  });
+
+  it("guards JSON-LD on description truthiness (D-15)", () => {
+    // Either {job.description && (...)} or a frontmatter-computed const guarded on job.description
+    expect(astroSrc).toMatch(/job\.description\s*&&|description.*\?.*JobPosting|jsonLd\s*=\s*job\.description/);
+  });
+
+  it("guards JSON-LD against aggregator sources (Pitfall 4)", () => {
+    // The guard chain must reference 'adzuna' OR 'jsearch' as excluded sources
+    expect(astroSrc).toMatch(/['"]adzuna['"]/);
+    expect(astroSrc).toMatch(/['"]jsearch['"]/);
+  });
+
+  it("validThrough uses Math.max with now + 7 days (Pitfall 9 — future-date guard)", () => {
+    expect(astroSrc).toMatch(/Math\.max\s*\([\s\S]*?Date\.now\(\)\s*\+\s*[\s\S]*?7\s*\*/);
+  });
+
+  it("jobLocation is conditionally spread on job.location (D-16)", () => {
+    expect(astroSrc).toMatch(/\.\.\.\(\s*job\.location\s*\?/);
+  });
+
+  it("JSON-LD is inside the non-expired branch (not rendered for status=expired)", () => {
+    const expiredIdx = astroSrc.indexOf("isExpired ? (");
+    const elseIdx = astroSrc.indexOf(") : (", expiredIdx);
+    const jsonLdIdx = astroSrc.indexOf("application/ld+json");
+    expect(expiredIdx).toBeGreaterThan(-1);
+    expect(elseIdx).toBeGreaterThan(-1);
+    expect(jsonLdIdx).toBeGreaterThan(elseIdx);
+  });
+
+  it("required fields present: title, description, datePosted, hiringOrganization, url (D-18)", () => {
+    expect(astroSrc).toMatch(/"title":/);
+    expect(astroSrc).toMatch(/"description":/);
+    expect(astroSrc).toMatch(/"datePosted":/);
+    expect(astroSrc).toMatch(/"hiringOrganization":/);
+    expect(astroSrc).toMatch(/"url":/);
+  });
+});
