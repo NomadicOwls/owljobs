@@ -153,7 +153,7 @@ CF Cron → workers/ingest/src/index.ts (scheduled)
         │    ├─ AdzunaTarget → fetchAllAdzunaJobs()                  [NEW]
         │    └─ JSearchTarget → fetchAllJSearchJobs()                [NEW]
         │         │
-        │         │ upsertJob() → pingUrlUpdated() on insert [NEW ping]
+        │         │ upsertJob() → pingUrlUpdated(buildPublicUrl(niche,job.id)) on insert [NEW ping]
         │         │
         │         └─ expireMissingJobs() ← SKIP for aggregator sources
         │
@@ -168,13 +168,13 @@ CF Cron → workers/ingest/src/index.ts (scheduled)
                enrichPendingJobs()
                  │  fetchDescription()
                  │  update description
-                 └─ pingUrlUpdated() [NEW ping on description update]
+                 └─ pingUrlUpdated(buildPublicUrl(niche,job.id)) [NEW ping on description update]
                     PAGES_DEPLOY_HOOK
 
 Astro [slug].astro (SSR on Pages)
   │  getJobBySlug() → includes description, posted_at, employers.name
   │
-  ├─ description IS NOT NULL?
+  ├─ description IS NOT NULL AND job.source NOT IN ('adzuna') AND job.location IS NOT NULL?
   │    YES → emit <script type="application/ld+json">JobPosting</script>
   │    NO  → no JSON-LD block
   │
@@ -378,15 +378,21 @@ workers/ingest/test/
 
 **`jobLocation`:** Conditionally required. Google requires it OR `applicantLocationRequirements` for remote jobs. Per D-16: omit when not in DB (wind turbine field jobs almost always have a physical location; remote-only wind turbine jobs are rare). Omitting produces warnings in Rich Results Test but does NOT disqualify eligibility; inaccurate data causes manual actions.
 
-**`validThrough`:** Recommended, not required per official docs. Include per D-17 — reduces stale listing noise. Must be a future date at render time; expired jobs don't render JSON-LD (D-15 gates on `description IS NOT NULL`, and expired jobs return 410 with no JSON-LD).
+**`validThrough`:** Recommended, not required per official docs. Include per D-17 — reduces stale listing noise. Must be a future date at render time. **Warning:** flat `posted_at + 30 days` produces a past `validThrough` for jobs still active after 30 days — the Rich Results Test flags this as an error. Use `max(posted_at+30d, now+7d)` to always produce a future date. Expired jobs return 410 and never render JSON-LD; active jobs older than 30 days are the at-risk case.
 
-**Thin content risk:** Google's Rich Results Test passes any non-null description. But descriptions under ~200 chars (Adzuna snippets) trigger thin-content manual actions. Mitigation: D-15 already prevents JSON-LD on null descriptions; additionally, only jobs with `source NOT IN ('adzuna', 'jsearch')` OR with `LENGTH(description) >= 400` should emit JSON-LD. (Claude's discretion to implement as length threshold.)
+**JSON-LD guard — full condition chain:** Emit JSON-LD only when ALL of the following are true: (1) `description IS NOT NULL` (D-15); (2) `source NOT IN ('adzuna')` — Adzuna descriptions are teasers and must always be stored as null, so this is redundant in practice but makes intent explicit; (3) `location IS NOT NULL` — D-16 says omit `jobLocation` when absent, but Google flags missing location on non-remote jobs; most aggregator jobs that slip through the description guard will still fail this check. Net: most aggregator-sourced jobs emit no JSON-LD due to null `description`; location is a secondary guard for any that somehow have a description stored.
 
 **Correct JSON-LD block template:**
 ```typescript
 // Source: D-15 through D-18 (CONTEXT.md) + Google JobPosting docs
+const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+const SEVEN_DAYS_MS  =  7 * 24 * 60 * 60 * 1000;
+// Always a future date: max(posted+30d, now+7d) prevents Rich Results Test errors for long-lived jobs
 const validThrough = new Date(
-  new Date(job.posted_at).getTime() + 30 * 24 * 60 * 60 * 1000
+  Math.max(
+    new Date(job.posted_at).getTime() + THIRTY_DAYS_MS,
+    Date.now() + SEVEN_DAYS_MS
+  )
 ).toISOString();
 
 const jsonLd = {
@@ -502,6 +508,47 @@ const jsonLd = {
 **What goes wrong:** Spending time on Trakstar only to discover it requires an OAuth login, making the adapter impossible in Workers without credentials.
 
 **How to avoid:** At implementation start, fetch `https://orsted.hire.trakstar.com` and inspect the response HTML. If the jobs list is in the initial HTML or a `window.__INITIAL_STATE__` / `window.__NEXT_DATA__` blob: proceed. If the page is a login redirect or blank SPA that requires browser JS execution to populate: ABORT and document the fallback ("Ørsted covered by Adzuna queries for `Ørsted wind turbine`"). Do not spend more than 30 minutes on Trakstar investigation.
+
+---
+
+### Pitfall 8: Indexing API Pings Use ATS URL Instead of owljobs.com Public URL
+
+**What goes wrong:** `expire.ts` calls `pingUrlUpdated(saJson, job.canonical_url)` — this pings the employer's ATS job URL, not the owljobs.com page. Google's Indexing API only indexes pages it has crawled from the submitting site's Search Console property. Pinging an external ATS URL provides no SEO benefit and wastes quota.
+
+**Root cause:** `canonical_url` in the DB is the employer ATS URL (the apply link). Phase 1 implemented expiry pings using this field — a likely bug. Phase 2 creation and description-update pings must NOT repeat this pattern.
+
+**How to avoid:** For creation and description-update pings in `ingest.ts` and `enrich.ts`, construct the owljobs.com public URL from the niche config and job ID. Add a helper:
+```typescript
+function buildPublicUrl(niche: NicheConfig, jobId: string): string {
+  return `https://${niche.domain}/jobs/${slugFromId(jobId)}`;
+}
+```
+Pass `buildPublicUrl(niche, job.id)` to `pingUrlUpdated`, NOT `job.canonical_url`.
+
+**Phase 1 bug note:** The expiry ping in `expire.ts` currently pings `job.canonical_url` (ATS URL). This is almost certainly incorrect — flag for investigation as a separate fix after Phase 2 ships. Do not block Phase 2 on it, but document in RUNBOOK.md.
+
+**Warning signs:** Google Search Console shows no URL coverage improvement despite active pinging; quota is consumed with no indexing effect visible in Search Console.
+
+---
+
+### Pitfall 9: `validThrough` Goes Stale for Long-Lived Active Jobs
+
+**What goes wrong:** `validThrough = new Date(posted_at).getTime() + 30 * 24 * 60 * 60 * 1000` produces a past date for any job still in the DB after 30 days. The Rich Results Test reports `validThrough` in the past as a structured data error. Google may demote or exclude the listing from Google for Jobs.
+
+**Root cause:** D-17 specifies "posted_at + 30 days" without accounting for jobs that survive past that date. Wind turbine field roles often stay open 6–12 weeks.
+
+**How to avoid:** Use `Math.max(posted_at+30d, now+7d)` to guarantee `validThrough` is always at least 7 days in the future at render time:
+```typescript
+const validThrough = new Date(
+  Math.max(
+    new Date(job.posted_at).getTime() + 30 * 24 * 60 * 60 * 1000,
+    Date.now() + 7 * 24 * 60 * 60 * 1000
+  )
+).toISOString();
+```
+This does not contradict D-17 (30 days is still the target for fresh jobs); it just extends the window for stale-surviving jobs.
+
+**Warning signs:** Rich Results Test on a job page returns "validThrough is in the past" warning.
 
 ---
 
