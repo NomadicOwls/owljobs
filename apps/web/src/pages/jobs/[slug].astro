@@ -56,6 +56,56 @@ const employerInitials = employerName
   .join("")
   .slice(0, 2)
   .toUpperCase();
+
+// SEO-01 (D-15..D-18 + Pitfalls 4, 9): Conditional JSON-LD JobPosting structured data.
+// Render only when:
+//   - job has a non-null description (D-15 — thin content guard)
+//   - source is NOT adzuna or jsearch (Pitfall 4 — teaser/aggregator content)
+// jobLocation is conditionally spread when job.location truthy (D-16 — no inference)
+// validThrough uses Math.max with inlined literals so "7 *" appears inside the call (Pitfall 9)
+const aggregatorSources = new Set<string>(["adzuna", "jsearch"]);
+const isAggregator = (job.job_sources ?? []).some((s) => aggregatorSources.has(s.source));
+const shouldEmitJsonLd = !isExpired && !!job.description && !isAggregator;
+
+const postedAtMs = job.posted_at ? new Date(job.posted_at).getTime() : Date.now();
+const validThrough = new Date(
+  Math.max(
+    postedAtMs + 30 * 24 * 60 * 60 * 1000,
+    Date.now() + 7 * 24 * 60 * 60 * 1000,
+  ),
+).toISOString();
+
+const datePosted = job.posted_at
+  ? new Date(job.posted_at).toISOString().split("T")[0]
+  : new Date().toISOString().split("T")[0];
+
+const jsonLd = shouldEmitJsonLd
+  ? {
+      "@context": "https://schema.org",
+      "@type": "JobPosting",
+      "title": job.title,
+      "description": job.description,
+      "datePosted": datePosted,
+      "validThrough": validThrough,
+      "hiringOrganization": {
+        "@type": "Organization",
+        "name": employerName,
+      },
+      "url": canonicalUrl,
+      ...(job.location
+        ? {
+            "jobLocation": {
+              "@type": "Place",
+              "address": {
+                "@type": "PostalAddress",
+                "addressLocality": job.location,
+                ...(job.country ? { "addressCountry": job.country } : {}),
+              },
+            },
+          }
+        : {}),
+    }
+  : null;
 ---
 
 {isExpired ? (
@@ -87,6 +137,9 @@ const employerInitials = employerName
   canonicalUrl={canonicalUrl}
   ogType="article"
 >
+  {jsonLd && (
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd).replace(/</g, "\\u003c")} />
+  )}
   <main class="pb-16 pt-6">
     <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
 
