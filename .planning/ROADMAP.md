@@ -46,7 +46,15 @@ Reach consistent MRR from employer subscriptions (€499 / €999 / €1999/mo) 
   3. Every relevant classified job displays a full enriched description (no stub-only listings)
   4. The auto-discovery script reports a ranked list of new employer candidates with detected ATS platform and confidence score
   5. Job creation, expiry, and description updates ping the Google Indexing API and the URL appears in Search Console within 48 hours
-**Plans:** TBD
+**Plans:** 8 plans
+  - [ ] 02-01-PLAN.md — [BLOCKING] migration 0005 (public.candidates) + Wave 1 activation (6 employers) + wave1.test.ts
+  - [ ] 02-02-PLAN.md — JSON-LD JobPosting on [slug].astro (SEO-01): conditional render + validThrough + location guard
+  - [ ] 02-03-PLAN.md — Indexing API creation + description pings in ingest.ts + enrich.ts (SEO-03)
+  - [ ] 02-04-PLAN.md — fetch-description.ts commit + AtsTarget union extension + SmartRecruiters/Trakstar/Adzuna/JSearch stubs (SEO-02)
+  - [ ] 02-05-PLAN.md — SmartRecruiters adapter: list endpoint + ingest function + 2+ wind employers (COVG-02)
+  - [ ] 02-06-PLAN.md — Adzuna + JSearch aggregator adapters: no-expire guard + wrangler secrets (COVG-03)
+  - [ ] 02-07-PLAN.md — Trakstar adapter for Ørsted: probe + proceed/abort decision + source-contract tests (COVG-02)
+  - [ ] 02-08-PLAN.md — Discovery Worker workers/discover: POST /probe + ATS detection (8 platforms) + DISCOVER_SECRET auth (COVG-01)
 
 ### Phase 3: Candidate Activation
 **Goal:** A real, growing candidate audience exists — the prerequisite that unlocks the employer FOMO pitch.
@@ -93,7 +101,7 @@ Reach consistent MRR from employer subscriptions (€499 / €999 / €1999/mo) 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Production Foundation | 6/6 | Complete | 2026-05-10 |
-| 2. Employer Breadth & SEO | 0/0 | Not started | - |
+| 2. Employer Breadth & SEO | 0/8 | Not started | - |
 | 3. Candidate Activation | 0/0 | Not started | - |
 | 4. Employer Product | 0/0 | Not started | - |
 | 5. Monetization & Outreach | 0/0 | Not started | - |
