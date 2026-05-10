@@ -13,8 +13,8 @@ _Project memory. Updated continuously across sessions._
 ## Current Position
 
 - **Phase:** 2 — Employer Breadth & SEO (Executing)
-- **Plan:** 3/8 plans complete (02-01 ✓, 02-02 ✓, 02-03 ✓)
-- **Status:** Phase 2 executing (2026-05-11). Wave 1 complete. Wave 2 starting (02-04, 02-08).
+- **Plan:** 4/8 plans complete (02-01 ✓, 02-02 ✓, 02-03 ✓, 02-04 ✓)
+- **Status:** Phase 2 executing (2026-05-11). Wave 2 in progress (02-04 done; 02-08 starting).
 - **Progress:** [██░░░░░░░░] 20% (1/5 phases complete)
 
 ## Performance Metrics
