@@ -49,7 +49,50 @@ export interface SoftgardenTarget {
   cronGroup?: CronGroup;
 }
 
-export type AtsTarget = WorkdayTarget | SuccessFactorsTarget | GreenhouseTarget | RecruiteeTarget | SoftgardenTarget;
+/** SmartRecruiters public Postings API (no auth). D-09: lazy-fetch — list endpoint omits descriptions. */
+export interface SmartRecruitersTarget {
+  employer: string;
+  atsType: "smartrecruiters";
+  /** Company identifier used in the SmartRecruiters API path, e.g. "Vestas" */
+  companyId: string;
+  cronGroup?: CronGroup;
+}
+
+/** Trakstar (SPA — fragile per D-10). Token extracted from initial HTML; abort to aggregator if not parseable. */
+export interface TrakstarTarget {
+  employer: string;
+  atsType: "trakstar";
+  /** Subdomain of hire.trakstar.com, e.g. "orsted" */
+  companySlug: string;
+  cronGroup?: CronGroup;
+}
+
+/** Adzuna search aggregator (D-05). Sentinel `employer` field — aggregator targets are per-query, not per-employer. */
+export interface AdzunaTarget {
+  employer: string;
+  atsType: "adzuna";
+  /** ISO 3166-1 alpha-2 country code — Adzuna endpoint requires this */
+  country: string;
+  cronGroup?: CronGroup;
+}
+
+/** JSearch (RapidAPI) aggregator fallback (D-06). Sentinel `employer` field. */
+export interface JSearchTarget {
+  employer: string;
+  atsType: "jsearch";
+  cronGroup?: CronGroup;
+}
+
+export type AtsTarget =
+  | WorkdayTarget
+  | SuccessFactorsTarget
+  | GreenhouseTarget
+  | RecruiteeTarget
+  | SoftgardenTarget
+  | SmartRecruitersTarget
+  | TrakstarTarget
+  | AdzunaTarget
+  | JSearchTarget;
 
 export interface NicheConfig {
   id: string;
