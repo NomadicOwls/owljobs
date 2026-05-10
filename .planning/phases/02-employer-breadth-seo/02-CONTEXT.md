@@ -40,6 +40,7 @@ Requirements in scope: COVG-01, COVG-02, COVG-03, SEO-01, SEO-02, SEO-03
 - **D-12:** Done threshold: **20 distinct employers** with jobs in the DB (native ATS + aggregator combined). Target **50 distinct employer names** appearing in job results via Adzuna/JSearch queries.
 - **D-13:** Wave 1 activation in Phase 2: uncomment and activate Nordex (SuccessFactors), Blattner Energy (Workday), Invenergy (Workday), Avangrid Renewables (Workday), Global Wind Service (Recruitee), Deutsche Windtechnik (Softgarden) from `niches/wind-turbine.ts`. Brings native ATS count to 9.
 - **D-14:** Path to 20+: Wave 1 (9) + SmartRecruiters employers found via discovery + Adzuna/JSearch aggregator. New adapters and aggregator queries handle the remainder.
+- **D-21:** Execution priority order for employer expansion: (1) **All Wave 1 activation first** — all 6 existing-adapter employers (Workday, SF, Recruitee, Softgarden) are already solved, activate together; (2) **SmartRecruiters adapter** — new build but public API, unlocks several discovery-found employers; (3) **Trakstar adapter** last — highest uncertainty, failing gracefully does not block the 20-employer gate since Wave 1 + SmartRecruiters already covers it.
 
 ### JSON-LD JobPosting (SEO-01)
 
