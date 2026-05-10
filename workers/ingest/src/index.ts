@@ -87,9 +87,9 @@ const handler: ExportedHandler<Env, NicheMessage> = {
             }
             await env.ENRICH_QUEUE.send({ nicheId });
           } else {
-            const stats = await enrichPendingJobs(niche, db);
+            const stats = await enrichPendingJobs(niche, db, env.GOOGLE_INDEXING_KEY);
             console.log(
-              `[${nicheId}] enrich complete: ${stats.enriched} enriched, ${stats.skipped} skipped, ${stats.errors} errors`
+              `[${nicheId}] enrich complete: ${stats.enriched} enriched, ${stats.skipped} skipped, ${stats.errors} errors, ${stats.pinged} pinged, ${stats.pingFailures} ping-failures`
             );
             if (env.PAGES_DEPLOY_HOOK) {
               await fetch(env.PAGES_DEPLOY_HOOK, { method: "POST" });
@@ -143,7 +143,7 @@ const handler: ExportedHandler<Env, NicheMessage> = {
       const niche = getAllNiches()[0];
       if (!niche) return new Response("No niches configured", { status: 500 });
       const db = makeSupabase(env).schema(niche.supabaseSchema);
-      const stats = await enrichPendingJobs(niche, db);
+      const stats = await enrichPendingJobs(niche, db, env.GOOGLE_INDEXING_KEY);
       return Response.json({ niche: niche.id, ...stats });
     }
 

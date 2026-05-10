@@ -1,8 +1,7 @@
 import type { NicheConfig } from "@owljobs/niches";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { fetchWorkdayJobDescription } from "@owljobs/ats-adapters/workday";
-import { fetchSuccessFactorsJobDescription } from "@owljobs/ats-adapters/successfactors";
-import { fetchRecruiteeJobDescription } from "@owljobs/ats-adapters/recruitee";
+import { fetchDescription } from "./fetch-description.js";
+import { pingUrlUpdated } from "./google-indexing.js";
 
 type SchemaClient = ReturnType<SupabaseClient["schema"]>;
 
@@ -10,16 +9,32 @@ export interface EnrichStats {
   enriched: number;
   skipped: number;
   errors: number;
+  pinged: number;
+  pingFailures: number;
 }
+
+/**
+ * Build the owljobs.com public URL for a job (Pitfall 8 — Indexing API requires the
+ * URL it can crawl from Search Console, NOT the employer's ATS URL).
+ * Slug is the first 12 chars of the job ID, matching apps/web/src/lib/slug.ts.
+ */
+function buildPublicUrl(niche: NicheConfig, jobId: string): string {
+  return `https://${niche.domain}/jobs/${jobId.slice(0, 12)}`;
+}
+
+// Pitfall 2: Indexing API quota cap. Total across all 3 ping sites <= 200/day.
+const DESCRIPTION_PING_BUDGET = 50;
 
 const ENRICH_BATCH = 60;
 const ENRICH_CONCURRENCY = 8;
 
 export async function enrichPendingJobs(
-  _niche: NicheConfig,
-  db: SchemaClient
+  niche: NicheConfig,
+  db: SchemaClient,
+  saJson?: string,
 ): Promise<EnrichStats> {
-  const stats: EnrichStats = { enriched: 0, skipped: 0, errors: 0 };
+  const stats: EnrichStats = { enriched: 0, skipped: 0, errors: 0, pinged: 0, pingFailures: 0 };
+  const budget = { remaining: DESCRIPTION_PING_BUDGET };
 
   const { data, error } = await db
     .from("jobs")
@@ -67,6 +82,19 @@ export async function enrichPendingJobs(
             stats.errors++;
           } else {
             stats.enriched++;
+            // SEO-03: ping Google Indexing API after description fills in (D-19).
+            // Pitfall 8: owljobs.com URL via buildPublicUrl, NOT row.canonical_url.
+            if (saJson && budget.remaining > 0) {
+              try {
+                const r = await pingUrlUpdated(saJson, buildPublicUrl(niche, row.id));
+                budget.remaining--;
+                if (r.ok) stats.pinged++;
+                else stats.pingFailures++;
+              } catch (err) {
+                console.warn(`[indexing] description-update ping failed for ${row.id}:`, err);
+                stats.pingFailures++;
+              }
+            }
           }
         } catch (err) {
           console.error(`[enrich] error enriching ${row.id}:`, err);
@@ -77,41 +105,4 @@ export async function enrichPendingJobs(
   }
 
   return stats;
-}
-
-async function fetchDescription(row: {
-  id: string;
-  canonical_url: string;
-  employers: {
-    ats_type: string;
-    ats_tenant: string | null;
-    ats_instance: string | null;
-    ats_site: string | null;
-  };
-}): Promise<string | null> {
-  const { ats_type, ats_tenant, ats_instance, ats_site } = row.employers;
-
-  if (ats_type === "workday" && ats_tenant && ats_instance && ats_site) {
-    // canonical_url: https://{tenant}.{instance}.myworkdayjobs.com/{site}/job/...
-    // externalPath = /job/... (everything after /{site})
-    const basePrefix = `https://${ats_tenant}.${ats_instance}.myworkdayjobs.com/${ats_site}`;
-    if (!row.canonical_url.startsWith(basePrefix)) return null;
-    const externalPath = row.canonical_url.slice(basePrefix.length);
-
-    return fetchWorkdayJobDescription(
-      { employer: "", atsType: "workday", tenant: ats_tenant, instance: ats_instance, site: ats_site },
-      externalPath
-    );
-  }
-
-  if (ats_type === "successfactors") {
-    return fetchSuccessFactorsJobDescription(row.canonical_url);
-  }
-
-  if (ats_type === "recruitee") {
-    return fetchRecruiteeJobDescription(row.canonical_url);
-  }
-
-  // Greenhouse / softgarden: descriptions set eagerly at ingest from API response; no re-fetch needed.
-  return null;
 }
