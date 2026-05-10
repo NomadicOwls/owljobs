@@ -8,6 +8,21 @@ import { fetchAllSoftgardenJobs, SoftgardenAdapterError } from "@owljobs/ats-ada
 import { sha256Hex, normalizeForKey } from "@owljobs/schema";
 import { sanitizeJobDescription } from "@owljobs/ats-adapters/sanitize";
 import { expireMissingJobs, type ExpireResult } from "./expire.js";
+import { pingUrlUpdated } from "./google-indexing.js";
+
+/**
+ * Build the owljobs.com public URL for a job (Pitfall 8 — Indexing API requires the
+ * URL it can crawl from Search Console, NOT the employer's ATS URL).
+ * Slug is the first 12 chars of the job ID, matching apps/web/src/lib/slug.ts.
+ */
+function buildPublicUrl(niche: NicheConfig, jobId: string): string {
+  return `https://${niche.domain}/jobs/${jobId.slice(0, 12)}`;
+}
+
+// Pitfall 2: Google Indexing API quota = 200/day combined across all ping types.
+// expire.ts caps expiry pings at 100/run. We cap creation pings at 50/run so total
+// headroom across creation + expiry + description updates stays within quota.
+const CREATION_PING_BUDGET = 50;
 
 // The `db` param is a schema-scoped Supabase client: supabase.schema(niche.supabaseSchema)
 type SchemaClient = ReturnType<SupabaseClient["schema"]>;
@@ -31,20 +46,24 @@ export async function ingestNiche(
     ? niche.atsTargets.slice(onlyTargetIndex, onlyTargetIndex + 1)
     : niche.atsTargets;
 
+  // Pitfall 2: shared budget declared BEFORE targets.map so ALL targets consume from the
+  // same 50-ping pool per run (not a per-target budget which would allow 9×50=450 pings).
+  const budget = { remaining: CREATION_PING_BUDGET };
+
   const results = await Promise.allSettled(
     targets.map(async (target) => {
       const localStats: IngestStats = { inserted: 0, skipped: 0, errors: 0, expired: 0, pinged: 0, pingFailures: 0 };
       try {
         if (target.atsType === "workday") {
-          await ingestWorkday(target, db, localStats, saJson);
+          await ingestWorkday(target, niche, db, localStats, saJson, budget);
         } else if (target.atsType === "greenhouse") {
-          await ingestGreenhouse(target, db, localStats, saJson);
+          await ingestGreenhouse(target, niche, db, localStats, saJson, budget);
         } else if (target.atsType === "successfactors") {
-          await ingestSuccessFactors(target, db, localStats, saJson);
+          await ingestSuccessFactors(target, niche, db, localStats, saJson, budget);
         } else if (target.atsType === "recruitee") {
-          await ingestRecruitee(target, db, localStats, saJson);
+          await ingestRecruitee(target, niche, db, localStats, saJson, budget);
         } else if (target.atsType === "softgarden") {
-          await ingestSoftgarden(target, db, localStats, saJson);
+          await ingestSoftgarden(target, niche, db, localStats, saJson, budget);
         } else {
           console.log(`[ingest] skipping unknown atsType (not yet implemented)`);
         }
@@ -74,9 +93,11 @@ export async function ingestNiche(
 
 async function ingestWorkday(
   target: WorkdayTarget,
+  niche: NicheConfig,
   db: SchemaClient,
   stats: IngestStats,
   saJson?: string,
+  budget?: { remaining: number },
 ): Promise<void> {
   let jobs;
   try {
@@ -114,7 +135,24 @@ async function ingestWorkday(
         source: "workday",
         rawPayload: JSON.parse(job.rawPayload) as Record<string, unknown>,
       });
-      inserted ? stats.inserted++ : stats.skipped++;
+      if (inserted) {
+        stats.inserted++;
+        // SEO-03: ping Google Indexing API for new job URL.
+        // Pitfall 8: use buildPublicUrl (owljobs.com), NOT job.canonicalUrl (employer ATS URL).
+        if (saJson && budget && budget.remaining > 0) {
+          try {
+            const r = await pingUrlUpdated(saJson, buildPublicUrl(niche, job.sourceId));
+            budget.remaining--;
+            if (r.ok) stats.pinged++;
+            else stats.pingFailures++;
+          } catch (err) {
+            console.warn(`[indexing] creation ping failed for ${job.sourceId}:`, err);
+            stats.pingFailures++;
+          }
+        }
+      } else {
+        stats.skipped++;
+      }
     } catch (err) {
       console.error(`[ingest] failed to upsert job "${job.title}":`, err);
       stats.errors++;
@@ -134,9 +172,11 @@ async function ingestWorkday(
 
 async function ingestGreenhouse(
   target: GreenhouseTarget,
+  niche: NicheConfig,
   db: SchemaClient,
   stats: IngestStats,
   saJson?: string,
+  budget?: { remaining: number },
 ): Promise<void> {
   const jobs = await fetchAllGreenhouseJobs(target);
 
@@ -163,7 +203,24 @@ async function ingestGreenhouse(
         source: "greenhouse",
         rawPayload: JSON.parse(job.rawPayload) as Record<string, unknown>,
       });
-      inserted ? stats.inserted++ : stats.skipped++;
+      if (inserted) {
+        stats.inserted++;
+        // SEO-03: ping Google Indexing API for new job URL.
+        // Pitfall 8: use buildPublicUrl (owljobs.com), NOT job.canonicalUrl (employer ATS URL).
+        if (saJson && budget && budget.remaining > 0) {
+          try {
+            const r = await pingUrlUpdated(saJson, buildPublicUrl(niche, job.sourceId));
+            budget.remaining--;
+            if (r.ok) stats.pinged++;
+            else stats.pingFailures++;
+          } catch (err) {
+            console.warn(`[indexing] creation ping failed for ${job.sourceId}:`, err);
+            stats.pingFailures++;
+          }
+        }
+      } else {
+        stats.skipped++;
+      }
     } catch (err) {
       console.error(`[ingest] failed to upsert job "${job.title}":`, err);
       stats.errors++;
@@ -183,9 +240,11 @@ async function ingestGreenhouse(
 
 async function ingestSuccessFactors(
   target: SuccessFactorsTarget,
+  niche: NicheConfig,
   db: SchemaClient,
   stats: IngestStats,
   saJson?: string,
+  budget?: { remaining: number },
 ): Promise<void> {
   let jobs;
   try {
@@ -220,7 +279,24 @@ async function ingestSuccessFactors(
         source: "successfactors",
         rawPayload: JSON.parse(job.rawPayload) as Record<string, unknown>,
       });
-      inserted ? stats.inserted++ : stats.skipped++;
+      if (inserted) {
+        stats.inserted++;
+        // SEO-03: ping Google Indexing API for new job URL.
+        // Pitfall 8: use buildPublicUrl (owljobs.com), NOT job.canonicalUrl (employer ATS URL).
+        if (saJson && budget && budget.remaining > 0) {
+          try {
+            const r = await pingUrlUpdated(saJson, buildPublicUrl(niche, job.sourceId));
+            budget.remaining--;
+            if (r.ok) stats.pinged++;
+            else stats.pingFailures++;
+          } catch (err) {
+            console.warn(`[indexing] creation ping failed for ${job.sourceId}:`, err);
+            stats.pingFailures++;
+          }
+        }
+      } else {
+        stats.skipped++;
+      }
     } catch (err) {
       console.error(`[ingest] failed to upsert job "${job.title}":`, err);
       stats.errors++;
@@ -240,9 +316,11 @@ async function ingestSuccessFactors(
 
 async function ingestRecruitee(
   target: RecruiteeTarget,
+  niche: NicheConfig,
   db: SchemaClient,
   stats: IngestStats,
   saJson?: string,
+  budget?: { remaining: number },
 ): Promise<void> {
   let jobs;
   try {
@@ -275,7 +353,24 @@ async function ingestRecruitee(
         source: "recruitee",
         rawPayload: JSON.parse(job.rawPayload) as Record<string, unknown>,
       });
-      inserted ? stats.inserted++ : stats.skipped++;
+      if (inserted) {
+        stats.inserted++;
+        // SEO-03: ping Google Indexing API for new job URL.
+        // Pitfall 8: use buildPublicUrl (owljobs.com), NOT job.canonicalUrl (employer ATS URL).
+        if (saJson && budget && budget.remaining > 0) {
+          try {
+            const r = await pingUrlUpdated(saJson, buildPublicUrl(niche, job.sourceId));
+            budget.remaining--;
+            if (r.ok) stats.pinged++;
+            else stats.pingFailures++;
+          } catch (err) {
+            console.warn(`[indexing] creation ping failed for ${job.sourceId}:`, err);
+            stats.pingFailures++;
+          }
+        }
+      } else {
+        stats.skipped++;
+      }
     } catch (err) {
       console.error(`[ingest] failed to upsert job "${job.title}":`, err);
       stats.errors++;
@@ -295,9 +390,11 @@ async function ingestRecruitee(
 
 async function ingestSoftgarden(
   target: SoftgardenTarget,
+  niche: NicheConfig,
   db: SchemaClient,
   stats: IngestStats,
   saJson?: string,
+  budget?: { remaining: number },
 ): Promise<void> {
   let jobs;
   try {
@@ -331,7 +428,24 @@ async function ingestSoftgarden(
         source: "softgarden",
         rawPayload: JSON.parse(job.rawPayload) as Record<string, unknown>,
       });
-      inserted ? stats.inserted++ : stats.skipped++;
+      if (inserted) {
+        stats.inserted++;
+        // SEO-03: ping Google Indexing API for new job URL.
+        // Pitfall 8: use buildPublicUrl (owljobs.com), NOT job.canonicalUrl (employer ATS URL).
+        if (saJson && budget && budget.remaining > 0) {
+          try {
+            const r = await pingUrlUpdated(saJson, buildPublicUrl(niche, job.sourceId));
+            budget.remaining--;
+            if (r.ok) stats.pinged++;
+            else stats.pingFailures++;
+          } catch (err) {
+            console.warn(`[indexing] creation ping failed for ${job.sourceId}:`, err);
+            stats.pingFailures++;
+          }
+        }
+      } else {
+        stats.skipped++;
+      }
     } catch (err) {
       console.error(`[ingest] failed to upsert job "${job.title}":`, err);
       stats.errors++;
