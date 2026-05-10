@@ -12,9 +12,9 @@ _Project memory. Updated continuously across sessions._
 
 ## Current Position
 
-- **Phase:** 2 — Employer Breadth & SEO (Not started)
-- **Plan:** TBD — run `/gsd-plan-phase 2` to plan
-- **Status:** Phase 2 context gathered (2026-05-10). Ready to plan.
+- **Phase:** 2 — Employer Breadth & SEO (Ready to execute)
+- **Plan:** 8 plans (5 waves) — run `/gsd-execute-phase 2` to execute
+- **Status:** Phase 2 planned (2026-05-11). 8 plans across 5 waves.
 - **Progress:** [██░░░░░░░░] 20% (1/5 phases complete)
 
 ## Performance Metrics
