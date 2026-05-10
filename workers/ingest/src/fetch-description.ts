@@ -37,6 +37,42 @@ export async function fetchDescription(row: DescriptionRow): Promise<string | nu
     return fetchRecruiteeJobDescription(row.canonical_url);
   }
 
+  if (ats_type === "smartrecruiters" && ats_site) {
+    // canonical_url shape (set by SmartRecruiters adapter in Plan 05):
+    //   https://jobs.smartrecruiters.com/{companyId}/{postingId}
+    // ats_site stores companyId for SmartRecruiters employers.
+    // Extract postingId by splitting the canonical URL.
+    const match = row.canonical_url.match(/jobs\.smartrecruiters\.com\/[^/]+\/([^/?#]+)/);
+    if (!match) return null;
+    const postingId = match[1];
+    const apiUrl = `https://api.smartrecruiters.com/v1/companies/${ats_site}/postings/${postingId}`;
+
+    try {
+      const resp = await fetch(apiUrl, { headers: { Accept: "application/json" } });
+      if (!resp.ok) return null;
+      const data = (await resp.json()) as {
+        jobAd?: {
+          sections?: {
+            jobDescription?: { text?: string };
+            qualifications?: { text?: string };
+            additionalInformation?: { text?: string };
+          };
+        };
+      };
+      const sections = data.jobAd?.sections ?? {};
+      const parts = [
+        sections.jobDescription?.text,
+        sections.qualifications?.text,
+        sections.additionalInformation?.text,
+      ].filter(Boolean) as string[];
+      if (parts.length === 0) return null;
+      const { sanitizeJobDescription } = await import("@owljobs/ats-adapters/sanitize");
+      return sanitizeJobDescription(parts.join("\n\n"));
+    } catch {
+      return null;
+    }
+  }
+
   // Greenhouse / softgarden: descriptions set eagerly at ingest from API response; no re-fetch needed.
   return null;
 }
