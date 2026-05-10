@@ -726,22 +726,25 @@ Extend `apps/web/test/jobs.test.ts` for JSON-LD assertions (file exists).
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Should aggregator rows create `employers` table entries at all?**
    - What we know: `upsertEmployer` is called per-target in `ingest.ts`; aggregator targets have a sentinel `employer` field
    - What's unclear: Do we want `employers` rows for "adzuna" and "jsearch" sources, or should aggregators skip `upsertEmployer`?
    - Recommendation: Skip `upsertEmployer` for aggregator sources entirely; attach the employer hint (from the API's `company.display_name`) to the job row directly. This avoids `ats_type` collision.
+   - **RESOLUTION (Plan 06):** Use `ensureAggregatorEmployer` — a dedicated helper that writes a single sentinel employer row per aggregator source using a namespaced sha256 key (`__aggregator__adzuna`, `__aggregator__jsearch`) with a hardcoded `ats_type` discriminant (e.g. `"adzuna"`). This avoids `upsertEmployer` entirely and cannot collide with native employer sha256 keys because the `__aggregator__` prefix is not used by any ATS adapter.
 
 2. **JSearch free-tier quota: sufficient for fallback use?**
    - What we know: Described as "fallback when Adzuna thin" (D-06)
    - What's unclear: The 7 `aggregatorQueries` queries × some frequency = unknown total requests/month
    - Recommendation: Subscribe to RapidAPI Basic (~$10/mo) if free tier is insufficient. Verify quota before deciding.
+   - **RESOLUTION:** Proceed with RapidAPI Basic (~$10/mo) if the free tier (500 requests/month) proves insufficient after Phase 2 launch. Monitor actual usage for 2 weeks post-launch before upgrading.
 
 3. **Google Indexing API quota increase: when to request?**
    - What we know: Default 200/day; Wave 1 activation + enrichment will push against this
    - What's unclear: How long Google takes to approve quota increases
    - Recommendation: Submit quota increase form immediately (before Wave 1 activation). In the meantime, cap pings at budget constants in code.
+   - **RESOLUTION:** Submit the quota increase form at Wave 1 activation (https://developers.google.com/search/apis/indexing-api/v3/quota-pricing). Code-side budgets (`CREATION_PING_BUDGET=50`, `PING_BUDGET_PER_RUN=100`) enforce the 200/day hard cap while awaiting approval.
 
 ---
 
