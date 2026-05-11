@@ -211,26 +211,25 @@ async scheduled(_event, env, ctx) {
 
 ```typescript
 // Source: [ASSUMED] — standard idempotency pattern; aligns with D-16 + D-17
-const { count } = await db
+const todayDate = new Date().toISOString().slice(0, 10); // UTC YYYY-MM-DD
+
+const { error: insertError } = await db
+  .schema(niche.supabaseSchema)
   .from("email_sends")
   .insert({
     id: crypto.randomUUID(),
     subscriber_id: sub.id,
-    sent_date: todayDate,    // YYYY-MM-DD string
+    sent_date: todayDate,
     type: "digest",
-  })
-  .select()        // returns inserted rows
-  // Supabase JS: catch unique violation = conflict
-  // Use raw count check instead:
+  });
 
-// Alternative: use upsert with count
-const { error } = await db.from("email_sends").insert(
-  { id: crypto.randomUUID(), subscriber_id: sub.id, sent_date: todayDate, type: "digest" },
-);
-if (error?.code === "23505") {
-  // Unique constraint violation — already sent, skip
+if (insertError?.code === "23505") {
+  // Unique constraint violation — already sent today, skip
   continue;
 }
+if (insertError) throw insertError; // unexpected DB error — fail message, retry
+
+// Insert succeeded → now safe to add to Resend batch
 ```
 
 ### Pattern 3: Resend Batch API in Workers
@@ -354,10 +353,10 @@ After Phase 3, clicking the GET unsubscribe link (e.g., from mobile email previe
 **How to avoid:** Always INSERT into `email_sends` first. If insert succeeds (no unique conflict) → send email. If conflict → skip. The DB write is the gate.
 **Warning signs:** Test by simulating a Resend 5xx after insert — verify DB row exists but no retry email is sent.
 
-### Pitfall 2: `confirmed_at = NULL` Doesn't Filter Correctly
-**What goes wrong:** Query uses `.not("confirmed_at", "is", null)` — returns all rows including those with `confirmed_at = NULL` after soft-unsubscribe.
-**Why it happens:** Correct Supabase JS filter is `.not("confirmed_at", "is", null)` which excludes NULL. Test with a null row to confirm filter works.
-**How to avoid:** Verify with explicit `.not("confirmed_at", "is", null)` filter in the subscriber SELECT.
+### Pitfall 2: Soft-Unsubscribed Subscribers Included in Digest
+**What goes wrong:** After D-20 soft-unsubscribe sets `confirmed_at = NULL`, the subscriber SELECT accidentally includes them if the filter is missing or wrong.
+**Why it happens:** Using `.eq("confirmed_at", null)` (wrong) or omitting the filter entirely. The correct filter `.not("confirmed_at", "is", null)` excludes NULL rows.
+**How to avoid:** Use `.not("confirmed_at", "is", null)` in the subscriber SELECT. Verify with a test: soft-unsubscribe a subscriber, run digest query, confirm they are excluded.
 
 ### Pitfall 3: Missing `digest@windturbinejobs.com` in Resend Sending Domain
 **What goes wrong:** Resend rejects the `from` address — 400/403 on every send.
