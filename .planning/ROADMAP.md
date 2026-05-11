@@ -51,7 +51,7 @@ Reach consistent MRR from employer subscriptions (€499 / €999 / €1999/mo) 
   - [x] 02-02-PLAN.md — JSON-LD JobPosting on [slug].astro (SEO-01): conditional render + validThrough + location guard _(completed 2026-05-11)_
   - [x] 02-03-PLAN.md — Indexing API creation + description pings in ingest.ts + enrich.ts (SEO-03) _(completed 2026-05-11)_
   - [x] 02-04-PLAN.md — fetch-description.ts commit + AtsTarget union extension + SmartRecruiters/Trakstar/Adzuna/JSearch stubs (SEO-02) _(completed 2026-05-11)_
-  - [ ] 02-05-PLAN.md — SmartRecruiters adapter: list endpoint + ingest function + 2+ wind employers (COVG-02)
+  - [x] 02-05-PLAN.md — SmartRecruiters adapter: list endpoint + ingest function + 2+ wind employers (COVG-02) _(completed 2026-05-11)_
   - [ ] 02-06-PLAN.md — Adzuna + JSearch aggregator adapters: no-expire guard + wrangler secrets (COVG-03)
   - [ ] 02-07-PLAN.md — Trakstar adapter for Ørsted: probe + proceed/abort decision + source-contract tests (COVG-02)
   - [x] 02-08-PLAN.md — Discovery Worker workers/discover: POST /probe + ATS detection (8 platforms) + DISCOVER_SECRET auth (COVG-01) _(completed 2026-05-11)_
