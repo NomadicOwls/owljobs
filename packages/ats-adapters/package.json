@@ -39,6 +39,10 @@
     "./adzuna": {
       "types": "./src/adzuna.ts",
       "default": "./src/adzuna.ts"
+    },
+    "./jsearch": {
+      "types": "./src/jsearch.ts",
+      "default": "./src/jsearch.ts"
     }
   },
   "scripts": {
