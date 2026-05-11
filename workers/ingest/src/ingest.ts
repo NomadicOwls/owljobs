@@ -1,10 +1,11 @@
-import type { NicheConfig, WorkdayTarget, GreenhouseTarget, SuccessFactorsTarget, RecruiteeTarget, SoftgardenTarget } from "@owljobs/niches";
+import type { NicheConfig, WorkdayTarget, GreenhouseTarget, SuccessFactorsTarget, RecruiteeTarget, SoftgardenTarget, SmartRecruitersTarget } from "@owljobs/niches";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { fetchAllWorkdayJobs, WorkdayAdapterError } from "@owljobs/ats-adapters/workday";
 import { fetchAllGreenhouseJobs } from "@owljobs/ats-adapters/greenhouse";
 import { fetchAllSuccessFactorsJobs, SuccessFactorsAdapterError } from "@owljobs/ats-adapters/successfactors";
 import { fetchAllRecruiteeJobs, RecruiteeAdapterError } from "@owljobs/ats-adapters/recruitee";
 import { fetchAllSoftgardenJobs, SoftgardenAdapterError } from "@owljobs/ats-adapters/softgarden";
+import { fetchAllSmartRecruitersJobs, SmartRecruitersAdapterError } from "@owljobs/ats-adapters/smartrecruiters";
 import { sha256Hex, normalizeForKey } from "@owljobs/schema";
 import { sanitizeJobDescription } from "@owljobs/ats-adapters/sanitize";
 import { expireMissingJobs, type ExpireResult } from "./expire.js";
@@ -65,8 +66,7 @@ export async function ingestNiche(
         } else if (target.atsType === "softgarden") {
           await ingestSoftgarden(target, niche, db, localStats, saJson, budget);
         } else if (target.atsType === "smartrecruiters") {
-          // STUB — real implementation in Plan 05
-          console.log(`[ingest] smartrecruiters adapter not yet implemented (Plan 05): ${target.employer}`);
+          await ingestSmartRecruiters(target, niche, db, localStats, saJson, budget);
         } else if (target.atsType === "trakstar") {
           // STUB — real implementation in Plan 07
           console.log(`[ingest] trakstar adapter not yet implemented (Plan 07): ${target.employer}`);
@@ -477,6 +477,83 @@ async function ingestSoftgarden(
   }
 }
 
+async function ingestSmartRecruiters(
+  target: SmartRecruitersTarget,
+  niche: NicheConfig,
+  db: SchemaClient,
+  stats: IngestStats,
+  saJson?: string,
+  budget?: { remaining: number },
+): Promise<void> {
+  let jobs;
+  try {
+    jobs = await fetchAllSmartRecruitersJobs(target);
+  } catch (err) {
+    if (err instanceof SmartRecruitersAdapterError) {
+      console.warn(`[ingest] SmartRecruiters ${err.statusCode} for ${target.employer} — verify companyId`);
+    }
+    throw err;
+  }
+
+  // ats_site stores companyId — fetch-description.ts reads it to build the detail endpoint (Plan 04)
+  const employerId = await upsertEmployer(db, {
+    name: target.employer,
+    atsType: "smartrecruiters",
+    atsSite: target.companyId,
+    careersUrl: `https://jobs.smartrecruiters.com/${target.companyId}`,
+  });
+
+  const fetchedJobIds = new Set<string>();
+  for (const job of jobs) {
+    fetchedJobIds.add(job.sourceId);
+    try {
+      const inserted = await upsertJob(db, {
+        id: job.sourceId,
+        title: job.title,
+        employerId,
+        location: job.location,
+        canonicalUrl: job.canonicalUrl,
+        postedAt: job.postedOn,          // SmartRecruiters returns ISO date strings
+        source: "smartrecruiters",
+        rawPayload: JSON.parse(job.rawPayload) as Record<string, unknown>,
+      });
+      if (inserted) {
+        stats.inserted++;
+        // SEO-03: ping Google Indexing API for new job URL.
+        // Pitfall 8: use buildPublicUrl (owljobs.com), NOT job.canonicalUrl (employer ATS URL).
+        if (saJson && budget && budget.remaining > 0) {
+          try {
+            const r = await pingUrlUpdated(saJson, buildPublicUrl(niche, job.sourceId));
+            budget.remaining--;
+            if (r.ok) stats.pinged++;
+            else stats.pingFailures++;
+          } catch (err) {
+            console.warn(`[indexing] creation ping failed for ${job.sourceId}:`, err);
+            stats.pingFailures++;
+          }
+        }
+      } else {
+        stats.skipped++;
+      }
+    } catch (err) {
+      console.error(`[ingest] failed to upsert job "${job.title}":`, err);
+      stats.errors++;
+    }
+  }
+
+  // SmartRecruiters returns a full company job snapshot — safe to expire absent jobs (unlike aggregators).
+  // Do NOT skip expireMissingJobs here (that's only for Adzuna/JSearch — Pitfall 1).
+  try {
+    const r = await expireMissingJobs(db, employerId, fetchedJobIds, saJson);
+    stats.expired += r.marked;
+    stats.pinged += r.pinged;
+    stats.pingFailures += r.pingFailures;
+  } catch (err) {
+    console.error(`[expire] ${target.employer}:`, err);
+    stats.errors++;
+  }
+}
+
 // Workday returns relative strings like "Posted 3 Days Ago" or "Posted Today".
 // Convert to an approximate ISO timestamp so Postgres accepts it.
 function parseWorkdayDate(postedOn: string): string | null {
@@ -548,7 +625,7 @@ interface JobInput {
   canonicalUrl: string;
   postedAt?: string | null;
   description?: string | null;
-  source: "workday" | "greenhouse" | "successfactors" | "recruitee" | "softgarden" | "adzuna" | "jsearch";
+  source: "workday" | "greenhouse" | "successfactors" | "recruitee" | "softgarden" | "smartrecruiters" | "trakstar" | "adzuna" | "jsearch";
   rawPayload: Record<string, unknown>;
 }
 
