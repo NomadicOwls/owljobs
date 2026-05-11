@@ -10,7 +10,7 @@ Reach consistent MRR from employer subscriptions (€499 / €999 / €1999/mo) 
 ## Phases
 
 - [x] **Phase 1: Production Foundation** — Domain live, GDPR + email infra production-ready, stale jobs removed _(completed 2026-05-10)_
-- [ ] **Phase 2: Employer Breadth & SEO** — 20+ employers ingested, Google for Jobs eligible
+- [x] **Phase 2: Employer Breadth & SEO** — 20+ employers ingested, Google for Jobs eligible _(completed 2026-05-11)_
 - [ ] **Phase 3: Candidate Activation** — Weekly digest live, ≥100 confirmed subscribers (hard gate)
 - [ ] **Phase 4: Employer Product** — Auto-generated company pages, claim flow, magic-link dashboard, featured jobs
 - [ ] **Phase 5: Monetization & Outreach** — Stripe billing live, first paying employers via FOMO outreach
@@ -66,7 +66,20 @@ Reach consistent MRR from employer subscriptions (€499 / €999 / €1999/mo) 
   2. The digest email passes inbox checks (RFC 8058 `List-Unsubscribe` + `List-Unsubscribe-Post` headers, one-click works in Gmail/Outlook)
   3. A subscriber never receives the same digest twice for the same date (idempotency enforced at DB)
   4. The `subscribers` table contains ≥100 double-opt-in confirmed records — the hard gate before any employer cold pitch
-**Plans:** TBD
+**Plans:** 4 plans
+
+  **Wave 1**
+  - [ ] 03-01-PLAN.md — [BLOCKING] migration 0006 (email_sends idempotency) + Wave 0 source-contract test scaffolds for digest worker + supabase db push
+  - [ ] 03-04-PLAN.md — Newsletter.astro social proof copy (D-12) + CAND-04 outreach milestone tracking checkpoint
+
+  **Wave 2** *(blocked on 03-01 completion)*
+  - [ ] 03-02-PLAN.md — workers/digest/: package.json + tsconfig + wrangler.toml + src/index.ts (cron + queue fan-out + Resend batch + insert-before-send idempotency, multi-niche) — CAND-01, CAND-02, CAND-03
+  - [ ] 03-03-PLAN.md — Modify apps/web/src/pages/api/unsubscribe.ts: GET + POST both soft-delete (confirmed_at = NULL); resolves RESEARCH Conflicts 2/3/4 — CAND-02
+
+  **Cross-cutting constraints:**
+  - `getAllNiches()` + `niche.supabaseSchema` — no `wind_turbine` hardcoding (applies to 03-01, 03-02)
+  - insert-before-send idempotency ordering — `email_sends` INSERT before Resend call in every consumer invocation (03-02)
+  - Cron → Queue (`max_batch_size: 1`) → Resend batch — never loop-and-send in `scheduled()` (03-02)
 
 ### Phase 4: Employer Product
 **Goal:** Every employer has a claimable on-site presence and the paid features they will be charged for actually exist and work.
@@ -101,8 +114,8 @@ Reach consistent MRR from employer subscriptions (€499 / €999 / €1999/mo) 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Production Foundation | 6/6 | Complete | 2026-05-10 |
-| 2. Employer Breadth & SEO | 0/8 | Not started | - |
-| 3. Candidate Activation | 0/0 | Not started | - |
+| 2. Employer Breadth & SEO | 12/12 | Complete | 2026-05-11 |
+| 3. Candidate Activation | 0/4 | Ready to execute | - |
 | 4. Employer Product | 0/0 | Not started | - |
 | 5. Monetization & Outreach | 0/0 | Not started | - |
 

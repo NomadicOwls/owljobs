@@ -12,9 +12,9 @@ _Project memory. Updated continuously across sessions._
 
 ## Current Position
 
-- **Phase:** 2 — Employer Breadth & SEO (Complete)
-- **Plan:** 12/12 plans complete — 8 original + 4 gap closure plans
-- **Status:** Phase 2 complete (2026-05-11). All gaps closed. Workers deployed to production. 20 native ATS targets live.
+- **Phase:** 3 — Candidate Activation (Ready to execute)
+- **Plan:** 0/4 plans complete
+- **Status:** Phase 3 planned (2026-05-11). 4 plans in 2 waves. Ready to execute.
 - **Progress:** [████░░░░░░] 40% (2/5 phases complete)
 
 ## Performance Metrics
@@ -62,9 +62,9 @@ _Project memory. Updated continuously across sessions._
 ### Last Session
 
 - **Date:** 2026-05-11
-- **Action:** Phase 2 gap closure complete. Plans 02-09 through 02-12 executed. Workers deployed to production (owljobs-ingest + owljobs-discover). Cron live at `0 * * * *`. 20 native ATS targets in niches/wind-turbine.ts.
-- **Stopped at:** Phase 2 complete
-- **Next action:** `/gsd-plan-phase 3` — Phase 3 (employer subscriptions / billing)
+- **Action:** Phase 3 planned. 4 plans (03-01 through 03-04) covering CAND-01 to CAND-04. Research, pattern map, and validation strategy complete.
+- **Stopped at:** Phase 3 planned — ready to execute
+- **Next action:** `/gsd-execute-phase 3` — execute Phase 3 (weekly digest worker + subscriber acquisition)
 
 ### Files of Record
 
