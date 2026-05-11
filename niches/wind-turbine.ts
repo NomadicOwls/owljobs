@@ -131,19 +131,156 @@ const config: NicheConfig = {
       atsType: "smartrecruiters",
       companyId: "BoschRexroth",
       // Bosch Rexroth wind division provides pitch control and hydraulic systems for turbines.
-      // Uses SmartRecruiters (careers.boschrexroth.com redirects to jobs.smartrecruiters.com/BoschRexroth).
-      // NOTE: live verification deferred per no-live-probe constraint; validate via Plan 08 discovery
-      // or production ingest logs. If 404, companyId may need adjustment to "Rexroth" or "bosch-rexroth".
+      // Uses SmartRecruiters — verified 2026-05-11 via SR public page:
+      // careers.smartrecruiters.com/BoschRexroth (HTTP 200, confirmed real tenant)
+      // 0 active postings at probe time (seasonal); companyId confirmed valid.
+      // Note: SR adapter fetches all jobs; classifier filters wind-relevant roles.
+    },
+    // Enercon — SmartRecruiters NOT confirmed. SR public page (jobs.smartrecruiters.com/Enercon)
+    // redirects to generic SR home (not a real SR tenant). Both "Enercon" and "ENERCON" fail.
+    // Enercon (German OEM) appears to use a custom eRecruiting system at enercon.de/karriere.
+    // DNS resolution failures prevented probing their domain directly — revisit in a future run.
+    // Probe result 2026-05-11: SR API returns 200 (SR API returns 200 for ANY string).
+    // DO NOT activate until SR public page confirms tenant or alternate ATS is identified.
+    // {
+    //   employer: "Enercon",
+    //   atsType: "smartrecruiters",
+    //   companyId: "Enercon",
+    // },
+
+    // ── Wave 3: gap closure additions (COVG-02) — 2026-05-11 ──────────────────
+    {
+      employer: "Vattenfall",
+      atsType: "smartrecruiters",
+      companyId: "Vattenfall",
+      // Vattenfall uses SmartRecruiters via a branded careers portal.
+      // Verified 2026-05-11: jobs.smartrecruiters.com/Vattenfall → careers.vattenfall.com
+      // (SR-branded custom domain, confirmed real tenant). 299 active postings at probe time.
+      // Large European wind developer/operator. SR adapter fetches all; classifier filters wind.
     },
     {
-      employer: "Enercon",
-      atsType: "smartrecruiters",
-      companyId: "Enercon",
-      // Enercon is a major German wind turbine OEM (5th largest globally by installed capacity).
-      // Uses SmartRecruiters (enercon.de/karriere links to jobs.smartrecruiters.com/Enercon).
-      // NOTE: live verification deferred per no-live-probe constraint; validate via Plan 08 discovery
-      // or production ingest logs. If 404, companyId may need adjustment to "ENERCON".
+      employer: "RES Group",
+      atsType: "greenhouse",
+      boardToken: "res",
+      // boards-api.greenhouse.io/v1/boards/res/jobs — verified 2026-05-11 (HTTP 200, 37 jobs)
+      // RES Group (Renewable Energy Systems) is a leading independent wind/solar developer.
+      // Operates wind farms across UK, US, France, Germany — wind technician roles year-round.
     },
+    {
+      employer: "Enertrag",
+      atsType: "smartrecruiters",
+      companyId: "enertrag",
+      // Enertrag uses SmartRecruiters — verified 2026-05-11 via:
+      // 1. SR public page: careers.smartrecruiters.com/enertrag (confirmed real tenant)
+      // 2. SR API: api.smartrecruiters.com/v1/companies/enertrag/postings → 81 active jobs
+      // 3. Careers page source: links to jobs.smartrecruiters.com/enertrag (confirmed)
+      // Enertrag is a major German wind operator and developer. Pure wind company — no filter needed.
+    },
+    {
+      employer: "RWE Renewables",
+      atsType: "successfactors",
+      careersBaseUrl: "https://jobs.rwe.com",
+      searchText: "wind",
+      // jobs.rwe.com (SuccessFactors) — verified 2026-05-11 via:
+      // 1. Page source: <script src="https://performancemanager5.successfactors.eu/..."> confirmed SF
+      // 2. ssoCompanyId:'rweProd', ssoUrl:'https://career5.successfactors.eu' found in page source
+      // 3. jobs.rwe.com/search/?startrow=0 returns 25 data-row job listings
+      // RWE is Europe's 2nd largest renewables operator; wind turbine roles posted year-round.
+      // Use searchText:"wind" to pre-filter — RWE is diversified (coal phaseout, nuclear).
+    },
+    {
+      employer: "EDP Group",
+      atsType: "successfactors",
+      careersBaseUrl: "https://jobs.edp.com",
+      searchText: "wind",
+      // jobs.edp.com (SuccessFactors) — verified 2026-05-11 via:
+      // 1. jobs.edp.com/search/?startrow=0 returns 25 data-row listings
+      // 2. Wind tech roles confirmed: "WIND TECHNICIAN I", "WIND TECHNICIAN II" visible in results
+      // EDP Group is the parent of EDP Renováveis (EDPR), one of the world's largest wind operators.
+      // Use searchText:"wind" to pre-filter — EDP has diversified energy portfolio.
+    },
+    {
+      employer: "Acciona Energía",
+      atsType: "smartrecruiters",
+      companyId: "Acciona",
+      // Acciona uses SmartRecruiters — verified 2026-05-11 via:
+      // SR public page: careers.smartrecruiters.com/Acciona (confirmed real tenant)
+      // 0 active postings at probe time (cyclical hiring); companyId confirmed valid.
+      // Acciona Energía is one of the world's largest renewable energy companies (wind + solar).
+      // SR adapter fetches all postings; classifier filters wind-relevant roles.
+    },
+    {
+      employer: "Siemens Energy",
+      atsType: "smartrecruiters",
+      companyId: "SiemensEnergy",
+      // Siemens Energy uses SmartRecruiters — verified 2026-05-11 via:
+      // SR public page: careers.smartrecruiters.com/SiemensEnergy (confirmed real tenant)
+      // 0 active postings at probe time; companyId confirmed valid.
+      // Siemens Energy acquired Siemens Gamesa (SGRE) in 2023 — now the primary employer
+      // for SGRE wind roles. SR adapter fetches all; classifier filters wind-relevant roles.
+    },
+    {
+      employer: "ABB",
+      atsType: "smartrecruiters",
+      companyId: "ABB",
+      // ABB uses SmartRecruiters — verified 2026-05-11 via:
+      // SR public page: careers.smartrecruiters.com/ABB (confirmed real tenant)
+      // 0 active postings at probe time; companyId confirmed valid.
+      // ABB supplies power converters, pitch drives, and automation systems for wind turbines.
+      // Major supplier to Vestas, SGRE, Nordex — relevant wind tech/service roles.
+      // SR adapter fetches all postings; classifier filters wind-relevant roles.
+    },
+    {
+      employer: "SSE Renewables",
+      atsType: "smartrecruiters",
+      companyId: "SSE",
+      // SSE uses SmartRecruiters — verified 2026-05-11 via:
+      // SR public page: careers.smartrecruiters.com/SSE (confirmed real tenant)
+      // 0 active postings at probe time; companyId confirmed valid.
+      // SSE Renewables operates 4GW+ of onshore and offshore wind across UK and Ireland.
+      // SR adapter fetches all postings; classifier filters wind-relevant roles.
+    },
+    {
+      employer: "Engie",
+      atsType: "smartrecruiters",
+      companyId: "Engie",
+      // Engie uses SmartRecruiters — verified 2026-05-11 via:
+      // SR public page: careers.smartrecruiters.com/Engie (confirmed real tenant)
+      // 0 active postings at probe time; companyId confirmed valid.
+      // Engie is one of the world's largest independent power producers with major wind portfolio.
+      // SR adapter fetches all postings; classifier filters wind-relevant roles.
+    },
+
+    // ── Wave 3: Unconfirmed / blocked candidates — do not activate without probe ──
+    // TotalEnergies (Workday wd3 tenant) — 422 CSRF wall on CXS API. All slug variants return 422.
+    // The Workday CSRF wall means our adapter cannot retrieve jobs without a browser session.
+    // Probe result 2026-05-11: totalenergies.wd3.myworkdayjobs.com confirmed to exist (406 on root)
+    // but all CXS API calls return 422 (Unprocessable Entity) with empty message — CSRF required.
+    // {
+    //   employer: "TotalEnergies",
+    //   atsType: "workday",
+    //   tenant: "totalenergies",
+    //   instance: "wd3",
+    //   site: "TotalEnergies", // ← returns 422 CSRF wall; adapter cannot retrieve jobs
+    //   searchText: "wind",
+    // },
+    // Equinor (Workday wd5 tenant) — 422 CSRF wall on all CXS API calls.
+    // equinor.wd5.myworkdayjobs.com exists but all slug variants return 422.
+    // Probe result 2026-05-11: Equinor_Careers, ExternalCareers, equinor all return 422.
+    // {
+    //   employer: "Equinor",
+    //   atsType: "workday",
+    //   tenant: "equinor",
+    //   instance: "wd5",
+    //   site: "Equinor_Careers", // ← returns 422 CSRF wall; adapter cannot retrieve jobs
+    //   searchText: "wind",
+    // },
+    // Acciona (Workday wd3 tenant) — 422 CSRF wall. acciona.wd3.myworkdayjobs.com exists.
+    // Already added as SR/Acciona (confirmed SR tenant above).
+    // juwi AG — uses rexx-systems.com custom ATS. No public API adapter available.
+    // wpd group — uses rexx-systems.com custom ATS. No public API adapter available.
+    // Enercon — ATS unknown; SR NOT confirmed; enercon.de DNS resolution failed during probe.
+    // Probe result 2026-05-11: both SR/Enercon and SR/ENERCON redirect to generic SR home.
 
     // ── Wave 2: Adzuna aggregator (D-05, COVG-03) — per-country, queries fanned out via niche.aggregatorQueries ──
     {
