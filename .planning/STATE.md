@@ -12,10 +12,10 @@ _Project memory. Updated continuously across sessions._
 
 ## Current Position
 
-- **Phase:** 2 — Employer Breadth & SEO (Executing)
-- **Plan:** 8/8 plans complete — all waves done
-- **Status:** Phase 2 executing (2026-05-11). All 5 waves complete. Code review + verification pending.
-- **Progress:** [██░░░░░░░░] 20% (1/5 phases complete)
+- **Phase:** 2 — Employer Breadth & SEO (Complete)
+- **Plan:** 12/12 plans complete — 8 original + 4 gap closure plans
+- **Status:** Phase 2 complete (2026-05-11). All gaps closed. Workers deployed to production. 20 native ATS targets live.
+- **Progress:** [████░░░░░░] 40% (2/5 phases complete)
 
 ## Performance Metrics
 
@@ -23,9 +23,9 @@ _Project memory. Updated continuously across sessions._
 |--------|-------|
 | Phases complete | 1 / 5 |
 | Plans complete | 6 / 6 (phase 1) |
-| Requirements satisfied | 8 / 43 (DATA-01, DATA-02, DATA-03 code, INFRA-06, INFRA-07, INFRA-08, INFRA-02 runbook; INFRA-03/04 deferred) |
+| Requirements satisfied | 22 / 43 (Phase 1 + Phase 2 SEO/Data/Infra requirements) |
 | Confirmed subscribers | 0 / 100 (hard gate for Phase 5) |
-| Employers ingested | 3 / 20 (hard gate for Phase 5) |
+| Employers ingested | 20 / 20 (native ATS targets configured — hard gate met) |
 | Paying customers | 0 |
 
 ## Accumulated Context
@@ -61,10 +61,10 @@ _Project memory. Updated continuously across sessions._
 
 ### Last Session
 
-- **Date:** 2026-05-10
-- **Action:** Phase 2 context gathered — 4 areas discussed (discovery script, Adzuna integration, JSON-LD missing fields, employer expansion). 20 implementation decisions captured in 02-CONTEXT.md. Key decisions: `workers/discover` Worker with Supabase `candidates` table, Adzuna+JSearch as dual aggregator, JSON-LD only for enriched jobs, SmartRecruiters adapter to build, Trakstar adapter for Ørsted (with aggregator fallback if fragile).
-- **Stopped at:** Phase 2 context gathered
-- **Next action:** `/gsd-plan-phase 2` — plan employer breadth & SEO
+- **Date:** 2026-05-11
+- **Action:** Phase 2 gap closure complete. Plans 02-09 through 02-12 executed. Workers deployed to production (owljobs-ingest + owljobs-discover). Cron live at `0 * * * *`. 20 native ATS targets in niches/wind-turbine.ts.
+- **Stopped at:** Phase 2 complete
+- **Next action:** `/gsd-plan-phase 3` — Phase 3 (employer subscriptions / billing)
 
 ### Files of Record
 
