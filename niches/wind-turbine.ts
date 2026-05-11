@@ -75,13 +75,15 @@ const config: NicheConfig = {
     // TODO: Semco Maritime — https://semcomaritime.career.emply.com/vacancies — Emply ATS, adapter needed
 
     // ── Wave 1: Operators ─────────────────────────────────────────────────────
-    // Ørsted: does NOT use Workday. ATS is Trakstar (orsted.hire.trakstar.com).
-    // Trakstar has no public JSON/REST API — SPA, requires headless browser or auth token.
-    // Option: build a Trakstar adapter, or use Adzuna/JSearch as interim.
+    // Ørsted — Trakstar adapter ABORTED 2026-05-11: orsted.hire.trakstar.com returned
+    // "Inactive account — This employer is no longer using Trakstar Hire."
+    // Ørsted is covered by Adzuna/JSearch aggregator queries ("wind turbine technician" etc.)
+    // added in Plan 06. Revisit if Ørsted migrates to a public-API ATS.
     // {
     //   employer: "Ørsted",
-    //   atsType: "trakstar", // adapter does not exist yet
+    //   atsType: "trakstar",
     //   companySlug: "orsted",
+    //   cronGroup: "every3h",
     // },
     {
       employer: "Invenergy",

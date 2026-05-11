@@ -1,4 +1,4 @@
-import type { NicheConfig, WorkdayTarget, GreenhouseTarget, SuccessFactorsTarget, RecruiteeTarget, SoftgardenTarget, SmartRecruitersTarget, AdzunaTarget, JSearchTarget } from "@owljobs/niches";
+import type { NicheConfig, WorkdayTarget, GreenhouseTarget, SuccessFactorsTarget, RecruiteeTarget, SoftgardenTarget, SmartRecruitersTarget, TrakstarTarget, AdzunaTarget, JSearchTarget } from "@owljobs/niches";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { fetchAllWorkdayJobs, WorkdayAdapterError } from "@owljobs/ats-adapters/workday";
 import { fetchAllGreenhouseJobs } from "@owljobs/ats-adapters/greenhouse";
@@ -6,6 +6,7 @@ import { fetchAllSuccessFactorsJobs, SuccessFactorsAdapterError } from "@owljobs
 import { fetchAllRecruiteeJobs, RecruiteeAdapterError } from "@owljobs/ats-adapters/recruitee";
 import { fetchAllSoftgardenJobs, SoftgardenAdapterError } from "@owljobs/ats-adapters/softgarden";
 import { fetchAllSmartRecruitersJobs, SmartRecruitersAdapterError } from "@owljobs/ats-adapters/smartrecruiters";
+import { fetchAllTrakstarJobs, TrakstarAdapterError } from "@owljobs/ats-adapters/trakstar";
 import { fetchAllAdzunaJobs, AdzunaAdapterError, type AdzunaCredentials } from "@owljobs/ats-adapters/adzuna";
 import { fetchAllJSearchJobs, JSearchAdapterError, type JSearchCredentials } from "@owljobs/ats-adapters/jsearch";
 import { sha256Hex, normalizeForKey } from "@owljobs/schema";
@@ -76,8 +77,7 @@ export async function ingestNiche(
         } else if (target.atsType === "smartrecruiters") {
           await ingestSmartRecruiters(target, niche, db, localStats, saJson, budget);
         } else if (target.atsType === "trakstar") {
-          // STUB — real implementation in Plan 07
-          console.log(`[ingest] trakstar adapter not yet implemented (Plan 07): ${target.employer}`);
+          await ingestTrakstar(target, niche, db, localStats, saJson, budget);
         } else if (target.atsType === "adzuna") {
           await ingestAdzuna(target, niche, db, localStats, saJson, budget, creds?.adzuna);
         } else if (target.atsType === "jsearch") {
@@ -549,6 +549,86 @@ async function ingestSmartRecruiters(
 
   // SmartRecruiters returns a full company job snapshot — safe to expire absent jobs (unlike aggregators).
   // Do NOT skip expireMissingJobs here (that's only for Adzuna/JSearch — Pitfall 1).
+  try {
+    const r = await expireMissingJobs(db, employerId, fetchedJobIds, saJson);
+    stats.expired += r.marked;
+    stats.pinged += r.pinged;
+    stats.pingFailures += r.pingFailures;
+  } catch (err) {
+    console.error(`[expire] ${target.employer}:`, err);
+    stats.errors++;
+  }
+}
+
+async function ingestTrakstar(
+  target: TrakstarTarget,
+  niche: NicheConfig,
+  db: SchemaClient,
+  stats: IngestStats,
+  saJson?: string,
+  budget?: { remaining: number },
+): Promise<void> {
+  // Plan 07 abort path: Ørsted Trakstar account is inactive (2026-05-11).
+  // fetchAllTrakstarJobs returns [] — no upserts, no expiry.
+  // Ørsted is covered by Adzuna/JSearch aggregator queries.
+  let jobs;
+  try {
+    jobs = await fetchAllTrakstarJobs(target);
+  } catch (err) {
+    if (err instanceof TrakstarAdapterError) {
+      console.warn(`[ingest] Trakstar error for ${target.employer}: ${err.message}`);
+    }
+    throw err;
+  }
+
+  if (jobs.length === 0) {
+    // Abort path or genuinely empty — nothing to upsert or expire.
+    return;
+  }
+
+  // Success path (if adapter is ever re-enabled): upsert jobs and expire missing ones.
+  const employerId = await upsertEmployer(db, {
+    name: target.employer,
+    atsType: "trakstar",
+    careersUrl: `https://${target.companySlug}.hire.trakstar.com`,
+  });
+
+  const fetchedJobIds = new Set<string>();
+  for (const job of jobs) {
+    fetchedJobIds.add(job.sourceId);
+    try {
+      const inserted = await upsertJob(db, {
+        id: job.sourceId,
+        title: job.title,
+        employerId,
+        location: job.location,
+        canonicalUrl: job.canonicalUrl,
+        postedAt: job.postedOn,
+        description: null,
+        source: "trakstar",
+        rawPayload: JSON.parse(job.rawPayload) as Record<string, unknown>,
+      });
+      if (inserted) {
+        stats.inserted++;
+        if (saJson && budget && budget.remaining > 0) {
+          try {
+            const r = await pingUrlUpdated(saJson, buildPublicUrl(niche, job.sourceId));
+            budget.remaining--;
+            if (r.ok) stats.pinged++; else stats.pingFailures++;
+          } catch (err) {
+            console.warn(`[indexing] creation ping failed for ${job.sourceId}:`, err);
+            stats.pingFailures++;
+          }
+        }
+      } else {
+        stats.skipped++;
+      }
+    } catch (err) {
+      console.error(`[ingest] failed to upsert Trakstar job "${job.title}":`, err);
+      stats.errors++;
+    }
+  }
+
   try {
     const r = await expireMissingJobs(db, employerId, fetchedJobIds, saJson);
     stats.expired += r.marked;

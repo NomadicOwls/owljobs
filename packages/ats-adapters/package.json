@@ -43,6 +43,10 @@
     "./jsearch": {
       "types": "./src/jsearch.ts",
       "default": "./src/jsearch.ts"
+    },
+    "./trakstar": {
+      "types": "./src/trakstar.ts",
+      "default": "./src/trakstar.ts"
     }
   },
   "scripts": {
