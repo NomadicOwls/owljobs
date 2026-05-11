@@ -54,6 +54,15 @@ max_retries = 2
 # For local dev, append to workers/ingest/.dev.vars:
 #   GOOGLE_INDEXING_KEY={"client_email":"...","private_key":"-----BEGIN PRIVATE KEY-----\\n...","token_uri":"https://oauth2.googleapis.com/token"}
 
+# Debug endpoint Bearer token (CR-01 gap closure).
+# Required before deploying to production. Guards /classify-now, /ingest-now,
+# /reclassify-ambiguous, /enrich-now against unauthorized callers burning paid API quota.
+# Generate a random secret (e.g. openssl rand -hex 32) then:
+#   wrangler secret put INGEST_SECRET --name owljobs-ingest
+#
+# For local dev, append to workers/ingest/.dev.vars:
+#   INGEST_SECRET=<random-string>
+
 # Adzuna + JSearch aggregator credentials (Phase 2, COVG-03).
 # Aggregators fill coverage gaps for employers without native ATS adapters.
 #

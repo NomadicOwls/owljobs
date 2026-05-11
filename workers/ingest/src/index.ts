@@ -25,6 +25,7 @@ export interface Env {
   ADZUNA_APP_ID?: string;           // Adzuna aggregator (COVG-03, Phase 2)
   ADZUNA_APP_KEY?: string;          // Adzuna aggregator (COVG-03, Phase 2)
   JSEARCH_API_KEY?: string;         // JSearch (RapidAPI) aggregator fallback (COVG-03, Phase 2)
+  INGEST_SECRET: string;            // Bearer token for debug endpoints (CR-01); REQUIRED — optional typing creates Bearer-undefined bypass
 }
 
 function makeSupabase(env: Env) {
@@ -120,6 +121,11 @@ const handler: ExportedHandler<Env, NicheMessage> = {
     const url = new URL(request.url);
 
     if (url.pathname === "/classify-now") {
+      // CR-01: Bearer auth required for all debug/operational endpoints
+      const authHeader = request.headers.get("Authorization");
+      if (!authHeader || authHeader !== `Bearer ${env.INGEST_SECRET}`) {
+        return new Response("Unauthorized", { status: 401 });
+      }
       const niche = getAllNiches()[0];
       if (!niche) return new Response("No niches configured", { status: 500 });
       const db = makeSupabase(env).schema(niche.supabaseSchema);
@@ -128,6 +134,11 @@ const handler: ExportedHandler<Env, NicheMessage> = {
     }
 
     if (url.pathname === "/ingest-now") {
+      // CR-01: Bearer auth required for all debug/operational endpoints
+      const authHeader = request.headers.get("Authorization");
+      if (!authHeader || authHeader !== `Bearer ${env.INGEST_SECRET}`) {
+        return new Response("Unauthorized", { status: 401 });
+      }
       const niche = getAllNiches()[0];
       if (!niche) return new Response("No niches configured", { status: 500 });
       const db = makeSupabase(env).schema(niche.supabaseSchema);
@@ -147,6 +158,11 @@ const handler: ExportedHandler<Env, NicheMessage> = {
     }
 
     if (url.pathname === "/reclassify-ambiguous") {
+      // CR-01: Bearer auth required for all debug/operational endpoints
+      const authHeader = request.headers.get("Authorization");
+      if (!authHeader || authHeader !== `Bearer ${env.INGEST_SECRET}`) {
+        return new Response("Unauthorized", { status: 401 });
+      }
       const niche = getAllNiches()[0];
       if (!niche) return new Response("No niches configured", { status: 500 });
       const db = makeSupabase(env).schema(niche.supabaseSchema);
@@ -157,6 +173,11 @@ const handler: ExportedHandler<Env, NicheMessage> = {
     }
 
     if (url.pathname === "/enrich-now") {
+      // CR-01: Bearer auth required for all debug/operational endpoints
+      const authHeader = request.headers.get("Authorization");
+      if (!authHeader || authHeader !== `Bearer ${env.INGEST_SECRET}`) {
+        return new Response("Unauthorized", { status: 401 });
+      }
       const niche = getAllNiches()[0];
       if (!niche) return new Response("No niches configured", { status: 500 });
       const db = makeSupabase(env).schema(niche.supabaseSchema);
