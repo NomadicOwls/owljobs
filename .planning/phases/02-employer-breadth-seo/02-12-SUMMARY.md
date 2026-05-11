@@ -117,6 +117,14 @@ Added 10 verified employer targets to `niches/wind-turbine.ts`, bringing the con
 - **Fix:** Removed searchText from all SmartRecruiters entries. Updated comments to reflect that classifier handles filtering.
 - **Files modified:** niches/wind-turbine.ts
 
+**3. [Rule 3 - Blocking] EDP Renováveis (EDPR) substituted with parent EDP Group**
+
+- **Found during:** Task 3 probing step
+- **Issue:** Plan listed EDP Renováveis (EDPR) as the target (`careers.edpr.com`). DNS resolution failed during probing — EDPR careers domain was unreachable.
+- **Fix:** Used parent company EDP Group (`jobs.edp.com`) instead. SF HTML scraper confirmed 25 data-row listings including "WIND TECHNICIAN I" and "WIND TECHNICIAN II" job titles. EDPR is a wholly-owned subsidiary of EDP Group — wind technician roles are posted on the parent portal.
+- **Files modified:** niches/wind-turbine.ts (uses `careersBaseUrl: "https://jobs.edp.com"`)
+- **Commit:** 7bcefcd
+
 ### No Schema Changes Required
 
 All new employers were added to `atsTargets` array using the niche registry pattern. No hardcoded schema references added.
@@ -125,11 +133,15 @@ All new employers were added to `atsTargets` array using the niche registry patt
 
 None. All 20 employers are wired to their correct ATS adapters via the existing ingest pipeline.
 
+## Deferred Concerns
+
+**SmartRecruiters server-side filtering:** Large diversified SR tenants (Acciona, SiemensEnergy, ABB, SSE, Engie) pull all job postings through the classifier since `SmartRecruitersTarget` has no `searchText` field and the SR adapter uses no `q=` parameter. The existing architecture (SR fetches all; classifier filters) is intentional — see adapter comment at line 39. Future work: investigate whether `api.smartrecruiters.com/v1/companies/{id}/postings` supports a `q=` keyword filter; if confirmed, propose adding `searchText?: string` to `SmartRecruitersTarget` interface and updating the SR adapter in a dedicated plan.
+
 ## Self-Check: PASSED
 
 - `grep "atsType:" niches/wind-turbine.ts | grep -v "adzuna\|jsearch" | grep -v "//\s*atsType" | wc -l` → 20
 - `pnpm tsc --noEmit` (workers/ingest) → exit 0
-- No hardcoded `wind_turbine` references outside `supabaseSchema` field
+- No hardcoded `wind_turbine` outside `supabaseSchema` field (acceptance criterion "no hardcoded `wind_turbine`" is interpreted as outside the `supabaseSchema` field, since line 8 requires `supabaseSchema: "wind_turbine"` by design)
 - Commit 7bcefcd staged and committed
 
 ## Remaining Human Tasks (not in Task 3 scope)
