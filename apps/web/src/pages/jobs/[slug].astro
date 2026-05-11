@@ -60,11 +60,14 @@ const employerInitials = employerName
 // SEO-01 (D-15..D-18 + Pitfalls 4, 9): Conditional JSON-LD JobPosting structured data.
 // Render only when:
 //   - job has a non-null description (D-15 — thin content guard)
-//   - source is NOT adzuna or jsearch (Pitfall 4 — teaser/aggregator content)
+//   - employer is NOT adzuna or jsearch (Pitfall 4 — aggregator-origin jobs lack full descriptions)
+//   - WR-05 fix: check employers.ats_type, NOT job_sources (cross-listing must not suppress JSON-LD)
 // jobLocation is conditionally spread when job.location truthy (D-16 — no inference)
 // validThrough uses Math.max with inlined literals so "7 *" appears inside the call (Pitfall 9)
-const aggregatorSources = new Set<string>(["adzuna", "jsearch"]);
-const isAggregator = (job.job_sources ?? []).some((s) => aggregatorSources.has(s.source));
+// SEO-01 (WR-05 fix): check employer's ats_type, NOT presence of aggregator source rows.
+// A native ATS job (Workday/Greenhouse/SuccessFactors) cross-listed on Adzuna must still
+// emit JSON-LD. The source rows record provenance; the employer's ats_type records origin.
+const isAggregator = ["adzuna", "jsearch"].includes(job.employers?.ats_type ?? "");
 const shouldEmitJsonLd = !isExpired && !!job.description && !isAggregator;
 
 const postedAtMs = job.posted_at ? new Date(job.posted_at).getTime() : Date.now();
