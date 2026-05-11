@@ -35,6 +35,10 @@
     "./smartrecruiters": {
       "types": "./src/smartrecruiters.ts",
       "default": "./src/smartrecruiters.ts"
+    },
+    "./adzuna": {
+      "types": "./src/adzuna.ts",
+      "default": "./src/adzuna.ts"
     }
   },
   "scripts": {
