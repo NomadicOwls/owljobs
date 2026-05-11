@@ -1,4 +1,4 @@
-import type { NicheConfig, WorkdayTarget, GreenhouseTarget, SuccessFactorsTarget, RecruiteeTarget, SoftgardenTarget, SmartRecruitersTarget } from "@owljobs/niches";
+import type { NicheConfig, WorkdayTarget, GreenhouseTarget, SuccessFactorsTarget, RecruiteeTarget, SoftgardenTarget, SmartRecruitersTarget, AdzunaTarget, JSearchTarget } from "@owljobs/niches";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { fetchAllWorkdayJobs, WorkdayAdapterError } from "@owljobs/ats-adapters/workday";
 import { fetchAllGreenhouseJobs } from "@owljobs/ats-adapters/greenhouse";
@@ -6,6 +6,8 @@ import { fetchAllSuccessFactorsJobs, SuccessFactorsAdapterError } from "@owljobs
 import { fetchAllRecruiteeJobs, RecruiteeAdapterError } from "@owljobs/ats-adapters/recruitee";
 import { fetchAllSoftgardenJobs, SoftgardenAdapterError } from "@owljobs/ats-adapters/softgarden";
 import { fetchAllSmartRecruitersJobs, SmartRecruitersAdapterError } from "@owljobs/ats-adapters/smartrecruiters";
+import { fetchAllAdzunaJobs, AdzunaAdapterError, type AdzunaCredentials } from "@owljobs/ats-adapters/adzuna";
+import { fetchAllJSearchJobs, JSearchAdapterError, type JSearchCredentials } from "@owljobs/ats-adapters/jsearch";
 import { sha256Hex, normalizeForKey } from "@owljobs/schema";
 import { sanitizeJobDescription } from "@owljobs/ats-adapters/sanitize";
 import { expireMissingJobs, type ExpireResult } from "./expire.js";
@@ -37,11 +39,17 @@ interface IngestStats {
   pingFailures: number;
 }
 
+interface IngestCreds {
+  adzuna?: AdzunaCredentials;
+  jsearch?: JSearchCredentials;
+}
+
 export async function ingestNiche(
   niche: NicheConfig,
   db: SchemaClient,
   onlyTargetIndex?: number,
   saJson?: string,
+  creds?: IngestCreds,
 ): Promise<IngestStats> {
   const targets = onlyTargetIndex !== undefined
     ? niche.atsTargets.slice(onlyTargetIndex, onlyTargetIndex + 1)
@@ -71,11 +79,9 @@ export async function ingestNiche(
           // STUB — real implementation in Plan 07
           console.log(`[ingest] trakstar adapter not yet implemented (Plan 07): ${target.employer}`);
         } else if (target.atsType === "adzuna") {
-          // STUB — real implementation in Plan 06
-          console.log(`[ingest] adzuna adapter not yet implemented (Plan 06): ${target.employer}`);
+          await ingestAdzuna(target, niche, db, localStats, saJson, budget, creds?.adzuna);
         } else if (target.atsType === "jsearch") {
-          // STUB — real implementation in Plan 06
-          console.log(`[ingest] jsearch adapter not yet implemented (Plan 06): ${target.employer}`);
+          await ingestJSearch(target, niche, db, localStats, saJson, budget, creds?.jsearch);
         } else {
           // Exhaustiveness guard: union is closed; this branch is unreachable but TS requires it.
           const _exhaustive: never = target;
@@ -552,6 +558,160 @@ async function ingestSmartRecruiters(
     console.error(`[expire] ${target.employer}:`, err);
     stats.errors++;
   }
+}
+
+// Aggregator employer sentinels — Pitfall 1: do NOT upsert into employers table via upsertEmployer.
+// The job rows reference these IDs for grouping; employer table writes happen only for native ATS.
+// Sentinel SHA-256 keys differ from any real-employer SHA-256 (keyed on "__aggregator__source")
+// so they cannot collide with native employer rows.
+async function ensureAggregatorEmployer(
+  db: SchemaClient,
+  source: "adzuna" | "jsearch",
+): Promise<string> {
+  const id = await sha256Hex(`__aggregator__${source}`);
+  // Insert if missing — ignoreDuplicates guarantees no overwrite of existing sentinel row
+  await db.from("employers").upsert(
+    {
+      id,
+      name: source === "adzuna" ? "Adzuna (aggregator)" : "JSearch (aggregator)",
+      normalized_name: `__aggregator_${source}__`,
+      ats_type: source,
+      ats_tenant: null,
+      ats_instance: null,
+      ats_site: null,
+      careers_url: null,
+    },
+    { onConflict: "id", ignoreDuplicates: true },
+  );
+  return id;
+}
+
+async function ingestAdzuna(
+  target: AdzunaTarget,
+  niche: NicheConfig,
+  db: SchemaClient,
+  stats: IngestStats,
+  saJson?: string,
+  budget?: { remaining: number },
+  creds?: AdzunaCredentials,
+): Promise<void> {
+  if (!creds) {
+    console.warn(`[ingest] Adzuna credentials missing — set ADZUNA_APP_ID and ADZUNA_APP_KEY`);
+    stats.errors++;
+    return;
+  }
+
+  let jobs;
+  try {
+    jobs = await fetchAllAdzunaJobs(target, niche.aggregatorQueries, creds);
+  } catch (err) {
+    if (err instanceof AdzunaAdapterError) {
+      console.warn(`[ingest] Adzuna ${err.statusCode}: ${err.message}`);
+    }
+    throw err;
+  }
+
+  // Pitfall 1: use the aggregator sentinel (ensureAggregatorEmployer), NOT the native employer helper.
+  const employerId = await ensureAggregatorEmployer(db, "adzuna");
+
+  for (const job of jobs) {
+    try {
+      const inserted = await upsertJob(db, {
+        id: job.sourceId,
+        title: job.title,
+        employerId,
+        location: job.location,
+        canonicalUrl: job.canonicalUrl,
+        postedAt: job.postedOn,
+        source: "adzuna",
+        rawPayload: JSON.parse(job.rawPayload) as Record<string, unknown>,
+        // description: null intentional (Pitfall 4)
+      });
+      if (inserted) {
+        stats.inserted++;
+        if (saJson && budget && budget.remaining > 0) {
+          try {
+            const r = await pingUrlUpdated(saJson, buildPublicUrl(niche, job.sourceId));
+            budget.remaining--;
+            if (r.ok) stats.pinged++; else stats.pingFailures++;
+          } catch (err) {
+            console.warn(`[indexing] creation ping failed for ${job.sourceId}:`, err);
+            stats.pingFailures++;
+          }
+        }
+      } else {
+        stats.skipped++;
+      }
+    } catch (err) {
+      console.error(`[ingest] failed to upsert Adzuna job "${job.title}":`, err);
+      stats.errors++;
+    }
+  }
+
+  // Pitfall 1: aggregator = INSERT-ONLY; expire is intentionally omitted for this source.
+}
+
+async function ingestJSearch(
+  target: JSearchTarget,
+  niche: NicheConfig,
+  db: SchemaClient,
+  stats: IngestStats,
+  saJson?: string,
+  budget?: { remaining: number },
+  creds?: JSearchCredentials,
+): Promise<void> {
+  if (!creds) {
+    console.warn(`[ingest] JSearch credentials missing — set JSEARCH_API_KEY`);
+    stats.errors++;
+    return;
+  }
+
+  let jobs;
+  try {
+    jobs = await fetchAllJSearchJobs(target, niche.aggregatorQueries, creds);
+  } catch (err) {
+    if (err instanceof JSearchAdapterError) {
+      console.warn(`[ingest] JSearch ${err.statusCode}: ${err.message}`);
+    }
+    throw err;
+  }
+
+  const employerId = await ensureAggregatorEmployer(db, "jsearch");
+
+  for (const job of jobs) {
+    try {
+      const inserted = await upsertJob(db, {
+        id: job.sourceId,
+        title: job.title,
+        employerId,
+        location: job.location,
+        canonicalUrl: job.canonicalUrl,
+        postedAt: job.postedOn,
+        source: "jsearch",
+        rawPayload: JSON.parse(job.rawPayload) as Record<string, unknown>,
+      });
+      if (inserted) {
+        stats.inserted++;
+        if (saJson && budget && budget.remaining > 0) {
+          try {
+            const r = await pingUrlUpdated(saJson, buildPublicUrl(niche, job.sourceId));
+            budget.remaining--;
+            if (r.ok) stats.pinged++; else stats.pingFailures++;
+          } catch (err) {
+            console.warn(`[indexing] creation ping failed for ${job.sourceId}:`, err);
+            stats.pingFailures++;
+          }
+        }
+      } else {
+        stats.skipped++;
+      }
+    } catch (err) {
+      console.error(`[ingest] failed to upsert JSearch job "${job.title}":`, err);
+      stats.errors++;
+    }
+  }
+
+  // Pitfall 1: aggregator = INSERT-ONLY; expire is intentionally omitted for this source.
 }
 
 // Workday returns relative strings like "Posted 3 Days Ago" or "Posted Today".

@@ -22,6 +22,9 @@ export interface Env {
   ENRICH_QUEUE: Queue<NicheMessage>;
   PAGES_DEPLOY_HOOK?: string;
   GOOGLE_INDEXING_KEY?: string;     // Service-account JSON blob (CONTEXT D-08); optional — skip pings if absent
+  ADZUNA_APP_ID?: string;           // Adzuna aggregator (COVG-03, Phase 2)
+  ADZUNA_APP_KEY?: string;          // Adzuna aggregator (COVG-03, Phase 2)
+  JSEARCH_API_KEY?: string;         // JSearch (RapidAPI) aggregator fallback (COVG-03, Phase 2)
 }
 
 function makeSupabase(env: Env) {
@@ -40,7 +43,14 @@ const handler: ExportedHandler<Env, NicheMessage> = {
         niches.map(async (niche) => {
           const db = supabase.schema(niche.supabaseSchema);
           try {
-            const stats = await ingestNiche(niche, db, undefined, env.GOOGLE_INDEXING_KEY);
+            const adzunaCreds = (env.ADZUNA_APP_ID && env.ADZUNA_APP_KEY)
+              ? { appId: env.ADZUNA_APP_ID, appKey: env.ADZUNA_APP_KEY }
+              : undefined;
+            const jsearchCreds = env.JSEARCH_API_KEY ? { apiKey: env.JSEARCH_API_KEY } : undefined;
+            const stats = await ingestNiche(niche, db, undefined, env.GOOGLE_INDEXING_KEY, {
+              ...(adzunaCreds ? { adzuna: adzunaCreds } : {}),
+              ...(jsearchCreds ? { jsearch: jsearchCreds } : {}),
+            });
             console.log(
               `[${niche.id}] ingest complete: ${stats.inserted} new, ${stats.skipped} skipped, ${stats.errors} errors, ${stats.expired} expired, ${stats.pinged} pinged, ${stats.pingFailures} ping-failures`
             );
@@ -124,7 +134,14 @@ const handler: ExportedHandler<Env, NicheMessage> = {
       // ?target=N runs only that target index (0-based); omit to run all (may timeout with many targets)
       const targetParam = url.searchParams.get("target");
       const targetIndex = targetParam !== null ? parseInt(targetParam, 10) : null;
-      const stats = await ingestNiche(niche, db, targetIndex ?? undefined, env.GOOGLE_INDEXING_KEY);
+      const adzunaCreds2 = (env.ADZUNA_APP_ID && env.ADZUNA_APP_KEY)
+        ? { appId: env.ADZUNA_APP_ID, appKey: env.ADZUNA_APP_KEY }
+        : undefined;
+      const jsearchCreds2 = env.JSEARCH_API_KEY ? { apiKey: env.JSEARCH_API_KEY } : undefined;
+      const stats = await ingestNiche(niche, db, targetIndex ?? undefined, env.GOOGLE_INDEXING_KEY, {
+        ...(adzunaCreds2 ? { adzuna: adzunaCreds2 } : {}),
+        ...(jsearchCreds2 ? { jsearch: jsearchCreds2 } : {}),
+      });
       ctx.waitUntil(env.CLASSIFY_QUEUE.send({ nicheId: niche.id }));
       return Response.json({ niche: niche.id, target: targetIndex, ...stats });
     }
