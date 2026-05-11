@@ -142,6 +142,39 @@ const config: NicheConfig = {
       // NOTE: live verification deferred per no-live-probe constraint; validate via Plan 08 discovery
       // or production ingest logs. If 404, companyId may need adjustment to "ENERCON".
     },
+
+    // ── Wave 2: Adzuna aggregator (D-05, COVG-03) — per-country, queries fanned out via niche.aggregatorQueries ──
+    {
+      employer: "adzuna",
+      atsType: "adzuna",
+      country: "us",
+    },
+    {
+      employer: "adzuna",
+      atsType: "adzuna",
+      country: "gb",
+    },
+    {
+      employer: "adzuna",
+      atsType: "adzuna",
+      country: "de",
+    },
+    {
+      employer: "adzuna",
+      atsType: "adzuna",
+      country: "nl",
+    },
+    {
+      employer: "adzuna",
+      atsType: "adzuna",
+      country: "dk",
+    },
+
+    // ── Wave 2: JSearch fallback (D-06) — single global target ──
+    {
+      employer: "jsearch",
+      atsType: "jsearch",
+    },
   ],
 
   aggregatorQueries: [

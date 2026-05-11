@@ -53,3 +53,18 @@ max_retries = 2
 #
 # For local dev, append to workers/ingest/.dev.vars:
 #   GOOGLE_INDEXING_KEY={"client_email":"...","private_key":"-----BEGIN PRIVATE KEY-----\\n...","token_uri":"https://oauth2.googleapis.com/token"}
+
+# Adzuna + JSearch aggregator credentials (Phase 2, COVG-03).
+# Aggregators fill coverage gaps for employers without native ATS adapters.
+#
+# Adzuna: register at https://developer.adzuna.com — free tier sufficient for v1.
+#   wrangler secret put ADZUNA_APP_ID
+#   wrangler secret put ADZUNA_APP_KEY
+#
+# JSearch (RapidAPI): subscribe at https://rapidapi.com/letscrape-6bRBa3QguO5/api/jsearch — Basic tier (~150-200 req/mo).
+#   wrangler secret put JSEARCH_API_KEY
+#
+# For local dev append to workers/ingest/.dev.vars:
+#   ADZUNA_APP_ID=...
+#   ADZUNA_APP_KEY=...
+#   JSEARCH_API_KEY=...
