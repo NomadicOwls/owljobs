@@ -122,6 +122,26 @@ const config: NicheConfig = {
       // 216 active jobs, Schema.org DataFeed format, descriptions included inline
       // Jobs span DE/FR/NL/PL/SE/UK/US — classifier filters to wind-relevant roles
     },
+
+    // ── Wave 2: SmartRecruiters (D-09) ──
+    {
+      employer: "Bosch Rexroth",
+      atsType: "smartrecruiters",
+      companyId: "BoschRexroth",
+      // Bosch Rexroth wind division provides pitch control and hydraulic systems for turbines.
+      // Uses SmartRecruiters (careers.boschrexroth.com redirects to jobs.smartrecruiters.com/BoschRexroth).
+      // NOTE: live verification deferred per no-live-probe constraint; validate via Plan 08 discovery
+      // or production ingest logs. If 404, companyId may need adjustment to "Rexroth" or "bosch-rexroth".
+    },
+    {
+      employer: "Enercon",
+      atsType: "smartrecruiters",
+      companyId: "Enercon",
+      // Enercon is a major German wind turbine OEM (5th largest globally by installed capacity).
+      // Uses SmartRecruiters (enercon.de/karriere links to jobs.smartrecruiters.com/Enercon).
+      // NOTE: live verification deferred per no-live-probe constraint; validate via Plan 08 discovery
+      // or production ingest logs. If 404, companyId may need adjustment to "ENERCON".
+    },
   ],
 
   aggregatorQueries: [
