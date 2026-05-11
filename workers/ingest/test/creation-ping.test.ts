@@ -3,23 +3,28 @@ import { readFile } from "node:fs/promises";
 
 describe("ingest.ts — creation pings (SEO-03, D-19, Pitfall 8)", () => {
   let src = "";
+  let buildPublicSrc = "";
   beforeAll(async () => {
     src = await readFile("workers/ingest/src/ingest.ts", "utf-8");
+    // WR-06: buildPublicUrl extracted to shared module — check the canonical definition there
+    buildPublicSrc = await readFile("workers/ingest/src/build-public-url.ts", "utf-8");
   });
 
   it("imports pingUrlUpdated from google-indexing", () => {
     expect(src).toMatch(/import\s*\{[^}]*pingUrlUpdated[^}]*\}\s*from\s*["']\.\/google-indexing/);
   });
 
-  it("defines a buildPublicUrl helper", () => {
-    expect(src).toMatch(/function\s+buildPublicUrl|const\s+buildPublicUrl\s*=/);
+  it("imports buildPublicUrl from shared module (WR-06 — no local def)", () => {
+    // After WR-06 extraction, ingest.ts imports from ./build-public-url (no local definition)
+    expect(src).toMatch(/import\s*\{[^}]*buildPublicUrl[^}]*\}\s*from\s*["']\.\/build-public-url/);
+    expect(src).not.toMatch(/function\s+buildPublicUrl\s*\(/);
   });
 
   it("buildPublicUrl uses niche.domain (NOT canonical_url) per Pitfall 8", () => {
-    // Find the helper body — look for `niche.domain` referenced near it
-    const idx = src.search(/buildPublicUrl/);
+    // Find the helper body in the shared module (canonical definition)
+    const idx = buildPublicSrc.search(/buildPublicUrl/);
     expect(idx).toBeGreaterThan(-1);
-    const block = src.slice(idx, idx + 400);
+    const block = buildPublicSrc.slice(idx, idx + 400);
     expect(block).toMatch(/niche\.domain/);
     expect(block).not.toMatch(/canonical_url/);
   });

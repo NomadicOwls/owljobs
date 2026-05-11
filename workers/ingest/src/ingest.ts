@@ -13,15 +13,7 @@ import { sha256Hex, normalizeForKey } from "@owljobs/schema";
 import { sanitizeJobDescription } from "@owljobs/ats-adapters/sanitize";
 import { expireMissingJobs, type ExpireResult } from "./expire.js";
 import { pingUrlUpdated } from "./google-indexing.js";
-
-/**
- * Build the owljobs.com public URL for a job (Pitfall 8 — Indexing API requires the
- * URL it can crawl from Search Console, NOT the employer's ATS URL).
- * Slug is the first 12 chars of the job ID, matching apps/web/src/lib/slug.ts.
- */
-function buildPublicUrl(niche: NicheConfig, jobId: string): string {
-  return `https://${niche.domain}/jobs/${jobId.slice(0, 12)}`;
-}
+import { buildPublicUrl } from "./build-public-url.js";
 
 // Pitfall 2: Google Indexing API quota = 200/day combined across all ping types.
 // expire.ts caps expiry pings at 100/run. We cap creation pings at 50/run so total
@@ -180,7 +172,7 @@ async function ingestWorkday(
   }
 
   try {
-    const r = await expireMissingJobs(db, employerId, fetchedJobIds, saJson);
+    const r = await expireMissingJobs(db, employerId, fetchedJobIds, saJson, niche);
     stats.expired += r.marked;
     stats.pinged += r.pinged;
     stats.pingFailures += r.pingFailures;
@@ -248,7 +240,7 @@ async function ingestGreenhouse(
   }
 
   try {
-    const r = await expireMissingJobs(db, employerId, fetchedJobIds, saJson);
+    const r = await expireMissingJobs(db, employerId, fetchedJobIds, saJson, niche);
     stats.expired += r.marked;
     stats.pinged += r.pinged;
     stats.pingFailures += r.pingFailures;
@@ -324,7 +316,7 @@ async function ingestSuccessFactors(
   }
 
   try {
-    const r = await expireMissingJobs(db, employerId, fetchedJobIds, saJson);
+    const r = await expireMissingJobs(db, employerId, fetchedJobIds, saJson, niche);
     stats.expired += r.marked;
     stats.pinged += r.pinged;
     stats.pingFailures += r.pingFailures;
@@ -398,7 +390,7 @@ async function ingestRecruitee(
   }
 
   try {
-    const r = await expireMissingJobs(db, employerId, fetchedJobIds, saJson);
+    const r = await expireMissingJobs(db, employerId, fetchedJobIds, saJson, niche);
     stats.expired += r.marked;
     stats.pinged += r.pinged;
     stats.pingFailures += r.pingFailures;
@@ -473,7 +465,7 @@ async function ingestSoftgarden(
   }
 
   try {
-    const r = await expireMissingJobs(db, employerId, fetchedJobIds, saJson);
+    const r = await expireMissingJobs(db, employerId, fetchedJobIds, saJson, niche);
     stats.expired += r.marked;
     stats.pinged += r.pinged;
     stats.pingFailures += r.pingFailures;
@@ -550,7 +542,7 @@ async function ingestSmartRecruiters(
   // SmartRecruiters returns a full company job snapshot — safe to expire absent jobs (unlike aggregators).
   // Do NOT skip expireMissingJobs here (that's only for Adzuna/JSearch — Pitfall 1).
   try {
-    const r = await expireMissingJobs(db, employerId, fetchedJobIds, saJson);
+    const r = await expireMissingJobs(db, employerId, fetchedJobIds, saJson, niche);
     stats.expired += r.marked;
     stats.pinged += r.pinged;
     stats.pingFailures += r.pingFailures;
@@ -630,7 +622,7 @@ async function ingestTrakstar(
   }
 
   try {
-    const r = await expireMissingJobs(db, employerId, fetchedJobIds, saJson);
+    const r = await expireMissingJobs(db, employerId, fetchedJobIds, saJson, niche);
     stats.expired += r.marked;
     stats.pinged += r.pinged;
     stats.pingFailures += r.pingFailures;

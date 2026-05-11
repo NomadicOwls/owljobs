@@ -2,6 +2,7 @@ import type { NicheConfig } from "@owljobs/niches";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { fetchDescription } from "./fetch-description.js";
 import { pingUrlUpdated } from "./google-indexing.js";
+import { buildPublicUrl } from "./build-public-url.js";
 
 type SchemaClient = ReturnType<SupabaseClient["schema"]>;
 
@@ -11,15 +12,6 @@ export interface EnrichStats {
   errors: number;
   pinged: number;
   pingFailures: number;
-}
-
-/**
- * Build the owljobs.com public URL for a job (Pitfall 8 — Indexing API requires the
- * URL it can crawl from Search Console, NOT the employer's ATS URL).
- * Slug is the first 12 chars of the job ID, matching apps/web/src/lib/slug.ts.
- */
-function buildPublicUrl(niche: NicheConfig, jobId: string): string {
-  return `https://${niche.domain}/jobs/${jobId.slice(0, 12)}`;
 }
 
 // Pitfall 2: Indexing API quota cap. Total across all 3 ping sites <= 200/day.

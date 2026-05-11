@@ -12,8 +12,10 @@
 // a transient ATS outage; mass-expiry would deindex everything, then re-indexing
 // would take days. Better to wait for the next cron run with real data.
 
+import type { NicheConfig } from "@owljobs/niches";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { pingUrlUpdated } from "./google-indexing.js";
+import { buildPublicUrl } from "./build-public-url.js";
 
 type SchemaClient = ReturnType<SupabaseClient["schema"]>;
 
@@ -43,6 +45,7 @@ export async function expireMissingJobs(
   employerId: string,
   fetchedJobIds: Set<string>,
   saJson: string | undefined,
+  niche: NicheConfig,
 ): Promise<ExpireResult> {
   // CONTEXT D-01: skip if no jobs were fetched — ATS outage guard
   if (fetchedJobIds.size === 0) {
@@ -83,11 +86,12 @@ export async function expireMissingJobs(
         break;
       }
       try {
-        const r = await pingUrlUpdated(saJson, job.canonical_url);
+        // CR-02 fix: use owljobs.com public URL (NOT employer ATS URL / canonical_url)
+        const r = await pingUrlUpdated(saJson, buildPublicUrl(niche, job.id));
         if (r.ok) pinged++;
         else pingFailures++;
       } catch (err) {
-        console.warn(`[indexing] ping failed for ${job.canonical_url}:`, err);
+        console.warn(`[indexing] expiry ping failed for ${job.id}:`, err);
         pingFailures++;
       }
     }

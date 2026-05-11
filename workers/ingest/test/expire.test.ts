@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { expireMissingJobs, cleanupExpired } from "../src/expire.js";
+import type { NicheConfig } from "@owljobs/niches";
 
 vi.mock("../src/google-indexing.js", () => ({
   pingUrlUpdated: vi.fn(),
@@ -45,6 +46,12 @@ function makeDbMock(opts: {
   } as any;
 }
 
+const testNiche: NicheConfig = {
+  id: "wind_turbine",
+  domain: "windturbinejobs.com",
+  supabaseSchema: "wind_turbine",
+} as NicheConfig;
+
 describe("expireMissingJobs", () => {
   beforeEach(() => {
     vi.mocked(pingUrlUpdated).mockReset();
@@ -52,7 +59,7 @@ describe("expireMissingJobs", () => {
 
   it("returns zeros when fetchedJobIds is empty (CONTEXT D-01 outage guard)", async () => {
     const db = makeDbMock({ selectRows: [{ id: "a", canonical_url: "https://x/a" }] });
-    const r = await expireMissingJobs(db, "emp-1", new Set(), "sa");
+    const r = await expireMissingJobs(db, "emp-1", new Set(), "sa", testNiche);
     expect(r).toEqual({ marked: 0, reactivated: 0, pinged: 0, pingFailures: 0, pingsSkipped: 0 });
     // Should not have run the SELECT at all
     expect(db.from).not.toHaveBeenCalled();
@@ -67,7 +74,7 @@ describe("expireMissingJobs", () => {
       ],
     });
     vi.mocked(pingUrlUpdated).mockResolvedValue({ ok: true, status: 200 });
-    const r = await expireMissingJobs(db, "emp-1", new Set(["a"]), "sa");
+    const r = await expireMissingJobs(db, "emp-1", new Set(["a"]), "sa", testNiche);
     expect(r.marked).toBe(2);                          // b and c are absent
     expect(r.pinged).toBe(2);
     expect(pingUrlUpdated).toHaveBeenCalledTimes(2);
@@ -80,7 +87,7 @@ describe("expireMissingJobs", () => {
         { id: "b", canonical_url: "https://x/b" },
       ],
     });
-    const r = await expireMissingJobs(db, "emp-1", new Set(["a", "b"]), undefined);
+    const r = await expireMissingJobs(db, "emp-1", new Set(["a", "b"]), undefined, testNiche);
     expect(r.marked).toBe(0);
   });
 
@@ -88,7 +95,7 @@ describe("expireMissingJobs", () => {
     const rows = Array.from({ length: 105 }, (_, i) => ({ id: `id-${i}`, canonical_url: `https://x/${i}` }));
     const db = makeDbMock({ selectRows: rows });
     vi.mocked(pingUrlUpdated).mockResolvedValue({ ok: true, status: 200 });
-    const r = await expireMissingJobs(db, "emp-1", new Set(["sentinel-not-in-rows"]), "sa");
+    const r = await expireMissingJobs(db, "emp-1", new Set(["sentinel-not-in-rows"]), "sa", testNiche);
     expect(r.marked).toBe(105);
     expect(r.pinged).toBe(100);
     expect(r.pingsSkipped).toBe(5);
@@ -104,7 +111,7 @@ describe("expireMissingJobs", () => {
     vi.mocked(pingUrlUpdated)
       .mockResolvedValueOnce({ ok: false, status: 403 })
       .mockResolvedValueOnce({ ok: true, status: 200 });
-    const r = await expireMissingJobs(db, "emp-1", new Set(["c"]), "sa");
+    const r = await expireMissingJobs(db, "emp-1", new Set(["c"]), "sa", testNiche);
     expect(r.marked).toBe(2);
     expect(r.pinged).toBe(1);
     expect(r.pingFailures).toBe(1);
@@ -112,7 +119,7 @@ describe("expireMissingJobs", () => {
 
   it("skips pings when saJson is undefined", async () => {
     const db = makeDbMock({ selectRows: [{ id: "a", canonical_url: "https://x/a" }] });
-    const r = await expireMissingJobs(db, "emp-1", new Set(["b"]), undefined);
+    const r = await expireMissingJobs(db, "emp-1", new Set(["b"]), undefined, testNiche);
     expect(r.marked).toBe(1);
     expect(r.pinged).toBe(0);
     expect(pingUrlUpdated).not.toHaveBeenCalled();
