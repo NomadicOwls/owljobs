@@ -106,4 +106,17 @@ describe("[slug].astro — JSON-LD JobPosting structured data (SEO-01, D-15..D-1
     expect(astroSrc).toMatch(/"hiringOrganization":/);
     expect(astroSrc).toMatch(/"url":/);
   });
+
+  it("isAggregator checks employers.ats_type, NOT job_sources rows (WR-05 fix)", () => {
+    // The old (broken) pattern: fires true if any source row is aggregator
+    expect(astroSrc).not.toMatch(
+      /job_sources.*\.some\s*\(.*aggregatorSources\.has/s,
+    );
+    // The new (correct) pattern: checks employer's ats_type field
+    expect(astroSrc).toMatch(
+      /\["adzuna"\s*,\s*"jsearch"\]\.includes\s*\(\s*job\.employers\?\.ats_type/,
+    );
+    // The aggregatorSources Set must be gone (no longer needed)
+    expect(astroSrc).not.toMatch(/new\s+Set\s*<\s*string\s*>\s*\(\s*\[\s*["']adzuna["']/);
+  });
 });
