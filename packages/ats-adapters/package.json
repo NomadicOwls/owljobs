@@ -31,6 +31,10 @@
     "./softgarden": {
       "types": "./src/softgarden.ts",
       "default": "./src/softgarden.ts"
+    },
+    "./smartrecruiters": {
+      "types": "./src/smartrecruiters.ts",
+      "default": "./src/smartrecruiters.ts"
     }
   },
   "scripts": {
