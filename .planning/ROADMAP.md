@@ -115,7 +115,7 @@ Reach consistent MRR from employer subscriptions (€499 / €999 / €1999/mo) 
 |-------|----------------|--------|-----------|
 | 1. Production Foundation | 6/6 | Complete | 2026-05-10 |
 | 2. Employer Breadth & SEO | 12/12 | Complete | 2026-05-11 |
-| 3. Candidate Activation | 4/4 | Complete   | 2026-05-12 |
+| 3. Candidate Activation | 4/4 | Complete    | 2026-05-12 |
 | 4. Employer Product | 0/0 | Not started | - |
 | 5. Monetization & Outreach | 0/0 | Not started | - |
 

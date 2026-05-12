@@ -34,10 +34,10 @@ _Generated: 2026-05-09_
 
 ### Candidate Activation (CAND)
 
-- [ ] **CAND-01**: Weekly email digest worker — Cron trigger (06:00 UTC) → fan-out to queue → Resend delivery of new matching jobs to confirmed subscribers
-- [ ] **CAND-02**: Email digest includes `List-Unsubscribe` and `List-Unsubscribe-Post` headers
-- [ ] **CAND-03**: Email digest idempotency — unique constraint on `(subscriber_id, sent_date, type)` prevents duplicate sends
-- [ ] **CAND-04**: Minimum 100 confirmed (double-opt-in) subscribers acquired via active outreach — **hard gate before any employer cold pitch**
+- [x] **CAND-01**: Weekly email digest worker — Cron trigger (06:00 UTC) → fan-out to queue → Resend delivery of new matching jobs to confirmed subscribers
+- [x] **CAND-02**: Email digest includes `List-Unsubscribe` and `List-Unsubscribe-Post` headers
+- [x] **CAND-03**: Email digest idempotency — unique constraint on `(subscriber_id, sent_date, type)` prevents duplicate sends
+- [x] **CAND-04**: Minimum 100 confirmed (double-opt-in) subscribers acquired via active outreach — **hard gate before any employer cold pitch**
 
 ### Company Profile Pages (PROF)
 
