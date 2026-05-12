@@ -1,10 +1,11 @@
 ---
 phase: 4
 slug: employer-product
-status: draft
+status: approved
 shadcn_initialized: false
 preset: hand-rolled shadcn-compatible (Geist + oklch CSS vars + niche-injected accent)
 created: 2026-05-12
+reviewed_at: 2026-05-12
 ---
 
 # Phase 4 — UI Design Contract
