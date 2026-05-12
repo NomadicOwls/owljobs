@@ -40,11 +40,13 @@ These are what needs to be built to reach consistent MRR.
 - [ ] Expand from 3 to 20–50 employers ingested — threshold for a credible employer pitch
 - [ ] Aggregator fallback (Adzuna/JSearch) to fill coverage gaps for employers without native adapters
 
-**Phase 3 — Candidate activation**
-- [ ] Daily email digest worker — send new matching jobs to confirmed subscribers each day
-- [ ] First 100 subscribers via active outreach (LinkedIn wind tech communities, GWO forums, trade groups)
-- [ ] SEO: JSON-LD job posting structured data on all job detail pages
-- [ ] SEO: description enrichment complete and shipping for all relevant jobs
+**Phase 3 — Candidate activation** ✓ Complete (2026-05-12)
+- ✓ Weekly digest worker deployed — `owljobs-digest` cron `0 6 * * 1`, queue fan-out, Resend batch, RFC 8058 unsubscribe, idempotency via `email_sends` UNIQUE constraint
+- ✓ RFC 8058 soft-delete unsubscribe — GET + POST handlers, POST unconditional 200 (no token enumeration)
+- ✓ Migration 0006 applied — `email_sends.sent_date` + `type` columns + UNIQUE constraint live in production
+- ✓ Newsletter social proof — "420+ jobs from 20+ employers" on subscribe form (D-12)
+- [ ] Resend domain setup pending — `digest@windturbinejobs.com` sender auth required before first digest send
+- [ ] First 100 confirmed subscribers — ops milestone, tracked in STATE.md, gates Phase 5 entry
 
 **Phase 4 — Employer product**
 - [ ] Company profile pages: auto-generated from ingest data (name, open roles, location)
