@@ -71,7 +71,7 @@ Three critical pre-execution findings must be addressed in Wave 0 migrations/set
 
 For ANLYT-02, the correct approach is to extend `workers/digest` with a second cron trigger (Monday 06:00 UTC) and a separate queue consumer, reusing all existing Supabase and Resend wiring. A separate worker is unnecessary overhead.
 
-**Primary recommendation:** Follow the 4-wave build order — Wave 0 (migrations + deps), Wave 1 (auth + profile extensions in parallel), Wave 2 (dashboard + analytics), Wave 3 (SEO landing pages), Wave 4 (ANLYT-02 digest extension).
+**Primary recommendation:** Follow the 4-wave build order — Wave 0 (migrations + deps + RLS path verification), Wave 1 (auth + profile extensions in parallel), Wave 2 (dashboard + analytics), Wave 3 (SEO landing pages), Wave 4 (ANLYT-02 digest extension).
 
 ---
 
@@ -132,6 +132,16 @@ CREATE INDEX idx_jobs_featured
   WHERE featured_until IS NOT NULL;
 ```
 [VERIFIED: 0001_initial.sql, Postgres partial index constraints — ASSUMED for correct index shape]
+
+### Critical Finding 4: RLS JWT Path Must Be Verified Before Writing RLS Expressions (Wave 0)
+
+The Supabase Auth Hook injects `employer_id` into `app_metadata`. Whether Supabase exposes it at `auth.jwt()->>'employer_id'` (flattened top-level) or `auth.jwt()->'app_metadata'->>'employer_id'` (nested) is version-dependent and cannot be determined from docs alone.
+
+**This is a mandatory Wave 0 verification step — do NOT write RLS expressions until it is complete.**
+
+Wave 0 plan task: Apply migration 0007 → create a test employer auth user → log in via magic link → open Supabase SQL Editor → run `SELECT auth.jwt();` → inspect the returned JSON for the exact path to `employer_id` → write all RLS policy expressions using the verified path.
+
+Pattern 9 in this document uses `auth.jwt() ->> 'employer_id'` as a placeholder. The implementer MUST replace that with the verified path before the RLS migration runs. [ASSUMED: exact path requires live Supabase session verification]
 
 ---
 
@@ -209,8 +219,8 @@ pnpm add @supabase/ssr@^0.10.0 --filter @owljobs/web
     ├─ validate email format
     ├─ extract domain from email
     ├─ supabaseAdmin().from("employers").eq("domain", domain)  ← service key
-    │  └─ if match: supabase.auth.admin.generateLink({type:"magiclink", email})
-    │              insert employer_users row (auth_id placeholder until callback)
+    │  └─ if match: generateLink({type:"magiclink", email}) → returns {user, properties}
+    │              insert employer_users(auth_id=user.id, employer_id, niche)
     └─ redirect → /auth/check-email
 
 [Email] → employer clicks magic link
@@ -219,7 +229,8 @@ pnpm add @supabase/ssr@^0.10.0 --filter @owljobs/web
 [Pages Function: /auth/callback?code=...]
     ├─ createServerClient(@supabase/ssr)
     ├─ exchangeCodeForSession(code)
-    ├─ session.user.app_metadata.employer_id ← injected by Auth Hook
+    ├─ Auth Hook fires on token issue → reads employer_users → injects employer_id into JWT
+    ├─ session.user.app_metadata.employer_id ← now available
     └─ redirect → /dashboard
 
 [/dashboard (SSR, protected)]
@@ -299,21 +310,25 @@ packages/schema/src/migrations/
 
 ### Pattern 1: Supabase SSR Server Client (magic-link auth)
 
-`@supabase/ssr` provides `createServerClient` which manages session cookies automatically in SSR contexts. The existing `supabase.ts` only has `supabasePublic` and `supabaseAdmin`. A new `createSupabaseServerClient(cookies)` must be added for authenticated routes.
+`@supabase/ssr` provides `createServerClient` which manages session cookies automatically in SSR contexts. The existing `supabase.ts` only has `supabasePublic` and `supabaseAdmin`. A new `createSupabaseServerClient(cookies, request, env)` must be added for authenticated routes.
+
+The cookie adapter requires `parseCookieHeader` from `@supabase/ssr` to read the incoming request's `Cookie` header. `AstroCookies.headers()` is a Generator of outgoing Set-Cookie values — it MUST NOT be used for reading incoming cookies.
 
 ```typescript
 // apps/web/src/lib/supabase.ts — add this function
-import { createServerClient } from "@supabase/ssr";
+import { createServerClient, parseCookieHeader } from "@supabase/ssr";
 import type { AstroCookies } from "astro";
 
-export function createSupabaseServerClient(cookies: AstroCookies, env: { SUPABASE_URL: string; SUPABASE_ANON_KEY: string }) {
+export function createSupabaseServerClient(
+  cookies: AstroCookies,
+  request: Request,
+  env: { SUPABASE_URL: string; SUPABASE_ANON_KEY: string }
+) {
   return createServerClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY, {
     cookies: {
       getAll() {
-        return cookies.headers().split(";").map((c) => {
-          const [name, ...rest] = c.trim().split("=");
-          return { name: name!, value: rest.join("=") };
-        });
+        // parseCookieHeader reads the incoming Cookie request header
+        return parseCookieHeader(request.headers.get("Cookie") ?? "");
       },
       setAll(cookiesToSet) {
         cookiesToSet.forEach(({ name, value, options }) =>
@@ -333,7 +348,7 @@ Note: The cookie adapter shape for `@supabase/ssr` with Astro requires `getAll()
 // apps/web/src/pages/auth/callback.astro (script frontmatter)
 import { createSupabaseServerClient } from "../../lib/supabase.js";
 
-const supabase = createSupabaseServerClient(Astro.cookies, getEnv(Astro.locals));
+const supabase = createSupabaseServerClient(Astro.cookies, Astro.request, getEnv(Astro.locals));
 const code = Astro.url.searchParams.get("code");
 if (code) {
   const { error } = await supabase.auth.exchangeCodeForSession(code);
@@ -423,6 +438,11 @@ export const GET: APIRoute = ({ locals, url, redirect }) => {
 export const GET: APIRoute = async ({ locals, url }) => {
   const employerId = url.searchParams.get("employer_id") ?? "";
   const env = getEnv(locals) as any;
+
+  // employer_id is a SHA-256 hex string (64 hex chars) — validate before embedding in SQL
+  if (!/^[a-f0-9]{64}$/.test(employerId)) {
+    return new Response(JSON.stringify({ error: "invalid employer_id" }), { status: 400 });
+  }
 
   const sql = `
     SELECT blob1 AS job_id,
@@ -519,26 +539,29 @@ The `landingSlug` prefix rule: URL prefix is `${niche.id}-jobs` (e.g. `wind-turb
 
 ### Pattern 9: Multi-Niche RLS for Employer Dashboard
 
-The Auth Hook injects `employer_id` (TEXT) + `employer_niche` into `app_metadata`. RLS policies on per-niche tables use the JWT claim:
+The Auth Hook injects `employer_id` (TEXT) + `employer_niche` into `app_metadata`. RLS policies on per-niche tables use the JWT claim.
+
+**IMPORTANT: The RLS expressions below use a placeholder path `auth.jwt() ->> 'employer_id'`. The implementer MUST run the Wave 0 JWT path verification (Critical Finding 4) and replace this placeholder with the verified path before executing the migration.**
 
 ```sql
 -- In 0007_employer_product.sql (per-niche section — uses «wind_turbine» substitution token)
+-- REPLACE auth.jwt() ->> 'employer_id' with verified path from Wave 0 check
 
 -- Employers: owner can see their own row
 CREATE POLICY employer_self_read ON wind_turbine.employers FOR SELECT TO authenticated
-  USING (id = (auth.jwt() ->> 'employer_id'));
+  USING (id = (auth.jwt() ->> 'employer_id'));  -- VERIFY PATH FIRST
 
 -- Jobs: employer can read all their own jobs (including expired)
 CREATE POLICY employer_jobs_read ON wind_turbine.jobs FOR SELECT TO authenticated
-  USING (employer_id = (auth.jwt() ->> 'employer_id'));
+  USING (employer_id = (auth.jwt() ->> 'employer_id'));  -- VERIFY PATH FIRST
 
 -- Jobs: employer can update their own jobs (featured_until toggle only — app enforces column restriction)
 CREATE POLICY employer_jobs_update ON wind_turbine.jobs FOR UPDATE TO authenticated
   USING (employer_id = (auth.jwt() ->> 'employer_id'))
-  WITH CHECK (employer_id = (auth.jwt() ->> 'employer_id'));
+  WITH CHECK (employer_id = (auth.jwt() ->> 'employer_id'));  -- VERIFY PATH FIRST
 ```
 
-Note: `auth.jwt()` returns the raw JWT claims object. The `employer_id` claim lives in `app_metadata`, which Supabase flattens into the top-level JWT for RLS use. Verify this behavior in testing — the exact path may be `auth.jwt()->>'app_metadata'->>'employer_id'` vs `auth.jwt()->>'employer_id'`. [ASSUMED: Supabase flattens app_metadata into top-level JWT claims for RLS — verify in testing]
+[ASSUMED: Supabase flattens app_metadata into top-level JWT claims for RLS — verify in testing; see Critical Finding 4]
 
 ### Pattern 10: ANLYT-02 — Extend workers/digest
 
@@ -575,7 +598,8 @@ The consumer queries `wind_turbine.subscribers` for `confirmed_at >= NOW() - INT
 - **`constructEvent` for Stripe (carry-forward):** Not applicable to Phase 4, but do not import it if Stripe code is touched.
 - **Awaiting `writeDataPoint()`:** It returns immediately; awaiting it is a no-op but adds latency. Do not await.
 - **Hardcoding `employer_id` as UUID:** The existing `employers.id` is TEXT (SHA-256 hash). The join table `employer_users.employer_id` must also be TEXT.
-- **Using `sync constructEvent` for Stripe:** Not Phase 4 but worth carrying the warning — do not touch Stripe code in this phase.
+- **Using `AstroCookies.headers()` to read incoming cookies:** `AstroCookies.headers()` is a Generator of outgoing Set-Cookie values. Use `parseCookieHeader(request.headers.get("Cookie") ?? "")` from `@supabase/ssr` to read the incoming Cookie header.
+- **Inserting `employer_users` after the auth callback:** `auth_id` must be inserted immediately after `generateLink()` returns (which provides `user.id`). The Auth Hook reads `employer_users` at token-issue time — the row must exist before the user clicks the magic link.
 
 ---
 
@@ -602,14 +626,14 @@ The consumer queries `wind_turbine.subscribers` for `confirmed_at >= NOW() - INT
 ### Pitfall 2: Supabase Auth Hook Path for `employer_id` in RLS
 **What goes wrong:** RLS policy uses `auth.jwt()->>'employer_id'` but the claim is nested in `app_metadata`, so the expression returns NULL for all rows.
 **Why it happens:** Supabase's JWT flattening behavior is version-dependent.
-**How to avoid:** Test the RLS expression in Supabase SQL Editor with `SELECT auth.jwt();` after logging in. If it returns `{"app_metadata": {"employer_id": "..."}}`, use `auth.jwt()->'app_metadata'->>'employer_id'`. [ASSUMED: exact path requires runtime verification]
+**How to avoid:** Run the Wave 0 JWT path verification (Critical Finding 4) before writing any RLS expressions. If `SELECT auth.jwt();` returns `{"app_metadata": {"employer_id": "..."}}` (nested), use `auth.jwt()->'app_metadata'->>'employer_id'`. [ASSUMED: exact path requires runtime verification]
 **Warning signs:** Dashboard shows employer's own jobs as empty even though jobs exist.
 
-### Pitfall 3: `@supabase/ssr` Cookie Adapter Shape
-**What goes wrong:** Using the legacy `get`/`set`/`remove` cookie shape from pre-v0.10 examples. Current v0.10 requires `getAll()`/`setAll()`.
-**Why it happens:** Old blog posts and the Astro quickstart lagged the API change.
-**How to avoid:** Use the `getAll`/`setAll` shape shown in Pattern 1 above. [CITED: supabase.com/docs/guides/auth/quickstarts/astrojs]
-**Warning signs:** Session not persisting across page loads; user is always logged out.
+### Pitfall 3: `@supabase/ssr` Cookie Adapter — Reading Incoming vs Outgoing Cookies
+**What goes wrong:** Using `cookies.headers()` (outgoing Set-Cookie Generator) or `cookies.get(name).value` to populate `getAll()`. Neither provides the incoming Cookie request header that `createServerClient` needs.
+**Why it happens:** `AstroCookies` exposes both reading and writing interfaces, but only the write side has a `headers()` method — it's easy to confuse the two.
+**How to avoid:** Always use `parseCookieHeader(request.headers.get("Cookie") ?? "")` from `@supabase/ssr` in `getAll()`, passing the `Request` object through to `createSupabaseServerClient`. [CITED: supabase.com/docs/guides/auth/quickstarts/astrojs]
+**Warning signs:** Session not persisting across page loads; user is always logged out even after clicking the magic link.
 
 ### Pitfall 4: Analytics Engine writeDataPoint in Local Dev
 **What goes wrong:** `env.ANALYTICS.writeDataPoint is not a function` errors during `astro dev`.
@@ -635,11 +659,17 @@ The consumer queries `wind_turbine.subscribers` for `confirmed_at >= NOW() - INT
 **How to avoid:** Drop and recreate in migration 0007. See Critical Finding 3.
 **Warning signs:** Slow response on `/jobs/index.astro` when featured jobs exist; query plan shows Seq Scan.
 
+### Pitfall 8: Inserting `employer_users` After Auth Callback (Too Late)
+**What goes wrong:** Claim API sends magic link but defers `employer_users` insert until the auth callback fires. Auth Hook runs at token issue time — before the callback — and finds no row; `employer_id` is never injected into the JWT.
+**Why it happens:** Developers assume auth callback is the right place to finalize the claim, but the Hook runs earlier.
+**How to avoid:** `supabase.auth.admin.generateLink()` returns `{ user, properties }` synchronously. Insert `employer_users(auth_id=user.id, employer_id, niche)` in the claim API handler immediately after `generateLink()` succeeds, before redirecting. See the Claim Flow code example.
+**Warning signs:** User lands on `/dashboard` but JWT has no `employer_id`; dashboard shows 0 jobs.
+
 ---
 
 ## Code Examples
 
-### Claim Flow — Domain Match and Magic Link Send
+### Claim Flow — Domain Match, Magic Link Send, and employer_users Insert
 
 ```typescript
 // apps/web/src/pages/api/employer/claim.ts
@@ -669,13 +699,21 @@ export const POST: APIRoute = async ({ request, locals, redirect }) => {
     );
   }
 
-  // Send magic link via Supabase Auth
-  const { error } = await db.auth.admin.generateLink({
+  // Send magic link via Supabase Auth — returns user.id immediately
+  const { data: linkData, error } = await db.auth.admin.generateLink({
     type: "magiclink",
     email,
     options: { redirectTo: `https://${niche.domain}/auth/callback` },
   });
   if (error) return new Response(JSON.stringify({ error: "send_failed" }), { status: 500 });
+
+  // Insert employer_users row NOW — Auth Hook reads this at token-issue time
+  // (which happens when the employer clicks the magic link — before the callback)
+  await db.from("employer_users").upsert({
+    auth_id: linkData.user.id,
+    employer_id: employer.id,
+    niche: niche.supabaseSchema,
+  }, { onConflict: "auth_id,employer_id,niche" });
 
   return redirect("/auth/check-email", 302);
 };
@@ -685,9 +723,9 @@ export const POST: APIRoute = async ({ request, locals, redirect }) => {
 
 ```typescript
 // apps/web/src/pages/api/jobs/[id]/featured.ts
-export const POST: APIRoute = async ({ params, locals }) => {
+export const POST: APIRoute = async ({ params, request, locals }) => {
   const env = getEnv(locals) as any;
-  const supabase = createSupabaseServerClient(/* cookies from context */, env);
+  const supabase = createSupabaseServerClient(locals.cookies, request, env);
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -764,7 +802,7 @@ const logoUrl = domain
 | # | Claim | Section | Risk if Wrong |
 |---|-------|---------|---------------|
 | A1 | `${niche.id}-jobs` prefix correctly derives landing page URL prefix for all future niches | Architecture Patterns (Pattern 8) | A niche with a non-hyphenated ID or different URL convention would need an explicit field |
-| A2 | Supabase flattens `app_metadata` into top-level JWT for RLS (`auth.jwt()->>'employer_id'` works) | Architecture Patterns (Pattern 9) | RLS policies silently fail; dashboard shows empty job list |
+| A2 | Supabase flattens `app_metadata` into top-level JWT for RLS (`auth.jwt()->>'employer_id'` works) | Critical Finding 4, Pattern 9 | RLS policies silently fail; dashboard shows empty job list — MUST verify in Wave 0 |
 | A3 | workers/digest wrangler.toml supports multiple cron triggers | Architecture Patterns (Pattern 10) | Need to verify actual wrangler.toml structure before implementing ANLYT-02 |
 | A4 | Postgres partial index `WHERE featured_until IS NOT NULL` is more useful than `WHERE featured_until > NOW()` (which is immutable-expression-restricted) | Critical Finding 3 | Index still created but won't be used if optimizer chooses differently |
 | A5 | logo.dev token is a publishable key (safe to embed in HTML/SSR output) | Code Examples | If token is secret, must proxy logo requests through a Pages Function |
@@ -773,17 +811,12 @@ const logoUrl = domain
 
 ## Open Questions
 
-1. **Supabase Auth Hook: `app_metadata` JWT path for RLS**
-   - What we know: Hook sets `app_metadata.employer_id`; RLS needs to read it
-   - What's unclear: Whether Supabase exposes it as `auth.jwt()->>'employer_id'` (flattened) or `auth.jwt()->'app_metadata'->>'employer_id'` (nested)
-   - Recommendation: Add a Wave 0 verification step — run `SELECT auth.jwt();` in Supabase SQL Editor with a test employer session; confirm the exact path before writing RLS policies
-
-2. **ANLYT-02: workers/digest cron compatibility**
+1. **ANLYT-02: workers/digest cron compatibility**
    - What we know: The digest worker has one cron (`0 6 * * MON`); the employer alert also needs Monday 06:00 UTC
    - What's unclear: Whether to add a second distinct cron or reuse the same one and branch on payload; and whether the same queue can serve both functions
    - Recommendation: Same trigger time is fine — add a second cron `"0 6 * * 1"` (triggers two separate events) or use one cron that enqueues both digest and alert jobs with a `type` field
 
-3. **CF_API_TOKEN scope for Analytics Engine SQL API**
+2. **CF_API_TOKEN scope for Analytics Engine SQL API**
    - What we know: The SQL API requires `Authorization: Bearer {token}` with Analytics Engine Read permission
    - What's unclear: Whether an existing Workers API token can be reused or a dedicated token is needed
    - Recommendation: Create a dedicated token with `Analytics Engine Read` scope only (principle of least privilege); document in Wave 0 setup
@@ -861,10 +894,10 @@ const logoUrl = domain
 | Claim spoofing (fake domain) | Spoofing | Server-side domain extraction from email (not user-provided) |
 | JWT claim bypass | Elevation of Privilege | RLS enforced at DB level; `employer_id` from Auth Hook, not client |
 | Featured toggle IDOR (toggle another employer's job) | Tampering | API checks `employer_id` match before UPDATE; belt-and-suspenders with RLS |
-| Analytics Engine injection via job_id in SQL | Tampering | Use parameterized approach or sanitize `employer_id` before embedding in SQL string |
+| Analytics Engine injection via employer_id in SQL | Tampering | Validate `employer_id` matches SHA-256 hex pattern (`/^[a-f0-9]{64}$/`) before embedding in SQL string |
 | Session fixation | Tampering | `exchangeCodeForSession` + PKCE prevents; user must click the emailed link from same browser |
 
-**SQL injection note for Analytics Engine:** The SQL API is a raw HTTP POST with string interpolation (no parameterized queries in CF Analytics Engine SQL). Sanitize `employer_id` (validate it matches a known TEXT pattern — SHA-256 hex string = 64 hex chars) before embedding in the SQL query string. [ASSUMED: CF Analytics Engine SQL API does not support parameterized queries — verify at implementation time]
+**SQL injection note for Analytics Engine:** The SQL API is a raw HTTP POST with string interpolation (no parameterized queries in CF Analytics Engine SQL). Pattern 5 validates `employer_id` with `/^[a-f0-9]{64}$/` before embedding in the query string — this is the correct mitigation for a SHA-256 hex string. [ASSUMED: CF Analytics Engine SQL API does not support parameterized queries — verify at implementation time]
 
 ---
 
@@ -882,14 +915,14 @@ const logoUrl = domain
 - [CF Analytics Engine get-started](https://developers.cloudflare.com/analytics/analytics-engine/get-started/) — binding config, writeDataPoint signature
 - [CF Analytics Engine SQL API](https://developers.cloudflare.com/analytics/analytics-engine/sql-api/) — endpoint, auth, query format
 - [Supabase Custom Access Token Hook](https://supabase.com/docs/guides/auth/auth-hooks/custom-access-token-hook) — Postgres function hook pattern
-- [Supabase SSR Astro quickstart](https://supabase.com/docs/guides/auth/quickstarts/astrojs) — getAll/setAll cookie adapter
+- [Supabase SSR Astro quickstart](https://supabase.com/docs/guides/auth/quickstarts/astrojs) — getAll/setAll cookie adapter, parseCookieHeader
 - [Supabase signInWithOtp](https://supabase.com/docs/reference/javascript/auth-signinwithotp) — emailRedirectTo, PKCE
 - [logo.dev API](https://www.logo.dev/docs/logo-images/introduction) — URL format, token type
 - withastro/astro Issue #11793 — `[...slug].astro` server-islands conflict
 
 ### Tertiary (LOW confidence — flag for validation)
 - ANLYT-02 workers/digest extension approach — recommended based on existing patterns; verify wrangler.toml multi-cron support before planning task
-- RLS `auth.jwt()->>'employer_id'` path — must be verified with live Supabase session
+- RLS `auth.jwt()->>'employer_id'` path — must be verified with live Supabase session (Critical Finding 4, Wave 0 mandatory)
 
 ---
 
@@ -898,9 +931,9 @@ const logoUrl = domain
 **Confidence breakdown:**
 - Standard stack: HIGH — verified against installed packages and npm registry
 - Architecture: HIGH — derived from verified codebase; migration types verified against schema
-- Auth Hook pattern: MEDIUM — official docs cited; exact JWT path requires live verification
+- Auth Hook pattern: MEDIUM — official docs cited; exact JWT path requires live verification (Wave 0)
 - Analytics Engine: HIGH — official CF docs for binding and SQL API
-- Pitfalls: HIGH — Critical findings 1-3 are verified against actual migration files
+- Pitfalls: HIGH — Critical findings 1-4 are verified against actual migration files and API contracts
 
 **Research date:** 2026-05-12
 **Valid until:** 2026-06-12 (30 days — Supabase SSR and CF Analytics Engine are stable)
