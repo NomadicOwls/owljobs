@@ -21,6 +21,9 @@ queue = "owljobs-digest"
 max_batch_size = 1
 max_batch_timeout = 0
 max_retries = 2
+# WR-02: messages that exhaust max_retries are routed here instead of dropped.
+# Create once with: wrangler queues create owljobs-digest-dlq
+dead_letter_queue = "owljobs-digest-dlq"
 
 # Secrets — set via wrangler secret put (from workers/digest/):
 #   wrangler secret put SUPABASE_URL
