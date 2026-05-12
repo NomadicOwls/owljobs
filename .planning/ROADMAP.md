@@ -94,7 +94,35 @@ Reach consistent MRR from employer subscriptions (€499 / €999 / €1999/mo) 
   3. A logged-in employer can edit their profile fields (sanitized HTML), upload a logo, and toggle "Featured" on individual jobs up to their tier limit
   4. Featured jobs appear pinned at the top of the listing with a visible badge and auto-disappear from the pinned position when `featured_until` has passed
   5. An employer's dashboard shows 30-day views, clicks, and apply-clicks per job, plus a weekly count of new matching candidate subscribers
-**Plans:** TBD
+**Plans:** 10 plans
+
+  **Wave 0** (foundation, blocking — schema + Auth Hook + JWT path verification)
+  - [ ] 04-01-PLAN.md — Migration 0007 (employer_users + employers.domain + index fix + Auth Hook), @supabase/ssr install, Analytics Engine binding, env types, vitest config, Wave 0 test stubs (RED state)
+  - [ ] 04-02-PLAN.md — [BLOCKING] Apply 0007 via supabase db push; register Custom Access Token Hook in Supabase Dashboard; verify JWT path → writes jwt-path-verification.md
+
+  **Wave 1** (vertical slices, parallel)
+  - [ ] 04-03-PLAN.md — Public claim flow: EmployerLogo + ClaimListingCTA + ClaimListingModal + /api/employer/claim + /employers/[slug].astro extension (PROF-01, PROF-02)
+  - [ ] 04-04-PLAN.md — Featured jobs: listFeaturedJobs() + /jobs/index.astro real query + /api/jobs/[id]/featured toggle API (FEAT-01, FEAT-02, FEAT-03)
+  - [ ] 04-05-PLAN.md — Analytics write side: /api/track endpoint + /jobs/[slug].astro view-event instrumentation; FEAT-04 deferred to Phase 5 (ANLYT-01 write, FEAT-04 deferred)
+  - [ ] 04-06-PLAN.md — [BLOCKING] RLS migration 0008 (depends on jwt-path-verification.md); apply via supabase db push (PROF-03, PROF-04)
+
+  **Wave 2** (auth + SEO, parallel)
+  - [ ] 04-07-PLAN.md — Auth pages: createSupabaseServerClient + middleware session injection + /login + /auth/callback + /auth/check-email + MagicLinkForm + CheckEmailNotice (PROF-03)
+  - [ ] 04-09-PLAN.md — SEO landing pages: NicheConfig.landingPages extension + 4 wind-turbine entries + [landingSlug].astro single-segment route + SeoIntroBlock (PROF-04)
+
+  **Wave 3** (dashboard — depends on auth + featured API + RLS)
+  - [ ] 04-08-PLAN.md — Employer dashboard: DashboardLayout, DashboardNav (mobile bottom-nav), StatTile, JobRow, FeaturedToggle, LockedFeatureCard, ProfileEditorPreview, LogoUploadPreview, SubscriberMatchCard, /dashboard.astro, /api/stats.ts (PROF-04, PROF-05, PROF-06, ANLYT-01 read)
+
+  **Wave 4** (delivery — depends on dashboard)
+  - [ ] 04-10-PLAN.md — Weekly employer match alerts: extend workers/digest with second cron + EMPLOYER_ALERTS queue + Resend send (ANLYT-02)
+
+  **Cross-cutting constraints:**
+  - Multi-niche: every new file reads niche.supabaseSchema / niche.id / niche.domain / niche.name — no hardcoded `wind_turbine` literals
+  - Pitfall 3: @supabase/ssr cookie adapter uses getAll/setAll (NOT legacy get/set/remove)
+  - Pitfall 5: CF Analytics Engine SQL API has no parameterized queries — employer_id MUST match /^[a-f0-9]{64}$/ before embedding
+  - Pitfall 7: /auth/callback uses exchangeCodeForSession, never getSession()
+  - Pitfall 8: claim flow inserts employer_users BEFORE returning (Auth Hook fires at token-issue time, not callback time)
+  - FEAT-04 (homepage featured-employer carousel) deferred to Phase 5 per D-15
 
 ### Phase 5: Monetization & Outreach
 **Goal:** First paying employers are onboarded — Stripe is live, EU VAT is correct, and the founder is sending the FOMO pitch.
