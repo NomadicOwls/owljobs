@@ -1,0 +1,33 @@
+name = "owljobs-digest"
+main = "src/index.ts"
+compatibility_date = "2025-04-08"
+compatibility_flags = ["nodejs_compat"]
+
+# Weekly digest — Monday 06:00 UTC (CONTEXT D-04)
+[triggers]
+crons = ["0 6 * * 1"]
+
+# Queue — create once with:
+#   wrangler queues create owljobs-digest
+[[queues.producers]]
+queue = "owljobs-digest"
+binding = "DIGEST_QUEUE"
+
+[[queues.consumers]]
+queue = "owljobs-digest"
+# max_batch_size = 1 because each message body already carries up to 10 subscriber
+# IDs (D-15). One consumer invocation = one Resend batch call (<= 10 emails).
+# Resolves RESEARCH Conflict 1 vs CLAUDE.md's "max_batch_size: 2 or lower" guidance.
+max_batch_size = 1
+max_batch_timeout = 0
+max_retries = 2
+
+# Secrets — set via wrangler secret put (from workers/digest/):
+#   wrangler secret put SUPABASE_URL
+#   wrangler secret put SUPABASE_SERVICE_KEY
+#   wrangler secret put RESEND_API_KEY
+#
+# For local dev, create workers/digest/.dev.vars:
+#   SUPABASE_URL=https://<ref>.supabase.co
+#   SUPABASE_SERVICE_KEY=<service_role_key>
+#   RESEND_API_KEY=<resend_api_key>

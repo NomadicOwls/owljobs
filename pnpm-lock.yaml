@@ -113,6 +113,21 @@ importers:
         specifier: ^5.7.3
         version: 5.9.3
 
+  workers/digest:
+    dependencies:
+      '@owljobs/niches':
+        specifier: workspace:*
+        version: link:../../packages/niches
+      '@supabase/supabase-js':
+        specifier: ^2.45.0
+        version: 2.105.1
+
+  workers/discover:
+    dependencies:
+      '@supabase/supabase-js':
+        specifier: ^2.45.0
+        version: 2.105.1
+
   workers/ingest:
     dependencies:
       '@owljobs/ats-adapters':
