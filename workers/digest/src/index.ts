@@ -186,6 +186,7 @@ const handler: ExportedHandler<Env, DigestMessage> = {
                 .from("subscribers")
                 .select("id")
                 .not("confirmed_at", "is", null) // Pitfall 2 — exclude soft-unsubscribed
+                .order("id", { ascending: true })   // CR-02: stable cursor for pagination
                 .range(offset, offset + BATCH_SIZE - 1);
               if (error) {
                 console.error(`[${niche.id}] subscriber enumeration failed:`, error);
