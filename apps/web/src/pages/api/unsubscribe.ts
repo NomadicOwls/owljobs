@@ -13,10 +13,12 @@ export const GET: APIRoute = async ({ locals, url }) => {
 
   const db = supabaseAdmin(env);
 
+  // Soft-unsubscribe: preserve the row so email_sends FK remains valid AND
+  // re-subscribe re-uses the existing row (RESEARCH Conflict 4 resolution).
   const { data, error } = await db
     .schema(niche.supabaseSchema)
     .from("subscribers")
-    .delete()
+    .update({ confirmed_at: null })
     .eq("unsubscribe_token", token)
     .select("email")
     .single();
@@ -54,10 +56,14 @@ export const POST: APIRoute = async ({ locals, url }) => {
 
   const db = supabaseAdmin(env);
 
+  // RFC 8058 one-click — soft-unsubscribe (D-20). Token comes from the URL query string,
+  // never from the POST body (RFC 8058 §3.1: body is literally `List-Unsubscribe=One-Click`).
+  // We deliberately do NOT branch on whether the token matched a row — returning the same
+  // 200 OK either way prevents subscriber enumeration (T-03-01).
   await db
     .schema(niche.supabaseSchema)
     .from("subscribers")
-    .delete()
+    .update({ confirmed_at: null })
     .eq("unsubscribe_token", token);
 
   return new Response("OK", { status: 200 });
