@@ -11,7 +11,7 @@ Reach consistent MRR from employer subscriptions (€499 / €999 / €1999/mo) 
 
 - [x] **Phase 1: Production Foundation** — Domain live, GDPR + email infra production-ready, stale jobs removed _(completed 2026-05-10)_
 - [x] **Phase 2: Employer Breadth & SEO** — 20+ employers ingested, Google for Jobs eligible _(completed 2026-05-11)_
-- [ ] **Phase 3: Candidate Activation** — Weekly digest live, ≥100 confirmed subscribers (hard gate)
+- [x] **Phase 3: Candidate Activation** — Weekly digest live, ≥100 confirmed subscribers (hard gate) (completed 2026-05-12)
 - [ ] **Phase 4: Employer Product** — Auto-generated company pages, claim flow, magic-link dashboard, featured jobs
 - [ ] **Phase 5: Monetization & Outreach** — Stripe billing live, first paying employers via FOMO outreach
 
@@ -66,15 +66,15 @@ Reach consistent MRR from employer subscriptions (€499 / €999 / €1999/mo) 
   2. The digest email passes inbox checks (RFC 8058 `List-Unsubscribe` + `List-Unsubscribe-Post` headers, one-click works in Gmail/Outlook)
   3. A subscriber never receives the same digest twice for the same date (idempotency enforced at DB)
   4. The `subscribers` table contains ≥100 double-opt-in confirmed records — the hard gate before any employer cold pitch
-**Plans:** 4 plans
+**Plans:** 4/4 plans complete
 
   **Wave 1**
-  - [ ] 03-01-PLAN.md — [BLOCKING] migration 0006 (email_sends idempotency) + Wave 0 source-contract test scaffolds for digest worker + supabase db push
-  - [ ] 03-04-PLAN.md — Newsletter.astro social proof copy (D-12) + CAND-04 outreach milestone tracking checkpoint
+  - [x] 03-01-PLAN.md — [BLOCKING] migration 0006 (email_sends idempotency) + Wave 0 source-contract test scaffolds for digest worker + supabase db push
+  - [x] 03-04-PLAN.md — Newsletter.astro social proof copy (D-12) + CAND-04 outreach milestone tracking checkpoint
 
   **Wave 2** *(blocked on 03-01 completion)*
-  - [ ] 03-02-PLAN.md — workers/digest/: package.json + tsconfig + wrangler.toml + src/index.ts (cron + queue fan-out + Resend batch + insert-before-send idempotency, multi-niche) — CAND-01, CAND-02, CAND-03
-  - [ ] 03-03-PLAN.md — Modify apps/web/src/pages/api/unsubscribe.ts: GET + POST both soft-delete (confirmed_at = NULL); resolves RESEARCH Conflicts 2/3/4 — CAND-02
+  - [x] 03-02-PLAN.md — workers/digest/: package.json + tsconfig + wrangler.toml + src/index.ts (cron + queue fan-out + Resend batch + insert-before-send idempotency, multi-niche) — CAND-01, CAND-02, CAND-03
+  - [x] 03-03-PLAN.md — Modify apps/web/src/pages/api/unsubscribe.ts: GET + POST both soft-delete (confirmed_at = NULL); resolves RESEARCH Conflicts 2/3/4 — CAND-02
 
   **Cross-cutting constraints:**
   - `getAllNiches()` + `niche.supabaseSchema` — no `wind_turbine` hardcoding (applies to 03-01, 03-02)
@@ -115,7 +115,7 @@ Reach consistent MRR from employer subscriptions (€499 / €999 / €1999/mo) 
 |-------|----------------|--------|-----------|
 | 1. Production Foundation | 6/6 | Complete | 2026-05-10 |
 | 2. Employer Breadth & SEO | 12/12 | Complete | 2026-05-11 |
-| 3. Candidate Activation | 0/4 | Ready to execute | - |
+| 3. Candidate Activation | 4/4 | Complete   | 2026-05-12 |
 | 4. Employer Product | 0/0 | Not started | - |
 | 5. Monetization & Outreach | 0/0 | Not started | - |
 
