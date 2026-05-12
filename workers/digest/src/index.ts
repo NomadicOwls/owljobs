@@ -270,16 +270,6 @@ const handler: ExportedHandler<Env, DigestMessage> = {
           // UTC date string matching Postgres CURRENT_DATE (Pitfall 4).
           const todayDate = new Date().toISOString().slice(0, 10);
 
-          interface BatchEntry {
-            from: string;
-            to: string;
-            subject: string;
-            html: string;
-            text: string;
-            headers: Record<string, string>;
-          }
-          const batchPayload: BatchEntry[] = [];
-
           for (const sub of subs) {
             try {
               const subJobs = applyLocationFilter(jobs, sub);
@@ -307,18 +297,34 @@ const handler: ExportedHandler<Env, DigestMessage> = {
                 continue;
               }
 
+              // CR-01: per-subscriber send — a Resend failure for subscriber N
+              // logs+continues without blocking subscriber N+1. The email_sends
+              // row is already inserted; on retry the 23505 guard skips this
+              // subscriber (one email may be lost, but not all 10).
               // D-03: even on a zero-jobs week, still send.
-              batchPayload.push({
-                from: FROM_ADDRESS,
-                to: sub.email,
-                subject: buildSubject(subJobs.length, niche),
-                html: renderDigestHtml(subJobs, sub, niche, employerNameById),
-                text: renderDigestText(subJobs, sub, niche),
+              const res = await fetch("https://api.resend.com/emails/batch", {
+                method: "POST",
                 headers: {
-                  "List-Unsubscribe": `<${buildUnsubscribeUrl(niche, sub.unsubscribe_token)}>`,
-                  "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+                  Authorization: `Bearer ${env.RESEND_API_KEY}`,
+                  "Content-Type": "application/json",
                 },
+                body: JSON.stringify([{
+                  from: FROM_ADDRESS,
+                  to: sub.email,
+                  subject: buildSubject(subJobs.length, niche),
+                  html: renderDigestHtml(subJobs, sub, niche, employerNameById),
+                  text: renderDigestText(subJobs, sub, niche),
+                  headers: {
+                    "List-Unsubscribe": `<${buildUnsubscribeUrl(niche, sub.unsubscribe_token)}>`,
+                    "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+                  },
+                }]),
               });
+              if (!res.ok) {
+                const text = await res.text();
+                console.error(`[${nicheId}] Resend failed for ${sub.id}: ${res.status}: ${text}`);
+                continue;
+              }
             } catch (err) {
               // D-17: log and skip failed subscriber; continue batch.
               console.error(`[${nicheId}] subscriber ${sub.id} failed:`, err);
@@ -326,26 +332,10 @@ const handler: ExportedHandler<Env, DigestMessage> = {
             }
           }
 
-          if (batchPayload.length > 0) {
-            const res = await fetch("https://api.resend.com/emails/batch", {
-              method: "POST",
-              headers: {
-                Authorization: `Bearer ${env.RESEND_API_KEY}`,
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(batchPayload),
-            });
-            if (!res.ok) {
-              const text = await res.text();
-              throw new Error(`Resend batch error ${res.status}: ${text}`);
-            }
-          }
-
           msg.ack();
         } catch (err) {
-          // Unrecoverable: Resend 5xx on whole batch, or DB enumeration failure.
-          // msg.retry() lets Cloudflare redeliver — DB UNIQUE constraint protects
-          // already-sent subscribers from duplicate emails on the retry pass.
+          // Unrecoverable: DB enumeration failure or pre-loop error.
+          // msg.retry() lets Cloudflare redeliver.
           console.error(`[${nicheId}] digest consumer failed:`, err);
           msg.retry();
         }
