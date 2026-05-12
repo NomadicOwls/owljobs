@@ -61,6 +61,7 @@ Plan: 1 of 4
 ### Active Todos
 
 - Complete deferred ops before Phase 5: Resend DNS, Pages/Worker secrets, GCP service account, production deploy, RFC 8058 live smoke test (see RUNBOOK.md)
+- CAND-04 outreach milestone: run `SELECT COUNT(*) FROM wind_turbine.subscribers WHERE confirmed_at IS NOT NULL` periodically and track toward ≥100 hard gate (required before Phase 5 entry). Newsletter social proof copy "420+ jobs from 20+ employers" live on subscribe form to drive conversion.
 
 ### Blockers
 
