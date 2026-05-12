@@ -53,10 +53,10 @@ Tailwind default scale, restricted to multiples of 4 for this phase.
 | 3xl | 64px | `16` / `py-16` | Empty-state vertical padding (matches existing `py-16` empty states) |
 
 Exceptions:
-- Page top padding `py-10` (40px) on `/employers/[slug]` — already in production, kept for parity.
+- Page top padding `py-10` (40px) on `/employers/[slug]` — already in production, kept for parity (40px is a multiple of 4 ✓).
 - Header height `h-16` (64px) and content offset spacer `h-16` — fixed header convention, do not change.
-- Tile sizes `h-12 w-12` (48px), `h-14 w-14` (56px) for logo tiles — 56px is the only non-4-multiple-of-4 (it is a multiple of 4: 56 = 4×14 ✓ — confirmed compliant).
-- Floating badge offset `-top-2.5` (-10px) used in `FeaturedJobCard.astro` — visual-only nudge, kept verbatim.
+- Tile sizes `h-12 w-12` (48px), `h-14 w-14` (56px) for logo tiles — both are multiples of 4 (48 = 4×12, 56 = 4×14) ✓.
+- Floating "Featured" badge offset: `-top-2` (-8px, multiple of 4). NOTE: The existing `FeaturedJobCard.astro` ships with `-top-2.5` (-10px) — Phase 4 work must update this to `-top-2` for spec compliance (badge nudge adjusted from -10px to -8px; visually indistinguishable, brings spacing back onto the 4-pt grid).
 
 Touch-target minimum: **40px** (`h-10` Button-lg) for primary actions on mobile; **44px** equivalent achieved by `h-9` (36px) buttons because the underlying tap region in Astro `<a>` / `<button>` extends to the parent card via `block group` pattern. Standalone icon buttons in dashboard MUST use `h-10 w-10` (40px) minimum.
 
@@ -64,19 +64,21 @@ Touch-target minimum: **40px** (`h-10` Button-lg) for primary actions on mobile;
 
 ## Typography
 
-Single family (Geist Variable). 4 sizes, 2 weights (regular 400 + semibold 600). Body line-height 1.5, heading 1.2 (Tailwind `leading-tight` ≈ 1.25 is acceptable).
+Single family (Geist Variable). **Exactly 4 sizes, exactly 2 weights** (regular 400 + semibold 600). Body line-height 1.5, heading 1.2 (Tailwind `leading-tight` ≈ 1.25 is acceptable).
 
 | Role | Size | Tailwind | Weight | Line Height | Usage |
 |------|------|----------|--------|-------------|-------|
-| Body | 14px | `text-sm` | 400 | 1.5 (`leading-relaxed`) | Default text inside cards, form helpers, table rows, meta lines (location/posted-ago/salary) |
-| Body emphasis | 14px | `text-sm` | 600 (`font-semibold`) | 1.5 | Stat values, table header cells |
-| Label | 12px | `text-xs` | 600 (`font-semibold`) | 1.4 (default) | Uppercase eyebrows (`uppercase tracking-wider`), badge text, meta hints — matches `text-xs font-semibold uppercase tracking-wider text-muted-foreground` pattern on `/employers/[slug]` |
-| Heading | 16–20px | `text-base` / `text-xl` | 600 (`font-semibold`) | 1.25 (`leading-tight`) | Card titles, section headings (`h2`), dashboard tile titles, `JobCardModern` titles |
-| Display | 24–30px | `text-2xl` / `text-3xl` | 700 (`font-bold`) | 1.2 (`leading-tight`) | Page H1 (`/employers/[slug]` already uses `text-2xl font-bold`; `/jobs` uses `text-3xl font-bold`) |
+| Body | 14px | `text-sm` | 400 | 1.5 (`leading-relaxed`) | Default text inside cards, form helpers, table rows, meta lines (location/posted-ago/salary), uppercase eyebrows (with `text-[10px]`-equivalent let-down via `tracking-wider` is NOT used — eyebrows stay at 14px semibold), badge text, mobile-nav labels |
+| Body emphasis | 14px | `text-sm` | 600 (`font-semibold`) | 1.5 | Stat values inline, table header cells, eyebrow labels (uppercase + `tracking-wider`), badge text, mobile-nav labels under icons |
+| Section heading | 16px | `text-base` | 600 (`font-semibold`) | 1.25 (`leading-tight`) | Card titles, section sub-headings, dashboard tile titles, `JobCardModern` titles |
+| Page heading | 20px | `text-xl` | 600 (`font-semibold`) | 1.25 (`leading-tight`) | Section `h2` on dashboard ("Your jobs", "Company profile", "Last 30 days") |
+| Display | 24px | `text-2xl` | 600 (`font-semibold`) | 1.2 (`leading-tight`) | Page H1 (`/employers/[slug]`, `/login`, `/auth/check-email`, `/dashboard`, SEO landing pages), dashboard headline stat values (`StatTile` value, `SubscriberMatchCard` count) |
+
+**Strict count: 4 distinct size tokens** — `text-sm` (14px), `text-base` (16px), `text-xl` (20px), `text-2xl` (24px). No `text-xs` and no `text-3xl` in Phase 4. The existing `/jobs` page H1 currently uses `text-3xl font-bold`; Phase 4 work must update that to `text-2xl font-semibold` when touching the page, OR leave untouched if outside Phase 4 scope (do not introduce `text-3xl` in any NEW surface).
+
+**Strict count: 2 weights** — 400 (regular) and 600 (semibold). No 700 (`font-bold`) in any new component. Existing `font-bold` usages in legacy files are out of scope unless modified during this phase, in which case they must be updated to `font-semibold`.
 
 Numbers in tables and stats: `tabular-nums` (already used in `/employers/[slug]` for "{total} open position(s)") — required for all dashboard analytics numbers so columns align across rows.
-
-Font weight 700 is permitted ONLY for `Display` (page H1 + dashboard headline stat values) — keeps the strict 2-weight visual rule at the component level while matching the site's existing display weight.
 
 ---
 
@@ -142,14 +144,14 @@ New components to ship in Phase 4. Each composes the existing `ui/*` primitives.
 | Component | Path | Composes | Purpose |
 |-----------|------|----------|---------|
 | `DashboardLayout.astro` | `apps/web/src/components/dashboard/DashboardLayout.astro` | `Layout` + 2-column nav-and-main grid | Authenticated wrapper, sets `Astro.locals.session`; redirects to `/login` if missing |
-| `DashboardNav.astro` | `apps/web/src/components/dashboard/DashboardNav.astro` | none (nav + svg icons) | Left rail on desktop (`w-56 lg:block`), bottom bar on mobile. Items: Overview, Jobs, Profile, Analytics, Sign out |
-| `StatTile.astro` | `apps/web/src/components/dashboard/StatTile.astro` | `Card`, `CardHeader`, `CardContent` | Stat block: label (eyebrow), value (display weight, `text-2xl font-bold tabular-nums`), delta or sub-label (`text-xs text-muted-foreground`) |
+| `DashboardNav.astro` | `apps/web/src/components/dashboard/DashboardNav.astro` | none (nav + svg icons) | Left rail on desktop (`w-56 lg:block`) with icon + text label per item. **Mobile bottom-fixed nav bar: icon + visible label below each icon.** Labels render at `text-sm font-semibold` (14px, weight 600) immediately under the 24×24 SVG, centered, with `gap-1` (4px) between icon and label. Each nav item is a real `<a>` link with the visible label as its accessible name (no separate `aria-label` needed). Items: Overview, Jobs, Profile, Sign out (4 items, evenly distributed via `flex justify-around`). |
+| `StatTile.astro` | `apps/web/src/components/dashboard/StatTile.astro` | `Card`, `CardHeader`, `CardContent` | Stat block: label (eyebrow `text-sm font-semibold uppercase tracking-wider text-muted-foreground`), value (display, `text-2xl font-semibold tabular-nums`), delta or sub-label (`text-sm text-muted-foreground`) |
 | `JobRow.astro` | `apps/web/src/components/dashboard/JobRow.astro` | `Card`, `Badge` (variant=`accent` if featured), `FeaturedToggle` | Per-job dashboard row: title, location, posted_at, views/clicks/applies (`StatInline`), toggle |
 | `FeaturedToggle.astro` | `apps/web/src/components/dashboard/FeaturedToggle.astro` | `Button` (size=`sm`, variant=`outline` off / `default` on) — OR a real switch | Toggles `featured_until = NOW() + 30d` ↔ NULL via `/api/jobs/[id]/featured`. Off state: muted outline. On state: `bg-accent text-accent-foreground` thumb. Has a 2-state aria-pressed attribute and a hidden form fallback so it works without JS. |
 | `LockedFeatureCard.astro` | `apps/web/src/components/dashboard/LockedFeatureCard.astro` | `Card`, `Badge` (variant=`secondary` with text "Paid plan"), `Button` (variant=`outline`, `disabled`) | Wraps the locked profile editor and locked logo uploader. Greyed via `opacity-60 pointer-events-none` on inner form + an overlay row with `Badge` + tooltip "Available on paid plan — coming in Phase 5". The form below is still rendered for preview so executors don't ship empty boxes. |
 | `ProfileEditorPreview.astro` | `apps/web/src/components/dashboard/ProfileEditorPreview.astro` | `Card`, `Input`, textarea, `Button` (disabled) | The actual edit form inside `LockedFeatureCard`. Fields: company name (readonly), tagline, rich description (`<textarea>` — Phase 5 swaps in a sanitized rich editor), benefits list, website. All inputs `disabled`. |
 | `LogoUploadPreview.astro` | `apps/web/src/components/dashboard/LogoUploadPreview.astro` | `Card`, `Input` (type=`file`, disabled), `Button` (disabled) | Drag-area preview, current logo (logo.dev or initials), disabled "Upload new logo" button. |
-| `SubscriberMatchCard.astro` | `apps/web/src/components/dashboard/SubscriberMatchCard.astro` | `Card`, `Badge` | Headline number (accent-colored count) + label "new matching subscribers this week" + sub-label "(across {niche.name})". |
+| `SubscriberMatchCard.astro` | `apps/web/src/components/dashboard/SubscriberMatchCard.astro` | `Card`, `Badge` | Headline number (accent-colored count, `text-2xl font-semibold`) + label "new matching subscribers this week" + sub-label "(across {niche.name})". |
 
 ### Featured listing surfaces (wire to real data, no new components)
 
@@ -172,12 +174,14 @@ Every interactive element must render five visual states. Use existing focus-rin
 | Input (focus) | `border-input bg-transparent` | n/a | n/a | `ring-2 ring-ring ring-offset-2 border-ring` | `cursor-not-allowed opacity-50` |
 | Job card link | `border-border bg-card/50` | `border-accent/50 bg-card` (existing) | n/a | `ring-2 ring-ring` (NEW — add to `JobCardModern` if missing) | n/a |
 | Sign-out link | `text-muted-foreground` | `text-destructive` | n/a | `ring-2 ring-destructive` | n/a |
+| Mobile bottom-nav item | `text-muted-foreground` (icon + label) | `text-foreground` | n/a (no pressed visual on nav) | `ring-2 ring-ring rounded-md` | n/a |
+| Mobile bottom-nav item (current) | `text-accent` (icon + label both) — aria-current="page" | n/a | n/a | `ring-2 ring-ring rounded-md` | n/a |
 
 **Loading state** (forms during async submit):
 - Button label swaps to "Sending..." (claim form), "Saving..." (dashboard), "Featuring..." (toggle); button gets `disabled` + `opacity-60`, no spinner SVG required for v1.
 
 **Validation states** (claim form, future profile form):
-- Invalid email: `Input` gets `border-destructive` and inline helper `<p class="mt-1 text-xs text-destructive">Enter a valid work email.</p>`. Helper id is wired via `aria-describedby` on the input.
+- Invalid email: `Input` gets `border-destructive` and inline helper `<p class="mt-1 text-sm text-destructive">Enter a valid work email.</p>`. Helper id is wired via `aria-describedby` on the input.
 
 ---
 
@@ -187,7 +191,7 @@ Every interactive element must render five visual states. Use existing focus-rin
 - Container: `mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8` (unchanged).
 - Header card: extend with **`EmployerLogo size="lg"` on the left** (replace inline initials block) and **`ClaimListingCTA` on the right** (right-align with `ml-auto`). Already used `flex items-center gap-4` — keep, add `flex-wrap` for mobile so the Claim CTA wraps under the name on small screens.
 - Below header: existing position count + job list (no change), but featured jobs come first (sorted server-side).
-- Empty state: existing copy stays; if employer has 0 jobs AND not yet claimed, add a second line under the empty illustration: `<p class="mt-2 text-xs text-muted-foreground">Are you {employer.name}? <a href="#claim" class="text-accent hover:underline">Claim this page</a> to add open roles.</p>`.
+- Empty state: existing copy stays; if employer has 0 jobs AND not yet claimed, add a second line under the empty illustration: `<p class="mt-2 text-sm text-muted-foreground">Are you {employer.name}? <a href="#claim" class="text-accent hover:underline">Claim this page</a> to add open roles.</p>`.
 
 ### 2. `/login` (new)
 - Centered single-column form: `mx-auto max-w-md px-4 py-16`.
@@ -200,7 +204,7 @@ Every interactive element must render five visual states. Use existing focus-rin
 ### 4. `/dashboard` (new — protected)
 - Top: `Header` (reused; sign-out replaces "Post a Job" CTA when session present).
 - Layout: `mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8` with `lg:flex lg:gap-8`.
-- Left: `DashboardNav` (`hidden w-56 shrink-0 lg:block` + sticky `top-24`). Mobile: bottom-fixed nav bar (`fixed bottom-0 left-0 right-0 border-t border-border bg-background/95 backdrop-blur lg:hidden`) with 4 icons (Overview, Jobs, Profile, Sign out).
+- Left: `DashboardNav` (`hidden w-56 shrink-0 lg:block` + sticky `top-24`). **Mobile: bottom-fixed nav bar** (`fixed bottom-0 left-0 right-0 border-t border-border bg-background/95 backdrop-blur lg:hidden`) with **4 items, each rendering icon (24×24) + visible text label below** (`text-sm font-semibold`, 14px). Items: Overview, Jobs, Profile, Sign out. Each item is a real `<a>` link with `flex flex-col items-center gap-1 py-2 px-3 min-h-14`; current page gets `text-accent` + `aria-current="page"`; non-current items use `text-muted-foreground`. Min height per tap target: 56px (h-14) to cover icon + label + padding while staying on the 4-pt grid.
 - Right (`min-w-0 flex-1`): sections separated by `mb-8`. Order:
   1. **Greeting row**: H1 `{employer.name}` + sub `Signed in as {user.email}` (muted).
   2. **Stats row** (`grid gap-4 sm:grid-cols-3`): `StatTile`s — 30-day Views, 30-day Clicks, 30-day Apply clicks. Each tile shows raw integer with `tabular-nums`.
@@ -233,6 +237,7 @@ All copy is final and must ship verbatim — no placeholders. Substitute `{niche
 | `JobRow` | Toggle (on state) | `Featured · 12 days left` (compute from `featured_until`; falls back to `Featured` if <1 day) |
 | `LockedFeatureCard` | Disabled save button | `Save profile (paid plan)` |
 | `LockedFeatureCard` | Disabled upload button | `Upload logo (paid plan)` |
+| Mobile bottom-nav | Item labels | `Overview`, `Jobs`, `Profile`, `Sign out` |
 
 ### Headings
 
@@ -273,7 +278,7 @@ All copy is final and must ship verbatim — no placeholders. Substitute `{niche
 | Claim modal: rate-limited | `Too many attempts. Try again in a few minutes.` |
 | `/login`: send-link failed | `We couldn't send the magic link. Check the email address and try again.` |
 | `/auth/callback`: invalid token | H1 `Sign-in link expired` + body `Magic links expire after 60 minutes. <a class="text-accent" href="/login">Request a new one</a>.` |
-| Featured toggle: write failed | Inline toast/pill above the JobRow: `Couldn't update Featured status. Try again.` (`bg-destructive/10 text-destructive border border-destructive/30 rounded-md p-2 text-xs`) |
+| Featured toggle: write failed | Inline toast/pill above the JobRow: `Couldn't update Featured status. Try again.` (`bg-destructive/10 text-destructive border border-destructive/30 rounded-md p-2 text-sm`) |
 | Dashboard: stats API failed | Each `StatTile` value renders `—` and sub-label says `Stats temporarily unavailable.` |
 
 ### Destructive confirmations
@@ -295,10 +300,10 @@ Profile editing in Phase 4 is locked — no save action, no destructive action t
 |-------------|----------------|
 | Contrast | All text against its background must hit WCAG AA (4.5:1 for body, 3:1 for ≥18px/600). Niche accent `#2ecc71` on white fails AA for body — it is therefore RESERVED for non-body usage only (badges, focus rings, headline integers ≥24px, hover indicators, single-word emphasis). Body links use `text-accent` only on hover where they also gain underline — never as the resting color on body-size text. |
 | Focus visibility | Every interactive element has `focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2`. No `outline-none` without a `focus-visible` replacement. |
-| Touch targets | Minimum 40×40 px (`h-10 w-10`) for icon-only buttons. Text buttons may be 36 px (`h-9`) when min-width ≥ 80 px (Fitts compliance via horizontal extent). |
+| Touch targets | Minimum 40×40 px (`h-10 w-10`) for icon-only buttons. Text buttons may be 36 px (`h-9`) when min-width ≥ 80 px (Fitts compliance via horizontal extent). Mobile bottom-nav items use icon + visible label, so the visible label IS the accessible name (no `aria-label` needed). Each nav item has `min-h-14` (56px) tap region. |
 | Keyboard | Featured toggle: `<button>` with `aria-pressed`. Dashboard nav: real `<a>` links. Claim modal: trap focus inside the modal, ESC closes, returns focus to the trigger. |
-| Screen readers | Logo-tile fallback initials get `aria-label="{employer.name} logo"`. Stat values get `aria-label="{value} {metric} in the last 30 days"`. Toggle's accessible name is the verb only — `aria-label="Feature {job.title}"` or `aria-label="Remove featured status from {job.title}"`. |
-| Color independence | Featured pinning is conveyed by BOTH the "Featured" badge text AND the accent border — never accent border alone. |
+| Screen readers | Logo-tile fallback initials get `aria-label="{employer.name} logo"`. Stat values get `aria-label="{value} {metric} in the last 30 days"`. Toggle's accessible name is the verb only — `aria-label="Feature {job.title}"` or `aria-label="Remove featured status from {job.title}"`. Mobile-nav items have visible text labels, so no extra `aria-label` is required; the current page item adds `aria-current="page"`. |
+| Color independence | Featured pinning is conveyed by BOTH the "Featured" badge text AND the accent border — never accent border alone. Mobile-nav current state uses BOTH accent color AND `aria-current="page"` — never color alone. |
 | Form labels | Every `Input` has a real `<label>` (visible or `sr-only`) — no placeholder-only fields. |
 | Motion | Existing `transition-all` / `transition-colors` is fine (subtle); honor `prefers-reduced-motion: reduce` — add to global.css if not present: `@media (prefers-reduced-motion: reduce) { *, ::before, ::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }`. |
 
@@ -310,9 +315,9 @@ Tailwind defaults; no custom breakpoints.
 
 | Width | Behavior |
 |-------|----------|
-| `< 640px` (mobile) | Single column. Dashboard nav becomes bottom bar. Claim CTA wraps under employer name on `/employers/[slug]`. Stats grid stacks (`grid-cols-1`). Profile editor stacks. |
-| `640px–1023px` (sm/md) | Stats `grid sm:grid-cols-3`. Profile editor `md:grid-cols-2`. Dashboard nav still bottom-bar until `lg`. |
-| `≥ 1024px` (lg+) | Dashboard nav becomes left rail (`w-56 sticky top-24`). `/jobs` sidebar visible. Max content width caps at `max-w-7xl` (1280px). |
+| `< 640px` (mobile) | Single column. Dashboard nav becomes bottom bar (icon + label per item). Claim CTA wraps under employer name on `/employers/[slug]`. Stats grid stacks (`grid-cols-1`). Profile editor stacks. |
+| `640px–1023px` (sm/md) | Stats `grid sm:grid-cols-3`. Profile editor `md:grid-cols-2`. Dashboard nav still bottom-bar (icon + label) until `lg`. |
+| `≥ 1024px` (lg+) | Dashboard nav becomes left rail (`w-56 sticky top-24`, icon + label inline horizontally per item). `/jobs` sidebar visible. Max content width caps at `max-w-7xl` (1280px). |
 
 ---
 
@@ -356,11 +361,11 @@ No third-party UI registry packages are introduced in Phase 4. All new component
 
 ## Checker Sign-Off
 
-- [ ] Dimension 1 Copywriting: PASS — all CTAs, headings, empty states, errors, and confirmations specified verbatim
-- [ ] Dimension 2 Visuals: PASS — every new component listed with composition path; reuses existing primitives
+- [ ] Dimension 1 Copywriting: PASS — all CTAs, headings, empty states, errors, and confirmations specified verbatim; mobile-nav labels declared
+- [ ] Dimension 2 Visuals: PASS — every new component listed with composition path; reuses existing primitives; mobile bottom-nav declared as icon + visible label
 - [ ] Dimension 3 Color: PASS — accent has explicit 9-item allow-list, 60/30/10 verified
-- [ ] Dimension 4 Typography: PASS — 4 sizes, 2 weights (with documented Display=700 exception), line-heights specified
-- [ ] Dimension 5 Spacing: PASS — multiples of 4 only, exceptions enumerated and justified
+- [ ] Dimension 4 Typography: PASS — exactly 4 sizes (`text-sm`, `text-base`, `text-xl`, `text-2xl`), exactly 2 weights (400, 600); no `text-xs`, no `text-3xl`, no `font-bold` in new components
+- [ ] Dimension 5 Spacing: PASS — multiples of 4 only; floating badge offset adjusted from `-top-2.5` (-10px) to `-top-2` (-8px) for grid compliance
 - [ ] Dimension 6 Registry Safety: PASS — no third-party registry; not applicable
 
 **Approval:** pending
