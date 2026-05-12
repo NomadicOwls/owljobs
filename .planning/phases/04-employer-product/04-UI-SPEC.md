@@ -230,7 +230,7 @@ All copy is final and must ship verbatim — no placeholders. Substitute `{niche
 |---------|---------|------|
 | `/employers/[slug]` | Claim CTA button | `Claim this listing` |
 | Claim modal | Submit button | `Send magic link` |
-| Claim modal | Cancel button | `Cancel` |
+| Claim modal | Cancel button | `Never mind` |
 | `/login` | Submit button | `Send magic link` |
 | `/dashboard` | Sign-out link | `Sign out` |
 | `JobRow` | Toggle (off state) | `Feature job` |
@@ -287,7 +287,7 @@ Phase 4 has **two** destructive interactions:
 
 | Action | Confirmation pattern | Copy |
 |--------|----------------------|------|
-| Toggle Featured OFF (a currently-featured job) | Native `confirm()` dialog OR an inline 2-step (preferred for v1: inline button transforms to `Remove featured? <a>Yes</a> · <a>Cancel</a>`) | `Remove featured status from "{job.title}"? It will drop out of the pinned section immediately.` |
+| Toggle Featured OFF (a currently-featured job) | Native `confirm()` dialog OR an inline 2-step (preferred for v1: inline button transforms to `Remove featured? <a>Yes</a> · <a>Never mind</a>`) | `Remove featured status from "{job.title}"? It will drop out of the pinned section immediately.` |
 | Sign out | None — direct action (low-risk, reversible by signing back in) | `Sign out` button does it directly |
 
 Profile editing in Phase 4 is locked — no save action, no destructive action there.
@@ -361,7 +361,7 @@ No third-party UI registry packages are introduced in Phase 4. All new component
 
 ## Checker Sign-Off
 
-- [ ] Dimension 1 Copywriting: PASS — all CTAs, headings, empty states, errors, and confirmations specified verbatim; mobile-nav labels declared
+- [ ] Dimension 1 Copywriting: PASS — all CTAs, headings, empty states, errors, and confirmations specified verbatim; mobile-nav labels declared; claim-modal cancel uses `Never mind` (no generic `Cancel`)
 - [ ] Dimension 2 Visuals: PASS — every new component listed with composition path; reuses existing primitives; mobile bottom-nav declared as icon + visible label
 - [ ] Dimension 3 Color: PASS — accent has explicit 9-item allow-list, 60/30/10 verified
 - [ ] Dimension 4 Typography: PASS — exactly 4 sizes (`text-sm`, `text-base`, `text-xl`, `text-2xl`), exactly 2 weights (400, 600); no `text-xs`, no `text-3xl`, no `font-bold` in new components
