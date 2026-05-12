@@ -38,7 +38,8 @@ patterns-established:
   - "CAND-04 social proof: static copy in subscribe-form footer with inline HTML comment carrying the manual-update convention (`<!-- CAND-04 social proof (D-12) — static copy, update manually after major ingests / subscriber milestones -->`)"
   - "Source-contract test pattern reused for component-source assertions (readFile + regex against .astro string)"
 
-requirements-completed: [CAND-04]
+requirements-completed: []  # Intentionally EMPTY — CAND-04 reads "Minimum 100 confirmed subscribers acquired via active outreach", which is an operator outreach milestone, not a code deliverable. This plan ships the code piece of CAND-04 (D-12 social proof copy) and the ops-tracking convention, but the requirement itself is closed at Phase 5 entry once the operator hits ≥100 confirmed subscribers. DO NOT auto-tick CAND-04 in REQUIREMENTS.md from this SUMMARY.
+requirements-partial: [CAND-04]  # Code piece (D-12 social proof) shipped; operator outreach gate pending
 
 # Metrics
 duration: 2min
@@ -95,6 +96,7 @@ None - plan executed exactly as written. The code edit matches the action block 
 ## Issues Encountered
 
 - **Node modules missing in worktree on first test run.** Resolved by running `pnpm install` (≈23 s) before the first RED-phase test execution. Single workspace-level install picked up vitest 4.1.5 and the rest of devDependencies. Not a deviation — expected first-time-in-worktree behavior. `pnpm-lock.yaml` was already staged-as-modified at worktree spawn (pre-existing state), kept untouched in commits.
+- **`astro check` surfaces 1 pre-existing error + 2 pre-existing warnings outside plan scope.** Task 2's `<behavior>` block specified both `astro check` and `tsc --noEmit` must exit 0. `tsc --noEmit` exits 0. `astro check` reports 1 error (`apps/web/src/components/ui/Input.astro:17` ts(2322)) + 2 unused-import warnings (`FeaturedJobCard.astro`, `JobCardModern.astro`) — all three files unchanged since `72386ec Initial commit`, NOT touched or imported by this plan. Per scope-boundary rule ("Only auto-fix issues DIRECTLY caused by the current task's changes") these are out of scope and logged to `.planning/phases/03-candidate-activation/deferred-items.md` for a future Phase 4 cleanup plan. Newsletter.astro itself passes `astro check` clean — the global exit code is non-zero because of unrelated files.
 
 ## User Setup Required
 
@@ -146,6 +148,7 @@ None - plan executed exactly as written. The code edit matches the action block 
 - TDD gate sequence: `test(03-04)` (RED) → `feat(03-04)` (GREEN) — compliant
 - All 3 newsletter test assertions GREEN; all 4 subscribe test assertions GREEN (no regression)
 - TypeScript clean (`tsc --noEmit` exit 0)
+- `astro check` non-zero exit but ALL diagnostics are in pre-existing, untouched files — out-of-scope deferred items logged
 
 ## Self-Check: PASSED
 
