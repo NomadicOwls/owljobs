@@ -15,25 +15,14 @@ export const GET: APIRoute = async ({ locals, url }) => {
 
   // Soft-unsubscribe: preserve the row so email_sends FK remains valid AND
   // re-subscribe re-uses the existing row (RESEARCH Conflict 4 resolution).
-  const { data, error } = await db
+  // WR-01: do NOT branch on whether the token matched — returning the same
+  // response regardless prevents subscriber enumeration (T-03-01, same
+  // protection as POST handler).
+  await db
     .schema(niche.supabaseSchema)
     .from("subscribers")
     .update({ confirmed_at: null })
-    .eq("unsubscribe_token", token)
-    .select("email")
-    .single();
-
-  if (error || !data) {
-    return new Response(
-      `<!doctype html><html lang="en"><head><meta charset="UTF-8"><title>Already unsubscribed</title></head>
-      <body style="font-family:sans-serif;max-width:480px;margin:4rem auto;padding:0 1rem;text-align:center">
-        <h1 style="font-size:1.5rem">Already unsubscribed</h1>
-        <p>This link has already been used or is invalid.</p>
-        <a href="/" style="color:#1a6b3c">← Back to ${niche.name}</a>
-      </body></html>`,
-      { status: 200, headers: { "Content-Type": "text/html" } },
-    );
-  }
+    .eq("unsubscribe_token", token);
 
   return new Response(
     `<!doctype html><html lang="en"><head><meta charset="UTF-8"><title>Unsubscribed</title></head>
