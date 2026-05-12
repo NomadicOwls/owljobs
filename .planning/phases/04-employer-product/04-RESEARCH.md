@@ -809,17 +809,19 @@ const logoUrl = domain
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **ANLYT-02: workers/digest cron compatibility**
    - What we know: The digest worker has one cron (`0 6 * * MON`); the employer alert also needs Monday 06:00 UTC
    - What's unclear: Whether to add a second distinct cron or reuse the same one and branch on payload; and whether the same queue can serve both functions
    - Recommendation: Same trigger time is fine — add a second cron `"0 6 * * 1"` (triggers two separate events) or use one cron that enqueues both digest and alert jobs with a `type` field
+   - RESOLVED: Plan 10 adds a second cron trigger `"0 6 * * 1"` (separate event) in workers/digest/wrangler.toml; the existing digest cron remains unchanged. Employer alerts are enqueued to a dedicated EMPLOYER_ALERTS queue and processed by a new consumer branch.
 
 2. **CF_API_TOKEN scope for Analytics Engine SQL API**
    - What we know: The SQL API requires `Authorization: Bearer {token}` with Analytics Engine Read permission
    - What's unclear: Whether an existing Workers API token can be reused or a dedicated token is needed
    - Recommendation: Create a dedicated token with `Analytics Engine Read` scope only (principle of least privilege); document in Wave 0 setup
+   - RESOLVED: Plan 01 documents a dedicated `CF_API_TOKEN` (Analytics Engine Read scope only) as a required Pages secret. Plan 02 ops checklist includes creating and setting this token. Reusing a broader Workers token is explicitly disallowed per principle of least privilege.
 
 ---
 
