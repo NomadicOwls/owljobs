@@ -29,7 +29,7 @@ export const GET: APIRoute = async ({ locals, url }) => {
     <body style="font-family:sans-serif;max-width:480px;margin:4rem auto;padding:0 1rem;text-align:center">
       <h1 style="font-size:1.5rem">You're unsubscribed</h1>
       <p>You've been removed from ${niche.name} job alerts. You won't receive any more emails.</p>
-      <a href="/" style="color:#1a6b3c">← Back to ${niche.name}</a>
+      <a href="/" style="color:${niche.branding.primaryColor}">← Back to ${niche.name}</a>
     </body></html>`,
     { status: 200, headers: { "Content-Type": "text/html" } },
   );
