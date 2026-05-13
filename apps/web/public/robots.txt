@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://windturbinejobs.com/sitemap.xml
+Sitemap: https://mywindturbinejobs.com/sitemap.xml

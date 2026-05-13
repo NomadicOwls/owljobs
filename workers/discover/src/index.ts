@@ -80,7 +80,7 @@ async function probeCandidate(candidate: Candidate): Promise<DetectionResult> {
   try {
     const response = await fetch(candidate.careers_url, {
       redirect: "follow",
-      headers: { "User-Agent": "OwlJobs-Discover/1.0 (+https://owljobs.com/about)" },
+      headers: { "User-Agent": "OwlJobs-Discover/1.0 (+https://mywindturbinejobs.com/about)" },
       signal: AbortSignal.timeout(10_000),
     });
     const html = await response.text();

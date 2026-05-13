@@ -48,7 +48,7 @@ function makeDbMock(opts: {
 
 const testNiche: NicheConfig = {
   id: "wind_turbine",
-  domain: "windturbinejobs.com",
+  domain: "mywindturbinejobs.com",
   supabaseSchema: "wind_turbine",
 } as NicheConfig;
 

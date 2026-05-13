@@ -7,7 +7,7 @@
 The frontend is built. These are non-code steps blocking deploy.
 
 - [ ] Apply DB migrations 0002 (RLS) + 0003 (subscriber tokens) in Supabase SQL editor
-- [ ] Register domain (`owljobs.com` or final name)
+- [x] Register domain (`mywindturbinejobs.com`)
 - [ ] Verify sending domain in Resend (SPF / DKIM / DMARC)
 - [ ] Create Cloudflare Turnstile widget → copy site key + secret
 - [ ] Create `apps/web/.dev.vars` with all 6 env vars
@@ -15,7 +15,7 @@ The frontend is built. These are non-code steps blocking deploy.
 - [ ] Create `public/og-default.png` (1200×630 branded image)
 - [ ] Point domain to Cloudflare Pages + verify TLS
 
-**Goal:** site live at owljobs.com, candidates can browse jobs and subscribe.
+**Goal:** site live at mywindturbinejobs.com, candidates can browse jobs and subscribe.
 
 ---
 

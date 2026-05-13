@@ -150,7 +150,7 @@ async function ingestWorkday(
       if (inserted) {
         stats.inserted++;
         // SEO-03: ping Google Indexing API for new job URL.
-        // Pitfall 8: use buildPublicUrl (owljobs.com), NOT job.canonicalUrl (employer ATS URL).
+        // Pitfall 8: use buildPublicUrl (niche public URL), NOT job.canonicalUrl (employer ATS URL).
         if (saJson && budget && budget.remaining > 0) {
           try {
             const r = await pingUrlUpdated(saJson, buildPublicUrl(niche, job.sourceId));
@@ -218,7 +218,7 @@ async function ingestGreenhouse(
       if (inserted) {
         stats.inserted++;
         // SEO-03: ping Google Indexing API for new job URL.
-        // Pitfall 8: use buildPublicUrl (owljobs.com), NOT job.canonicalUrl (employer ATS URL).
+        // Pitfall 8: use buildPublicUrl (niche public URL), NOT job.canonicalUrl (employer ATS URL).
         if (saJson && budget && budget.remaining > 0) {
           try {
             const r = await pingUrlUpdated(saJson, buildPublicUrl(niche, job.sourceId));
@@ -294,7 +294,7 @@ async function ingestSuccessFactors(
       if (inserted) {
         stats.inserted++;
         // SEO-03: ping Google Indexing API for new job URL.
-        // Pitfall 8: use buildPublicUrl (owljobs.com), NOT job.canonicalUrl (employer ATS URL).
+        // Pitfall 8: use buildPublicUrl (niche public URL), NOT job.canonicalUrl (employer ATS URL).
         if (saJson && budget && budget.remaining > 0) {
           try {
             const r = await pingUrlUpdated(saJson, buildPublicUrl(niche, job.sourceId));
@@ -368,7 +368,7 @@ async function ingestRecruitee(
       if (inserted) {
         stats.inserted++;
         // SEO-03: ping Google Indexing API for new job URL.
-        // Pitfall 8: use buildPublicUrl (owljobs.com), NOT job.canonicalUrl (employer ATS URL).
+        // Pitfall 8: use buildPublicUrl (niche public URL), NOT job.canonicalUrl (employer ATS URL).
         if (saJson && budget && budget.remaining > 0) {
           try {
             const r = await pingUrlUpdated(saJson, buildPublicUrl(niche, job.sourceId));
@@ -443,7 +443,7 @@ async function ingestSoftgarden(
       if (inserted) {
         stats.inserted++;
         // SEO-03: ping Google Indexing API for new job URL.
-        // Pitfall 8: use buildPublicUrl (owljobs.com), NOT job.canonicalUrl (employer ATS URL).
+        // Pitfall 8: use buildPublicUrl (niche public URL), NOT job.canonicalUrl (employer ATS URL).
         if (saJson && budget && budget.remaining > 0) {
           try {
             const r = await pingUrlUpdated(saJson, buildPublicUrl(niche, job.sourceId));
@@ -518,7 +518,7 @@ async function ingestSmartRecruiters(
       if (inserted) {
         stats.inserted++;
         // SEO-03: ping Google Indexing API for new job URL.
-        // Pitfall 8: use buildPublicUrl (owljobs.com), NOT job.canonicalUrl (employer ATS URL).
+        // Pitfall 8: use buildPublicUrl (niche public URL), NOT job.canonicalUrl (employer ATS URL).
         if (saJson && budget && budget.remaining > 0) {
           try {
             const r = await pingUrlUpdated(saJson, buildPublicUrl(niche, job.sourceId));

@@ -2,7 +2,7 @@
 import ThemeToggle from "./ui/ThemeToggle.astro";
 
 const niche = Astro.locals.niche;
-const initials = niche.name.split(" ").map((w: string) => w[0]).join("").slice(0, 2).toUpperCase();
+const initials = niche.domain.split(".")[0].slice(0, 2).toUpperCase();
 ---
 
 <header class="fixed left-0 right-0 top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">

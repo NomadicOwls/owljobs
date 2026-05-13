@@ -86,7 +86,7 @@ export async function expireMissingJobs(
         break;
       }
       try {
-        // CR-02 fix: use owljobs.com public URL (NOT employer ATS URL / canonical_url)
+        // CR-02 fix: use niche public URL via buildPublicUrl (NOT employer ATS URL / canonical_url)
         const r = await pingUrlUpdated(saJson, buildPublicUrl(niche, job.id));
         if (r.ok) pinged++;
         else pingFailures++;

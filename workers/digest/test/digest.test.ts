@@ -50,12 +50,12 @@ describe("workers/digest/src/index.ts — CAND-01/CAND-02 source contract", () =
   });
 
   // CAND-02 — RFC 8058 headers
-  it("calls Resend batch endpoint https://api.resend.com/emails/batch", () => {
-    expect(src).toMatch(/api\.resend\.com\/emails\/batch/);
+  it("calls Brevo SMTP endpoint https://api.brevo.com/v3/smtp/email", () => {
+    expect(src).toMatch(/api\.brevo\.com\/v3\/smtp\/email/);
   });
 
-  it("sends from digest@windturbinejobs.com (D-09)", () => {
-    expect(src).toMatch(/digest@windturbinejobs\.com/);
+  it("derives from-email as `digest@${niche.domain}` (D-09, multi-niche)", () => {
+    expect(src).toMatch(/digest@\$\{niche\.domain\}/);
   });
 
   it("attaches List-Unsubscribe header with token in URL (RFC 8058, D-19)", () => {

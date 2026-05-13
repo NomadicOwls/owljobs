@@ -4,7 +4,7 @@
 
 The ingest + classify pipeline is shipped: `workers/ingest` runs hourly, scrapes Workday (GE Vernova) and SuccessFactors (Vestas, NextEra), upserts into Supabase under the `wind_turbine` schema, and classifies via Workers AI embedding similarity with Llama fallback. Current corpus: ~1000 jobs, ~31 wind-relevant in the top 100 of `jobs` ordered by `is_sponsored, posted_at DESC`. The backend exposes a debug `/jobs.json` endpoint on the ingest worker — that is not a frontend.
 
-We need a **public-ready** candidate-facing site at `owljobs.com`: a real homepage, browsable job listings, individual job pages, an RSS/JSON feed, sitemap + robots, and a double opt-in email subscribe form. No employer dashboard, no candidate auth, no Stripe (those are v2). The site must be multi-niche-ready (host-based dispatch via `nicheFromHost`) so dropping `theme-park.ts` later is additive.
+We need a **public-ready** candidate-facing site at `mywindturbinejobs.com`: a real homepage, browsable job listings, individual job pages, an RSS/JSON feed, sitemap + robots, and a double opt-in email subscribe form. No employer dashboard, no candidate auth, no Stripe (those are v2). The site must be multi-niche-ready (host-based dispatch via `nicheFromHost`) so dropping `theme-park.ts` later is additive.
 
 User is in `.be` (GDPR applies). User confirmed: **scope = public-ready**, **DB access = anon key + Postgres RLS**.
 
@@ -86,7 +86,7 @@ The full canonical URL stays available via the `canonical_url` column for the ap
 
 1. User submits form → `/api/subscribe` with email + Turnstile token.
 2. Verify Turnstile → insert `subscribers` row with `confirmation_token = randomUUID()`, `confirmed_at = null`.
-3. Resend email: "Click here to confirm: `https://owljobs.com/api/confirm?token=...`".
+3. Resend email: "Click here to confirm: `https://mywindturbinejobs.com/api/confirm?token=...`".
 4. `/api/confirm` flips `confirmed_at = now()`, redirects to `/?confirmed=1`.
 5. Every email (confirmation, future digest) includes `List-Unsubscribe` header + visible unsubscribe link → `/api/unsubscribe?token=...` (also `List-Unsubscribe-Post` per RFC 8058).
 6. Privacy page lists Resend as a sub-processor and links to their DPA.
@@ -178,7 +178,7 @@ apps/web/
 
 **Modify:**
 - `packages/niches/src/index.ts` — already exports `nicheFromHost`/`getAllNiches`; add a small `dbScope(niche)` helper if not present, returning the schema name
-- `niches/wind-turbine.ts` — `domain: "owljobs.com"` already present; verify `branding.primaryColor`/`accentColor` are renderable as CSS vars (already present)
+- `niches/wind-turbine.ts` — `domain: "mywindturbinejobs.com"` already present; verify `branding.primaryColor`/`accentColor` are renderable as CSS vars (already present)
 - Root `pnpm-workspace.yaml` — add `apps/*` to the workspaces glob
 - `workers/ingest/src/index.ts` — remove `/jobs.json` debug endpoint once frontend is live (it returns service-role data without RLS — keep behind a header check or delete in v0.2)
 
@@ -197,16 +197,16 @@ apps/web/
 6. **Feeds + sitemap + robots** — RSS, JSON Feed, sitemap. (~1 h)
 7. **Subscribe API** — Turnstile, Resend, double opt-in. Test full loop manually. (~2 h)
 8. **Privacy + terms + 404/500.** (~30 min)
-9. **Custom domain** — point `owljobs.com` at Pages, set TLS, verify multi-niche middleware on production host. (~30 min)
+9. **Custom domain** — point `mywindturbinejobs.com` at Pages, set TLS, verify multi-niche middleware on production host. (~30 min)
 10. **Deploy** + smoke test the verification list below.
 
 Total: ~9 hours of focused work.
 
 ## Verification
 
-After deploy to `owljobs.com`:
-- `curl -sI https://owljobs.com/ | head` → 200 + `Cache-Control: s-maxage=300...`
-- `curl -s https://owljobs.com/jobs.json` (debug endpoint) — expect 404 once removed; until then confirm count matches `/jobs` page.
+After deploy to `mywindturbinejobs.com`:
+- `curl -sI https://mywindturbinejobs.com/ | head` → 200 + `Cache-Control: s-maxage=300...`
+- `curl -s https://mywindturbinejobs.com/jobs.json` (debug endpoint) — expect 404 once removed; until then confirm count matches `/jobs` page.
 - Anon-key smoke test: `psql` with anon JWT, `SELECT count(*) FROM wind_turbine.jobs WHERE classification_score < 0.6 AND is_sponsored = false` → 0 rows visible. Same query with service role → ~700 noise jobs.
 - `/jobs/[slug]` for a known job ID prefix renders title, employer, location, posted date, apply button linking to `canonical_url` with `rel="nofollow noopener"`.
 - Subscribe with a real email → receive Resend confirmation within 60s → click link → `/?confirmed=1` → `subscribers.confirmed_at` populated. Click unsubscribe in the same email → row deleted.
@@ -215,7 +215,7 @@ After deploy to `owljobs.com`:
 - `/sitemap.xml` lists ≥ 30 job URLs (the relevant ones), no noise jobs.
 - `https://search.google.com/test/rich-results` on a `/jobs/[slug]` URL — confirm **no** structured-data warnings (we shipped no JSON-LD on purpose; this just verifies we didn't accidentally include broken markup).
 - Lighthouse on `/` and `/jobs/[slug]`: Performance ≥ 95, Accessibility ≥ 95, SEO = 100.
-- DNS: `dig owljobs.com` resolves to Cloudflare; TLS cert is valid.
+- DNS: `dig mywindturbinejobs.com` resolves to Cloudflare; TLS cert is valid.
 
 ## Out of scope (v0.2+)
 

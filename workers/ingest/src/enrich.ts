@@ -75,7 +75,7 @@ export async function enrichPendingJobs(
           } else {
             stats.enriched++;
             // SEO-03: ping Google Indexing API after description fills in (D-19).
-            // Pitfall 8: owljobs.com URL via buildPublicUrl, NOT row.canonical_url.
+            // Pitfall 8: use public URL via buildPublicUrl, NOT row.canonical_url.
             if (saJson && budget.remaining > 0) {
               try {
                 const r = await pingUrlUpdated(saJson, buildPublicUrl(niche, row.id));
