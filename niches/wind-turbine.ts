@@ -420,7 +420,7 @@ const config: NicheConfig = {
     {
       slug: "wind-turbine-jobs-offshore-north-sea",
       label: "Offshore — North Sea",
-      filters: { keywords: ["offshore"], location: "North Sea" },
+      filters: { keywords: ["offshore"] },
     },
     {
       slug: "wind-turbine-jobs-offshore",

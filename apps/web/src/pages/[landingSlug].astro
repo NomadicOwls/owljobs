@@ -15,10 +15,8 @@ const { landingSlug } = Astro.params;
 const page = niche.landingPages?.find((p) => p.slug === landingSlug);
 if (!landingSlug || !page) return Astro.redirect("/404");
 
-// 2. Build filters — keywords go to title search (q), location to its own column filter
-const keywords = page.filters.keywords?.length
-  ? page.filters.keywords.join(" ")
-  : undefined;
+// 2. Build filters — keywords use OR semantics on title; location filters the location column
+const keywords = page.filters.keywords?.length ? page.filters.keywords : undefined;
 const location = page.filters.location || undefined;
 
 setCacheHeaders(Astro.response.headers, 3600, 300);
@@ -27,7 +25,7 @@ const db = supabasePublic(env);
 let jobs: Awaited<ReturnType<typeof listJobs>>["jobs"] = [];
 let total = 0;
 try {
-  const result = await listJobs(db, niche.supabaseSchema, { page: 1, perPage: 30, q: keywords, location });
+  const result = await listJobs(db, niche.supabaseSchema, { page: 1, perPage: 30, keywords, location });
   jobs = result.jobs;
   total = result.total;
 } catch {

@@ -33,8 +33,10 @@ describe("apps/web/src/pages/[landingSlug].astro — SEO landing pages", () => {
     expect(src).toMatch(/,\s*location\s*[}\)]/);
   });
 
-  it("passes only keywords as q (not location)", () => {
-    // keywords feed the title search; location goes to its own param.
-    expect(src).toMatch(/q\s*:\s*keywords/);
+  it("passes keywords array directly (OR semantics, not joined string)", () => {
+    // keywords is now passed as an array for OR-semantics via listJobs `keywords` param.
+    // The old pattern (q: keywords with join(" ")) produced substring-AND, matching nothing.
+    expect(src).toMatch(/\bkeywords\b/);
+    expect(src).not.toMatch(/keywords\.join/);
   });
 });

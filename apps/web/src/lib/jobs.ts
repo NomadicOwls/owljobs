@@ -14,6 +14,7 @@ interface ListJobsOpts {
   country?: string | undefined;
   q?: string | undefined;
   location?: string | undefined;
+  keywords?: string[] | undefined;
 }
 
 export async function listJobs(
@@ -21,7 +22,7 @@ export async function listJobs(
   schema: string,
   opts: ListJobsOpts = {},
 ): Promise<{ jobs: JobWithEmployer[]; total: number }> {
-  const { page = 1, perPage = 20, country, q, location } = opts;
+  const { page = 1, perPage = 20, country, q, location, keywords } = opts;
   const offset = (page - 1) * perPage;
 
   let query = db
@@ -37,6 +38,10 @@ export async function listJobs(
   if (country) query = query.eq("country", country);
   if (q) query = query.ilike("title", `%${q}%`);
   if (location) query = query.ilike("location", `%${location}%`);
+  if (keywords?.length) {
+    const orClause = keywords.map(k => `title.ilike.%${k}%`).join(",");
+    query = query.or(orClause);
+  }
 
   const { data, error, count } = await query;
   if (error) throw new Error(error.message);

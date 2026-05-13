@@ -107,7 +107,7 @@ export interface LandingPage {
   filters: {
     /** Keyword filters AND-ed with the location filter; passed to listJobs `q` param */
     keywords?: string[];
-    /** Location text; passed to listJobs `q` param alongside keywords (Phase 4 simple form) */
+    /** Location text; passed to listJobs `location` param — queries the `location` column directly */
     location?: string;
   };
 }
