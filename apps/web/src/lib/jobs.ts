@@ -139,6 +139,41 @@ export async function listSitemapJobs(
   return (data ?? []) as Array<{ id: string; updated_at: string }>;
 }
 
+/**
+ * FEAT-01 — Active featured jobs for the niche.
+ *
+ * Filters: status='active' AND featured_until > NOW().
+ * Uses the idx_jobs_featured index (created in migration 0007):
+ *   ON wind_turbine.jobs(featured_until DESC NULLS LAST, posted_at DESC)
+ *   WHERE featured_until IS NOT NULL.
+ *
+ * The runtime `> NOW()` filter excludes already-expired featured rows
+ * (self-expiring sort per FEAT-01 spec — D-13: 30-day duration set by toggle API).
+ *
+ * Usage from .astro pages: listFeaturedJobs(db, niche.supabaseSchema)
+ */
+export async function listFeaturedJobs(
+  db: SupabaseClient,
+  schema: string,
+  limit: number = 10,
+): Promise<JobWithEmployer[]> {
+  const nowIso = new Date().toISOString();
+  const { data, error } = await db
+    .schema(schema)
+    .from("jobs")
+    .select(
+      "id, title, location, country, posted_at, canonical_url, apply_url, is_sponsored, featured_until, employer_id, employers!inner(name, normalized_name)",
+    )
+    .eq("status", "active")
+    .gt("featured_until", nowIso)
+    .order("featured_until", { ascending: false, nullsFirst: false })
+    .order("posted_at", { ascending: false })
+    .limit(limit);
+
+  if (error) throw error;
+  return (data ?? []) as unknown as JobWithEmployer[];
+}
+
 export { slugFromId };
 
 export interface JobStats {
