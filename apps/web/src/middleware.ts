@@ -37,6 +37,9 @@ export const onRequest = defineMiddleware(async (ctx, next) => {
   }
 
   const response = await next();
-  responseHeaders.forEach((value, key) => response.headers.append(key, value));
+  // WR-04: only forward Set-Cookie — don't blindly propagate any future SDK headers
+  responseHeaders.forEach((value, key) => {
+    if (key.toLowerCase() === "set-cookie") response.headers.append(key, value);
+  });
   return response;
 });

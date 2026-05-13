@@ -71,7 +71,7 @@ async function handle(
 
   const newFeaturedUntil =
     action === "feature"
-      ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+      ? new Date(Date.now() + THIRTY_DAYS_MS).toISOString()
       : null;
 
   // T-04-11 IDOR check #2 (belt-and-suspenders): include employer_id in the UPDATE

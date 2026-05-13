@@ -26,6 +26,7 @@ export interface Env {
   SUPABASE_URL: string;
   SUPABASE_SERVICE_KEY: string;
   BREVO_API_KEY: string;
+  RESEND_API_KEY: string;
   DIGEST_QUEUE: Queue<DigestMessage>;
   EMPLOYER_ALERTS: Queue<EmployerAlertMessage>;
 }
@@ -92,7 +93,7 @@ function buildUnsubscribeUrl(niche: NicheConfig, token: string): string {
 function buildSubject(jobCount: number, niche: NicheConfig): string {
   // D-08: dynamic subject with job count
   if (jobCount > 0) {
-    return `${jobCount} new wind turbine jobs this week`;
+    return `${jobCount} new ${niche.name.toLowerCase()} jobs this week`;
   }
   return `${niche.name} — no new listings this week`;
 }
@@ -261,7 +262,7 @@ async function processEmployerAlertsBatch(
       const resp = await fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${env.BREVO_API_KEY}`,
+          Authorization: `Bearer ${env.RESEND_API_KEY}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -271,9 +272,10 @@ async function processEmployerAlertsBatch(
           html,
         }),
       });
-      if (resp.status >= 500) {
+      if (resp.status === 429 || resp.status >= 500) {
         msg.retry();
       } else {
+        if (!resp.ok) console.error(`[employer-alert] send failed: ${resp.status}`);
         msg.ack();
       }
     } catch {

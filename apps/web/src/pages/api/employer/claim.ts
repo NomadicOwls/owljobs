@@ -66,6 +66,22 @@ export async function POST({ request, locals }: APIContext) {
     );
   }
 
+  // BL-04: check if listing is already claimed by a different user before upserting.
+  // The conflict key (employer_id, niche_id) would otherwise silently overwrite auth_id.
+  const { data: existing } = await db
+    .from("employer_users")
+    .select("auth_id")
+    .eq("employer_id", employer.id)
+    .eq("niche_id", niche.supabaseSchema)
+    .maybeSingle();
+
+  if (existing?.auth_id && existing.auth_id !== linkData.user.id) {
+    return Response.json(
+      { error: "This employer listing is already claimed. Contact us at hello@owljobs.com to transfer access." },
+      { status: 409 },
+    );
+  }
+
   // CRITICAL (Pitfall 8): insert employer_users BEFORE returning, so the
   // custom_access_token_hook finds the row at token-issue time when the
   // employer clicks the magic link.

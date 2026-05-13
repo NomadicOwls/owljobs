@@ -7,7 +7,7 @@ import LockedFeatureCard from "../components/dashboard/LockedFeatureCard.astro";
 import ProfileEditorPreview from "../components/dashboard/ProfileEditorPreview.astro";
 import LogoUploadPreview from "../components/dashboard/LogoUploadPreview.astro";
 import SubscriberMatchCard from "../components/dashboard/SubscriberMatchCard.astro";
-import { supabasePublic, supabaseAdmin } from "../lib/supabase.js";
+import { createSupabaseServerClient, supabaseAdmin } from "../lib/supabase.js";
 import { getEnv } from "../lib/env.js";
 
 const niche = Astro.locals.niche;
@@ -19,7 +19,12 @@ if (!session) return Astro.redirect("/login");
 if (!employerId) return Astro.redirect("/employers");
 
 const env = getEnv(Astro.locals);
-const db = supabasePublic(env);
+// BL-03: use authenticated SSR client so RLS jobs_employer_read_own policy passes
+const db = createSupabaseServerClient(
+  env,
+  Astro.request.headers.get("cookie"),
+  Astro.response.headers,
+);
 
 const { data: employer } = await db
   .schema(niche.supabaseSchema)

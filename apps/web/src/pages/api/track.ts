@@ -1,16 +1,9 @@
 import type { APIContext } from "astro";
 import { getEnv } from "../../lib/env.js";
+import { supabasePublic } from "../../lib/supabase.js";
 
-function isSafeRedirect(url: string): boolean {
-  // Allow same-origin paths but reject protocol-relative URLs (//evil.com bypass — T-04-22)
-  if (url.startsWith("/") && !url.startsWith("//")) return true;
-  try {
-    const parsed = new URL(url);
-    return parsed.protocol === "http:" || parsed.protocol === "https:";
-  } catch {
-    return false;
-  }
-}
+const VALID_TYPES = new Set(["view", "click", "apply"]);
+const EMPLOYER_ID_RE = /^[a-f0-9]{64}$/;
 
 export async function GET({ request, locals, redirect }: APIContext) {
   const niche = locals.niche;
@@ -18,13 +11,16 @@ export async function GET({ request, locals, redirect }: APIContext) {
   const url = new URL(request.url);
 
   const jobId = url.searchParams.get("job") ?? "";
-  const type = url.searchParams.get("type") ?? "view";
-  const employerId = url.searchParams.get("employer") ?? "";
-  const redirectTarget = url.searchParams.get("redirect");
+  const rawType = url.searchParams.get("type") ?? "view";
+  const rawEmployerId = url.searchParams.get("employer") ?? "";
 
   if (!jobId) {
     return Response.json({ error: "Missing job id" }, { status: 400 });
   }
+
+  // Validate blobs before writing to Analytics Engine (WR-03)
+  const type = VALID_TYPES.has(rawType) ? rawType : "view";
+  const employerId = EMPLOYER_ID_RE.test(rawEmployerId) ? rawEmployerId : "";
 
   // Pitfall 4 — local dev does not simulate Analytics Engine
   const analytics = (env as { ANALYTICS?: AnalyticsEngineDataset }).ANALYTICS;
@@ -41,13 +37,22 @@ export async function GET({ request, locals, redirect }: APIContext) {
   }
 
   if (type === "apply") {
-    if (!redirectTarget) {
-      return Response.json({ error: "Missing redirect target" }, { status: 400 });
+    // BL-02: never redirect to a client-supplied URL — fetch apply_url from DB
+    const db = supabasePublic(env);
+    const { data: job } = await db
+      .schema(niche.supabaseSchema)
+      .from("jobs")
+      .select("apply_url, canonical_url")
+      .eq("id", jobId)
+      .single();
+    if (!job) {
+      return Response.json({ error: "Job not found" }, { status: 404 });
     }
-    if (!isSafeRedirect(redirectTarget)) {
-      return Response.json({ error: "Invalid redirect target" }, { status: 400 });
+    const dest = job.apply_url ?? job.canonical_url;
+    if (!dest) {
+      return Response.json({ error: "No apply URL" }, { status: 404 });
     }
-    return redirect(redirectTarget, 302);
+    return redirect(dest, 302);
   }
 
   return new Response(null, { status: 204 });
