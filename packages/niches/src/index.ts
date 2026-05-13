@@ -94,6 +94,24 @@ export type AtsTarget =
   | AdzunaTarget
   | JSearchTarget;
 
+/**
+ * SEO landing page configuration (Phase 4, D-18).
+ * Each entry produces a route at /{landingSlug} where landingSlug starts with `${niche.id}-jobs`
+ * (e.g. wind-turbine-jobs-austin-tx) — see apps/web/src/pages/[landingSlug].astro for the page logic.
+ */
+export interface LandingPage {
+  /** Full URL slug, e.g. "wind-turbine-jobs-austin-tx" or "entry-level-wind-turbine-jobs" */
+  slug: string;
+  /** Human label for the H1 and intro paragraph, e.g. "Austin, TX" or "Entry Level" */
+  label: string;
+  filters: {
+    /** Keyword filters AND-ed with the location filter; passed to listJobs `q` param */
+    keywords?: string[];
+    /** Location text; passed to listJobs `q` param alongside keywords (Phase 4 simple form) */
+    location?: string;
+  };
+}
+
 export interface NicheConfig {
   id: string;
   name: string;
@@ -112,6 +130,10 @@ export interface NicheConfig {
     primaryColor: string;
     accentColor: string;
   };
+  /** Optional curated landing pages (Phase 4 D-18) */
+  landingPages?: LandingPage[];
+  /** Optional 2–3 sentence boilerplate rendered under the job grid on landing pages */
+  seoFooter?: string;
 }
 
 // --- Registry ---

@@ -4,7 +4,7 @@ const config: NicheConfig = {
   id: "wind-turbine",
   name: "Wind Turbine Jobs",
   tagline: "Wind Turbine Technician Jobs",
-  domain: "windturbinejobs.com",
+  domain: "mywindturbinejobs.com",
   supabaseSchema: "wind_turbine",
 
   atsTargets: [
@@ -347,6 +347,33 @@ const config: NicheConfig = {
       "Accounting Analyst",
     ],
   },
+
+  // SEO landing pages (Phase 4, D-18). Slug prefix is `${id}-jobs` per D-17.
+  landingPages: [
+    {
+      slug: "wind-turbine-jobs-austin-tx",
+      label: "Austin, TX",
+      filters: { location: "Austin" },
+    },
+    {
+      slug: "wind-turbine-jobs-offshore-north-sea",
+      label: "Offshore — North Sea",
+      filters: { keywords: ["offshore"], location: "North Sea" },
+    },
+    {
+      slug: "entry-level-wind-turbine-jobs",
+      label: "Entry Level",
+      filters: { keywords: ["entry level", "junior", "trainee"] },
+    },
+    {
+      slug: "blade-repair-technician-jobs",
+      label: "Blade Repair Technicians",
+      filters: { keywords: ["blade repair", "blade technician"] },
+    },
+  ],
+
+  seoFooter:
+    "All wind-turbine technician roles on this page are aggregated hourly from OEM, O&M, and operator ATS feeds. Subscribe to weekly alerts to receive new openings the moment we detect them.",
 
   branding: {
     primaryColor: "#1a6b3c",
