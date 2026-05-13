@@ -6,12 +6,12 @@ score: 5/5
 overrides_applied: 1
 overrides:
   - must_have: "A logged-in employer can edit their profile fields (sanitized HTML), upload a logo, and toggle Featured on individual jobs up to their tier limit"
-    reason: "Profile editing and logo upload deferred to Phase 5 per D-06. Phase 4 delivers the locked preview UI + Featured toggle. SC#3 was not updated to reflect this descope during planning. The Featured toggle is fully functional and IDOR-protected."
+    reason: "Profile editing and logo upload deferred to Phase 5 per D-06. Phase 4 delivers the locked preview UI + Featured toggle (FEAT-03 fully implemented and IDOR-protected). SC#3 was not updated during planning to reflect this descope."
     accepted_by: "ralph"
     accepted_at: "2026-05-13T00:00:00Z"
 gaps:
   - truth: "A logged-in employer can edit their profile fields (sanitized HTML), upload a logo, and toggle Featured on individual jobs up to their tier limit"
-    status: failed
+    status: override_accepted
     reason: "Profile editing and logo upload are intentionally locked behind LockedFeatureCard (disabled form fields, aria-disabled=true). Only the Featured toggle works. D-06 explicitly defers editing to Phase 5, but SC#3 in the ROADMAP contract does not reflect this descope."
     artifacts:
       - path: "apps/web/src/components/dashboard/ProfileEditorPreview.astro"
@@ -21,7 +21,7 @@ gaps:
       - path: "apps/web/src/components/dashboard/LockedFeatureCard.astro"
         issue: "Wrapper explicitly shows 'Available on paid plan — coming in Phase 5.'"
     missing:
-      - "Either update ROADMAP.md SC#3 to reflect the Phase 4 scope (editing locked, toggle only) by accepting an override, OR implement profile editing + logo upload as specified"
+      - "Either update ROADMAP.md SC#3 to reflect Phase 4 scope (editing locked, toggle only) by accepting an override, OR implement profile editing + logo upload as specified"
 deferred:
   - truth: "Featured employers shown in homepage carousel (FEAT-04)"
     addressed_in: "Phase 5 (per ROADMAP cross-cutting constraint D-15)"
@@ -32,7 +32,7 @@ deferred:
 
 **Phase Goal:** Every employer has a claimable on-site presence and the paid features they will be charged for (featured job placement, candidate match alerts, employer dashboard) actually exist and work.
 **Verified:** 2026-05-13T00:00:00Z
-**Status:** gaps_found — 1 SC fails without override (SC#3: profile editing locked)
+**Status:** gaps_found — 1 SC fails (SC#3: profile editing and logo upload locked, not implemented)
 **Re-verification:** No — initial verification
 
 ---
@@ -44,10 +44,10 @@ deferred:
 | # | Truth | Status | Evidence |
 |---|-------|--------|----------|
 | 1 | Visitor sees auto-generated employer profile page at `/employers/[slug]` with name, logo, open roles + "Claim this listing" CTA | VERIFIED | `apps/web/src/pages/employers/[slug].astro` — real DB query via `listEmployerJobs()`, renders `EmployerLogo` + `ClaimListingCTA`; 404 on unknown employer |
-| 2 | Employer requests magic link, logs in, lands on dashboard scoped to only their employer (RLS-enforced via JWT claim) | VERIFIED | `/api/employer/claim` → `generateLink()` + `employer_users` insert (Pitfall 8 avoided); middleware populates `locals.session` + `locals.employerId`; dashboard redirects if either absent; 0008 RLS policies use verified path `auth.jwt()->'app_metadata'->>'employer_id'` |
-| 3 | Logged-in employer can edit profile fields (sanitized HTML), upload a logo, and toggle Featured on individual jobs up to tier limit | **FAILED** | Profile editing and logo upload are `disabled` / `aria-disabled`. `LockedFeatureCard` shows "Available on paid plan — coming in Phase 5." Featured toggle (POST/DELETE `/api/jobs/[id]/featured`) works correctly with IDOR check. Only 1 of 3 capabilities in SC#3 is functional. |
+| 2 | Employer requests magic link, logs in, lands on dashboard scoped to only their employer (RLS-enforced via JWT claim) | VERIFIED | `/api/employer/claim` — `generateLink()` then `employer_users` insert (Pitfall 8 avoided); middleware populates `locals.session` + `locals.employerId`; dashboard redirects if either absent; 0008 RLS policies use verified path `auth.jwt()->'app_metadata'->>'employer_id'` |
+| 3 | Logged-in employer can edit profile fields (sanitized HTML), upload a logo, and toggle Featured on individual jobs up to tier limit | FAILED | Profile editing and logo upload are `disabled` / `aria-disabled`. `LockedFeatureCard` shows "Available on paid plan — coming in Phase 5." Featured toggle (POST/DELETE `/api/jobs/[id]/featured`) works correctly with IDOR check. Only 1 of 3 capabilities in SC#3 is functional. |
 | 4 | Featured jobs pinned at top with visible badge; auto-disappear when `featured_until` has passed | VERIFIED | `listFeaturedJobs()` uses `.gt("featured_until", nowIso)`; `/jobs/index.astro` renders `FeaturedJobCard` with "Featured" badge; migration 0007 fixed the partial index |
-| 5 | Dashboard shows 30-day views, clicks, apply-clicks per job + weekly new matching subscriber count | VERIFIED | `/api/stats` queries CF Analytics Engine SQL API with `/^[a-f0-9]{64}$/` validation; dashboard fetches server-side, renders via `StatTile`; subscriber count via `supabaseAdmin` DB count; ANLYT-02 employer alerts implemented in digest worker (second cron `0 8 * * 1` + `EMPLOYER_ALERTS` queue) |
+| 5 | Dashboard shows 30-day views, clicks, apply-clicks per job + weekly new matching subscriber count | VERIFIED | `/api/stats` queries CF Analytics Engine SQL API with `/^[a-f0-9]{64}$/` validation; dashboard fetches server-side, renders via `StatTile`; subscriber count via `supabaseAdmin` DB count; ANLYT-02 employer alerts: second cron `0 8 * * 1` + `EMPLOYER_ALERTS` queue + `processEmployerAlertsBatch()` using `env.RESEND_API_KEY` correctly (separate from subscriber digest's `env.BREVO_API_KEY`) |
 
 **Score:** 4/5 truths verified
 
@@ -85,7 +85,7 @@ Items not yet met but explicitly covered by ROADMAP decision.
 | `apps/web/src/components/employer/ClaimListingModal.astro` | Claim modal | VERIFIED | File exists |
 | `apps/web/src/components/dashboard/ProfileEditorPreview.astro` | Profile editor | STUB (intentional) | All fields disabled; locked per D-06 — not a Phase 4 deliverable per plans, but contradicts SC#3 |
 | `apps/web/src/components/dashboard/LogoUploadPreview.astro` | Logo upload | STUB (intentional) | Button disabled; locked per D-06 — contradicts SC#3 |
-| `workers/digest/src/index.ts` | ANLYT-02 employer alerts | VERIFIED | `scheduleEmployerAlerts()` + `processEmployerAlertsBatch()` implemented; uses `getAllNiches()` (multi-niche) |
+| `workers/digest/src/index.ts` | ANLYT-02 employer alerts | VERIFIED | `scheduleEmployerAlerts()` + `processEmployerAlertsBatch()` implemented; uses `getAllNiches()` (multi-niche); correctly uses `env.RESEND_API_KEY` for Resend API |
 | `workers/digest/wrangler.toml` | Second cron + EMPLOYER_ALERTS queue | VERIFIED | Cron `"0 8 * * 1"` added; `EMPLOYER_ALERTS` producer + consumer with DLQ |
 | `packages/niches/src/index.ts` | `landingPages` + `seoFooter` on NicheConfig | VERIFIED | `LandingPage` interface; optional fields added |
 | `niches/wind-turbine.ts` | 4 landing pages + seoFooter | VERIFIED (with WARNING) | 4 entries present; `blade-repair-technician-jobs` has prefix bug |
@@ -110,7 +110,7 @@ Items not yet met but explicitly covered by ROADMAP decision.
 | `/jobs/index.astro` | `listFeaturedJobs()` | `featured_until > NOW()` query | WIRED | Featured section renders on page 1 without active filters |
 | `FeaturedToggle` (dashboard JS) | `/api/jobs/[id]/featured` | `fetch(POST/DELETE)` | WIRED | Toggle updates `aria-pressed` + button label |
 | `workers/digest scheduled()` | `EMPLOYER_ALERTS` queue | `scheduleEmployerAlerts()` branch on `event.cron === "0 8 * * 1"` | WIRED | Cron branches correctly |
-| `workers/digest queue()` | Resend via Brevo API | `processEmployerAlertsBatch()` on `batch.queue === "owljobs-employer-alerts"` | WIRED | Per-message ack/retry |
+| `workers/digest queue()` | Resend via `env.RESEND_API_KEY` | `processEmployerAlertsBatch()` on `batch.queue === "owljobs-employer-alerts"` | WIRED | Per-message ack/retry; separate from Brevo used by subscriber digest |
 | `[landingSlug].astro` | `niche.landingPages` whitelist | `.find(p => p.slug === landingSlug)` | WIRED (partial) | 3/4 slugs pass prefix check; `blade-repair-technician-jobs` does not |
 
 ---
@@ -149,7 +149,7 @@ Step 7b skipped — no runnable server available without wrangler dev + secrets.
 | FEAT-03 | Employer toggles featured from dashboard | SATISFIED | POST/DELETE `/api/jobs/[id]/featured`; IDOR check; JS wired in dashboard |
 | FEAT-04 | Homepage employer carousel | DEFERRED to Phase 5 | Per D-15. REQUIREMENTS.md still maps to Phase 4 — needs update. |
 | ANLYT-01 | 30-day views/clicks/apply-clicks per job | SATISFIED | `/api/track` writes; `/api/stats` reads; `StatTile` + `JobRow` render |
-| ANLYT-02 | Weekly employer match alert email | SATISFIED | Second cron + EMPLOYER_ALERTS queue + consumer in workers/digest |
+| ANLYT-02 | Weekly employer match alert email | SATISFIED | Second cron + EMPLOYER_ALERTS queue + consumer in workers/digest; uses `env.RESEND_API_KEY` correctly |
 
 ---
 
@@ -157,9 +157,9 @@ Step 7b skipped — no runnable server available without wrangler dev + secrets.
 
 | File | Pattern | Severity | Impact |
 |------|---------|----------|--------|
-| `apps/web/src/pages/[landingSlug].astro` line 20-21 | `blade-repair-technician-jobs` fails `landingSlug.includes("wind-turbine-jobs")` prefix safety check → 404, despite being in whitelist | WARNING | 1 of 4 configured SEO landing pages returns 404 in production |
+| `apps/web/src/pages/[landingSlug].astro` line 20-21 | `blade-repair-technician-jobs` fails `landingSlug.includes("wind-turbine-jobs")` prefix safety check — 404 despite being in whitelist | WARNING | 1 of 4 configured SEO landing pages returns 404 in production |
 | `apps/web/src/components/dashboard/LockedFeatureCard.astro` line 18 | "coming in Phase 5" — intentional placeholder text for locked features | INFO | By design (D-06); contradicts SC#3 literal wording — needs override or SC update |
-| `workers/digest/src/index.ts` line 265 | Employer alert email uses `env.BREVO_API_KEY` as the Authorization header for Resend's API (`https://api.resend.com/emails`). Resend expects `Authorization: Bearer <RESEND_API_KEY>` but the variable is named BREVO_API_KEY and the digest consumer also uses it for Brevo (different API format). This is either a naming inconsistency or a real wiring bug. | WARNING | Employer alert emails may fail if BREVO_API_KEY is a Brevo key (not a Resend key). The send URL is Resend but the env var name is BREVO. |
+| `workers/digest/src/index.ts` | Two separate email providers: subscriber digest uses Brevo (`env.BREVO_API_KEY`), employer alerts use Resend (`env.RESEND_API_KEY`) — both env vars declared in `Env` interface | INFO | Not a bug — intentional split. Requires provisioning two secrets: `BREVO_API_KEY` and `RESEND_API_KEY`. Wrangler.toml secrets comment only lists `BREVO_API_KEY`; `RESEND_API_KEY` should be added to the comment. |
 
 ---
 
@@ -191,11 +191,11 @@ The status is `gaps_found` due to SC#3 mismatch. After override decision, the fo
 **Expected:** Each renders filtered job list + SeoIntroBlock + seoFooter.
 **Why human:** Requires live site with actual job data.
 
-#### 5. `blade-repair-technician-jobs` — 404 bug
+#### 5. blade-repair-technician-jobs — 404 bug
 
 **Test:** Visit `/blade-repair-technician-jobs`.
 **Expected:** Should render the Blade Repair Technicians landing page.
-**Actual:** Returns 404 because `"blade-repair-technician-jobs".includes("wind-turbine-jobs")` is false. Fix: Remove or relax the prefix check on line 21, relying solely on the whitelist check on line 15-16.
+**Actual:** Returns 404 because `"blade-repair-technician-jobs".includes("wind-turbine-jobs")` is false. Fix: Remove or relax the prefix check on line 21, relying solely on the whitelist check on lines 15-16.
 **Why human:** Fix needed before testing.
 
 ---
@@ -206,13 +206,13 @@ The status is `gaps_found` due to SC#3 mismatch. After override decision, the fo
 
 **SC#3 — profile editing and logo upload are locked, not implemented.**
 
-The ROADMAP Success Criteria #3 says: *"A logged-in employer can edit their profile fields (sanitized HTML), upload a logo, and toggle Featured on individual jobs up to their tier limit."*
+The ROADMAP Success Criteria #3 says: "A logged-in employer can edit their profile fields (sanitized HTML), upload a logo, and toggle Featured on individual jobs up to their tier limit."
 
 The implementation delivers only the Featured toggle. Profile editing and logo upload are intentionally locked behind `LockedFeatureCard` per research decision D-06 ("Profile editing shown locked — Available on paid plan"). This was a known scope decision, but the ROADMAP SC was not updated to reflect it.
 
 The Featured toggle IS fully implemented and working (FEAT-03). Only the editing and upload capabilities are missing.
 
-**To accept this deviation, add to VERIFICATION.md frontmatter:**
+To accept this deviation, add to VERIFICATION.md frontmatter:
 
 ```yaml
 overrides:
@@ -234,9 +234,11 @@ The slug `blade-repair-technician-jobs` is in `niche.landingPages[]` (passes whi
 
 ---
 
-**1 warning (BREVO_API_KEY / Resend naming inconsistency):**
+**1 ops note (not a blocker):**
 
-The employer alert consumer POSTs to `https://api.resend.com/emails` but authenticates with `env.BREVO_API_KEY`. If the deployed secret is a Brevo key (not a Resend key), employer alerts will return 401. The subscriber digest correctly uses Brevo's `https://api.brevo.com/v3/smtp/email` endpoint. Verify which email provider is intended for employer alerts and ensure the env var matches.
+**Two email providers require two secrets to be provisioned.**
+
+The digest worker uses Brevo for subscriber digests (`env.BREVO_API_KEY`) and Resend for employer alerts (`env.RESEND_API_KEY`). Both are correctly wired in the code. The `wrangler.toml` secrets comment only lists `BREVO_API_KEY`; `RESEND_API_KEY` should be added to the deployment checklist. No code change needed — secrets provisioning only.
 
 ---
 
