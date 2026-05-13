@@ -62,8 +62,7 @@ describe("lib/jobs.ts — DATA-02 status='active' filter", () => {
     // The old buggy pattern was: qParts.push(page.filters.location) → ilike("title", ...)
     // The fix keeps location as a separate filter on the location column.
     // This test ensures the ListJobsOpts interface has a location field.
-    const src2 = src; // same source used in beforeAll
-    expect(src2).toMatch(/location\?\s*:\s*string/);
+    expect(src).toMatch(/location\?\s*:\s*string/);
   });
 });
 
