@@ -15,11 +15,11 @@ const { landingSlug } = Astro.params;
 const page = niche.landingPages?.find((p) => p.slug === landingSlug);
 if (!landingSlug || !page) return Astro.redirect("/404");
 
-// 2. Build the search query from filters (Phase 4 simple form per D-19)
-const qParts: string[] = [];
-if (page.filters.keywords?.length) qParts.push(page.filters.keywords.join(" "));
-if (page.filters.location) qParts.push(page.filters.location);
-const q = qParts.join(" ").trim() || undefined;
+// 2. Build filters — keywords go to title search (q), location to its own column filter
+const keywords = page.filters.keywords?.length
+  ? page.filters.keywords.join(" ")
+  : undefined;
+const location = page.filters.location || undefined;
 
 setCacheHeaders(Astro.response.headers, 3600, 300);
 
@@ -27,7 +27,7 @@ const db = supabasePublic(env);
 let jobs: Awaited<ReturnType<typeof listJobs>>["jobs"] = [];
 let total = 0;
 try {
-  const result = await listJobs(db, niche.supabaseSchema, { page: 1, perPage: 30, q });
+  const result = await listJobs(db, niche.supabaseSchema, { page: 1, perPage: 30, q: keywords, location });
   jobs = result.jobs;
   total = result.total;
 } catch {
