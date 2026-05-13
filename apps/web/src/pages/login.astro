@@ -1,0 +1,18 @@
+---
+import Layout from "../components/Layout.astro";
+import MagicLinkForm from "../components/auth/MagicLinkForm.astro";
+
+const niche = Astro.locals.niche;
+// If already signed in, skip the form
+if (Astro.locals.session && Astro.locals.employerId) {
+  return Astro.redirect("/dashboard");
+}
+---
+<Layout
+  title={`Sign in — ${niche.name}`}
+  description="Magic-link sign-in for employers."
+>
+  <main class="mx-auto max-w-md px-4 py-16 sm:px-6">
+    <MagicLinkForm />
+  </main>
+</Layout>

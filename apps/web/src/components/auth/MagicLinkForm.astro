@@ -1,0 +1,83 @@
+---
+import Card from "../ui/Card.astro";
+import CardHeader from "../ui/CardHeader.astro";
+import CardContent from "../ui/CardContent.astro";
+import CardFooter from "../ui/CardFooter.astro";
+import Button from "../ui/Button.astro";
+import Input from "../ui/Input.astro";
+---
+<Card class="w-full">
+  <CardHeader>
+    <h1 class="text-2xl font-semibold leading-tight">Sign in to your employer account</h1>
+    <p class="text-sm text-muted-foreground leading-relaxed">
+      Magic-link login — no password. Use your work email and we'll match it to your company.
+    </p>
+  </CardHeader>
+  <CardContent>
+    <form id="magic-form" class="flex flex-col gap-4">
+      <label class="sr-only" for="magic-email">Work email</label>
+      <Input
+        type="email"
+        name="email"
+        id="magic-email"
+        required
+        autocomplete="email"
+        placeholder="you@company.com"
+        aria-describedby="magic-error"
+      />
+      <p id="magic-error" class="hidden text-sm text-destructive" role="alert"></p>
+      <Button type="submit" variant="default" id="magic-submit">
+        <span data-btn-text>Send magic link</span>
+        <span data-btn-loading class="hidden">Sending…</span>
+      </Button>
+    </form>
+  </CardContent>
+  <CardFooter>
+    <p class="text-sm text-muted-foreground">
+      Don't have an employer page yet?
+      <a href="/jobs" class="text-accent hover:underline">Browse jobs</a>
+    </p>
+  </CardFooter>
+</Card>
+
+<script>
+  const form = document.getElementById("magic-form") as HTMLFormElement | null;
+  const errorEl = document.getElementById("magic-error");
+  const submitBtn = document.getElementById("magic-submit") as HTMLButtonElement | null;
+  const btnText = submitBtn?.querySelector<HTMLElement>("[data-btn-text]");
+  const btnLoading = submitBtn?.querySelector<HTMLElement>("[data-btn-loading]");
+
+  form?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!submitBtn || !errorEl) return;
+    errorEl.classList.add("hidden");
+    submitBtn.disabled = true;
+    btnText?.classList.add("hidden");
+    btnLoading?.classList.remove("hidden");
+
+    const email = (document.getElementById("magic-email") as HTMLInputElement).value;
+    try {
+      const res = await fetch("/api/auth/magic-link", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) {
+        window.location.href = "/auth/check-email?email=" + encodeURIComponent(email);
+      } else {
+        errorEl.textContent = (data as { error?: string })?.error ?? "Something went wrong.";
+        errorEl.classList.remove("hidden");
+        submitBtn.disabled = false;
+        btnText?.classList.remove("hidden");
+        btnLoading?.classList.add("hidden");
+      }
+    } catch {
+      errorEl.textContent = "Network error. Try again.";
+      errorEl.classList.remove("hidden");
+      submitBtn.disabled = false;
+      btnText?.classList.remove("hidden");
+      btnLoading?.classList.add("hidden");
+    }
+  });
+</script>
