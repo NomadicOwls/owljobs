@@ -5,6 +5,8 @@ export interface Employer {
   id: string;
   name: string;
   normalized_name: string;
+  slug: string;
+  domain: string | null;
   ats_type: "workday" | "greenhouse" | "successfactors" | "direct";
   ats_tenant: string | null;
   ats_instance: string | null;

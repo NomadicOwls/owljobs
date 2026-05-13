@@ -1,6 +1,8 @@
 ---
 import Layout from "../../components/Layout.astro";
 import JobCardModern from "../../components/JobCardModern.astro";
+import EmployerLogo from "../../components/employer/EmployerLogo.astro";
+import ClaimListingCTA from "../../components/employer/ClaimListingCTA.astro";
 import { supabasePublic } from "../../lib/supabase.js";
 import { listEmployerJobs } from "../../lib/jobs.js";
 import { setCacheHeaders } from "../../lib/cache.js";
@@ -40,13 +42,6 @@ function buildUrl(p: number): string {
   return next.pathname + next.search;
 }
 
-const employerInitials = employer.name
-  .split(/\s+/)
-  .filter(Boolean)
-  .map((w: string) => w[0])
-  .join("")
-  .slice(0, 2)
-  .toUpperCase();
 ---
 
 <Layout
@@ -66,13 +61,11 @@ const employerInitials = employer.name
 
     <!-- Employer header card -->
     <div class="mb-8 rounded-xl border border-border bg-card p-6">
-      <div class="flex items-center gap-4">
-        <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border border-border bg-secondary text-lg font-semibold text-muted-foreground">
-          {employerInitials}
-        </div>
-        <div>
+      <div class="flex flex-wrap items-center gap-4">
+        <EmployerLogo name={employer.name} domain={employer.domain} size="lg" />
+        <div class="flex-1 min-w-0">
           <p class="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Employer</p>
-          <h1 class="text-2xl font-bold text-foreground">{employer.name}</h1>
+          <h1 class="text-2xl font-semibold text-foreground">{employer.name}</h1>
           {employer.careers_url && (
             <a
               href={employer.careers_url}
@@ -84,6 +77,11 @@ const employerInitials = employer.name
             </a>
           )}
         </div>
+        {Astro.locals.employerId !== employer.id && (
+          <div class="ml-auto" id="claim">
+            <ClaimListingCTA employerName={employer.name} employerSlug={employer.slug} />
+          </div>
+        )}
       </div>
     </div>
 
@@ -105,6 +103,11 @@ const employerInitials = employer.name
           <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
         </svg>
         <p class="mt-4 text-sm text-muted-foreground">No open positions found for this employer.</p>
+        {Astro.locals.employerId !== employer.id && (
+          <p class="mt-2 text-sm text-muted-foreground">
+            Are you {employer.name}? <a href="#claim" class="text-accent hover:underline">Claim this page</a> to add open roles.
+          </p>
+        )}
       </div>
     )}
 
