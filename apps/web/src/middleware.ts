@@ -1,5 +1,7 @@
 import { defineMiddleware } from "astro:middleware";
 import { nicheFromHost, getAllNiches } from "~/lib/niches";
+import { createSupabaseServerClient } from "./lib/supabase.js";
+import { getEnv } from "./lib/env.js";
 
 export const onRequest = defineMiddleware(async (ctx, next) => {
   const host = ctx.request.headers.get("host") ?? "";
@@ -10,5 +12,31 @@ export const onRequest = defineMiddleware(async (ctx, next) => {
     niche = getAllNiches()[0]!;
   }
   ctx.locals.niche = niche;
-  return next();
+
+  // PROF-03: SSR session for every request. responseHeaders captures
+  // Set-Cookie writes from @supabase/ssr (refresh tokens, etc.) and is
+  // merged into the final response below.
+  const env = getEnv(ctx.locals);
+  const responseHeaders = new Headers();
+  const supabase = createSupabaseServerClient(
+    env,
+    ctx.request.headers.get("cookie"),
+    responseHeaders,
+  );
+  try {
+    const { data } = await supabase.auth.getSession();
+    ctx.locals.session = data.session ?? null;
+    const employerId =
+      (data.session?.user?.app_metadata as Record<string, unknown> | undefined)
+        ?.employer_id;
+    ctx.locals.employerId =
+      typeof employerId === "string" && employerId.length > 0 ? employerId : null;
+  } catch {
+    ctx.locals.session = null;
+    ctx.locals.employerId = null;
+  }
+
+  const response = await next();
+  responseHeaders.forEach((value, key) => response.headers.append(key, value));
+  return response;
 });

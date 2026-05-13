@@ -19,8 +19,10 @@ type Runtime = import("@astrojs/cloudflare").Runtime<CloudflareEnv>;
 declare namespace App {
   interface Locals extends Runtime {
     niche: import("@owljobs/niches").NicheConfig;
+    /** Populated by auth middleware on every request. Null when not signed in. */
+    session?: import("@supabase/supabase-js").Session | null;
     /** Populated by auth middleware when employer is signed in (JWT claim). */
-    employerId?: string;
+    employerId?: string | null;
   }
 }
 
