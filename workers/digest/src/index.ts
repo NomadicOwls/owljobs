@@ -26,7 +26,6 @@ export interface Env {
   SUPABASE_URL: string;
   SUPABASE_SERVICE_KEY: string;
   BREVO_API_KEY: string;
-  RESEND_API_KEY: string;
   DIGEST_QUEUE: Queue<DigestMessage>;
   EMPLOYER_ALERTS: Queue<EmployerAlertMessage>;
 }
@@ -259,17 +258,17 @@ async function processEmployerAlertsBatch(
     `;
 
     try {
-      const resp = await fetch("https://api.resend.com/emails", {
+      const resp = await fetch("https://api.brevo.com/v3/smtp/email", {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${env.RESEND_API_KEY}`,
+          "api-key": env.BREVO_API_KEY,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          from: `${niche.name} <alerts@${niche.domain}>`,
-          to: [m.recipientEmail],
+          sender: { name: niche.name, email: `alerts@${niche.domain}` },
+          to: [{ email: m.recipientEmail }],
           subject,
-          html,
+          htmlContent: html,
         }),
       });
       if (resp.status === 429 || resp.status >= 500) {

@@ -7,14 +7,16 @@ describe("workers/digest/src/index.ts — CAND-03 idempotency source contract", 
     src = await readFile("workers/digest/src/index.ts", "utf-8");
   });
 
-  it("inserts into email_sends BEFORE adding the email to the Resend batch (insert-before-send, Pitfall 1)", () => {
+  it("inserts into email_sends BEFORE sending the email (insert-before-send, Pitfall 1)", () => {
     // Strip comments to avoid matching documentation prose
     const code = src.replace(/^\s*\/\/.*$/gm, "").replace(/\/\*[\s\S]*?\*\//g, "");
-    const insertIdx = code.search(/\.from\(\s*["']email_sends["']\s*\)\s*\.insert/);
-    const batchIdx  = code.search(/api\.resend\.com\/emails\/batch/);
-    expect(insertIdx).toBeGreaterThan(-1);
-    expect(batchIdx).toBeGreaterThan(-1);
-    expect(insertIdx).toBeLessThan(batchIdx);
+    // The subscriber digest has a dedicated email_sends insert-before-send pattern.
+    // Employer alerts (separate queue consumer) do not use email_sends — they are
+    // fire-and-forget transactional emails. Verify the pattern holds within the
+    // subscriber digest path by matching insert followed by Brevo call within 3000 chars.
+    expect(code).toMatch(
+      /\.from\(\s*["']email_sends["']\s*\)\s*\.insert[\s\S]{0,3000}api\.brevo\.com\/v3\/smtp\/email/,
+    );
   });
 
   it("writes sent_date + type='digest' in the email_sends insert payload (D-16)", () => {
