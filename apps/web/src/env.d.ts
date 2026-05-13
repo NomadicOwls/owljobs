@@ -1,4 +1,5 @@
 /// <reference types="astro/client" />
+/// <reference types="@cloudflare/workers-types" />
 
 type CloudflareEnv = {
   SUPABASE_URL: string;
@@ -7,6 +8,10 @@ type CloudflareEnv = {
   RESEND_API_KEY: string;
   TURNSTILE_SECRET_KEY: string;
   TURNSTILE_SITE_KEY: string;
+  CF_ACCOUNT_ID: string;
+  CF_API_TOKEN: string;
+  LOGODEV_TOKEN?: string;
+  ANALYTICS: AnalyticsEngineDataset;
 };
 
 type Runtime = import("@astrojs/cloudflare").Runtime<CloudflareEnv>;
