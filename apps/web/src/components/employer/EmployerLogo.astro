@@ -1,0 +1,45 @@
+---
+interface Props {
+  name: string;
+  domain?: string | null;
+  size?: "sm" | "md" | "lg";
+  class?: string;
+}
+const { name, domain, size = "md", class: className = "" } = Astro.props;
+const sizeMap = { sm: "h-10 w-10", md: "h-12 w-12", lg: "h-14 w-14" };
+const pxMap = { sm: 40, md: 48, lg: 56 };
+const px = pxMap[size];
+
+const initials = name
+  .split(/\s+/)
+  .filter(Boolean)
+  .slice(0, 2)
+  .map((w) => w[0])
+  .join("")
+  .toUpperCase();
+
+// LOGODEV_TOKEN is a publishable key — safe in SSR output. Read from env at render.
+const logoToken = (import.meta.env.LOGODEV_TOKEN as string | undefined) ?? "";
+const logoUrl =
+  domain && logoToken
+    ? `https://img.logo.dev/${encodeURIComponent(domain)}?token=${encodeURIComponent(logoToken)}&size=120&format=png`
+    : null;
+---
+<div class={`relative shrink-0 ${sizeMap[size]} ${className}`}>
+  {logoUrl && (
+    <img
+      src={logoUrl}
+      alt={`${name} logo`}
+      width={px}
+      height={px}
+      class={`rounded-lg object-contain ${sizeMap[size]}`}
+      onerror="this.style.display='none'; if (this.nextElementSibling) this.nextElementSibling.style.display='flex';"
+    />
+  )}
+  <div
+    aria-label={`${name} logo`}
+    class={`${sizeMap[size]} ${logoUrl ? "hidden" : "flex"} items-center justify-center rounded-lg bg-secondary text-muted-foreground text-sm font-semibold`}
+  >
+    {initials}
+  </div>
+</div>

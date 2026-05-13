@@ -1,0 +1,107 @@
+---
+import Card from "../ui/Card.astro";
+import CardHeader from "../ui/CardHeader.astro";
+import CardContent from "../ui/CardContent.astro";
+import Button from "../ui/Button.astro";
+import Input from "../ui/Input.astro";
+
+interface Props {
+  employerName: string;
+  employerSlug: string;
+}
+const { employerName, employerSlug } = Astro.props;
+---
+<div
+  data-claim-modal
+  class="hidden fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="claim-heading"
+>
+  <Card class="w-full max-w-md">
+    <CardHeader>
+      <h2 id="claim-heading" class="text-2xl font-semibold leading-tight">
+        Claim {employerName}
+      </h2>
+      <p class="text-sm text-muted-foreground leading-relaxed">
+        Enter your work email at {employerName}. We'll send you a magic link to sign in and manage this listing.
+      </p>
+    </CardHeader>
+    <CardContent>
+      <form id="claim-form" class="flex flex-col gap-4" data-slug={employerSlug}>
+        <label class="sr-only" for="claim-email">Work email</label>
+        <Input
+          type="email"
+          name="email"
+          id="claim-email"
+          required
+          autocomplete="email"
+          placeholder="you@company.com"
+          aria-describedby="claim-error"
+        />
+        <p id="claim-error" class="hidden text-sm text-destructive" role="alert"></p>
+        <p id="claim-success" class="hidden text-sm text-foreground">
+          Check your email for the sign-in link.
+        </p>
+        <div class="flex items-center gap-2 justify-end">
+          <Button type="button" variant="ghost" data-claim-cancel>Never mind</Button>
+          <Button type="submit" variant="default" id="claim-submit">
+            <span data-btn-text>Send magic link</span>
+            <span data-btn-loading class="hidden">Sending…</span>
+          </Button>
+        </div>
+      </form>
+    </CardContent>
+  </Card>
+</div>
+
+<script>
+  const form = document.getElementById("claim-form") as HTMLFormElement | null;
+  const errorEl = document.getElementById("claim-error");
+  const successEl = document.getElementById("claim-success");
+  const submitBtn = document.getElementById("claim-submit") as HTMLButtonElement | null;
+  const btnText = submitBtn?.querySelector<HTMLElement>("[data-btn-text]");
+  const btnLoading = submitBtn?.querySelector<HTMLElement>("[data-btn-loading]");
+
+  const ERROR_BY_STATUS: Record<number, string> = {
+    400: "Enter a valid work email.",
+    422: "", // populated by server response body for the per-employer copy
+    429: "Too many attempts. Try again in a few minutes.",
+  };
+
+  form?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!submitBtn || !errorEl || !successEl) return;
+    errorEl.classList.add("hidden");
+    submitBtn.disabled = true;
+    btnText?.classList.add("hidden");
+    btnLoading?.classList.remove("hidden");
+
+    const email = (document.getElementById("claim-email") as HTMLInputElement).value;
+    const slug = form.dataset.slug ?? "";
+
+    try {
+      const res = await fetch("/api/employer/claim", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, slug }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) {
+        successEl.classList.remove("hidden");
+        form.classList.add("hidden");
+      } else {
+        const copy = data?.error || ERROR_BY_STATUS[res.status] || "Something went wrong.";
+        errorEl.textContent = copy;
+        errorEl.classList.remove("hidden");
+      }
+    } catch {
+      errorEl.textContent = "Network error. Try again.";
+      errorEl.classList.remove("hidden");
+    } finally {
+      submitBtn.disabled = false;
+      btnText?.classList.remove("hidden");
+      btnLoading?.classList.add("hidden");
+    }
+  });
+</script>

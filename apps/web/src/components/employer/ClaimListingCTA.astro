@@ -1,0 +1,41 @@
+---
+import Button from "../ui/Button.astro";
+import ClaimListingModal from "./ClaimListingModal.astro";
+
+interface Props {
+  employerName: string;
+  employerSlug: string;
+}
+const { employerName, employerSlug } = Astro.props;
+---
+<div class="inline-block">
+  <Button variant="outline" size="lg" data-claim-trigger>
+    Claim this listing
+  </Button>
+</div>
+
+<ClaimListingModal employerName={employerName} employerSlug={employerSlug} />
+
+<script>
+  const trigger = document.querySelector<HTMLButtonElement>("[data-claim-trigger]");
+  const modal = document.querySelector<HTMLElement>("[data-claim-modal]");
+  const cancelBtn = document.querySelector<HTMLButtonElement>("[data-claim-cancel]");
+
+  function open() {
+    modal?.classList.remove("hidden");
+    // focus first input for accessibility
+    modal?.querySelector<HTMLInputElement>("input[type='email']")?.focus();
+  }
+  function close() {
+    modal?.classList.add("hidden");
+    trigger?.focus();
+  }
+
+  trigger?.addEventListener("click", open);
+  cancelBtn?.addEventListener("click", close);
+
+  // ESC closes
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && modal && !modal.classList.contains("hidden")) close();
+  });
+</script>
