@@ -15,12 +15,7 @@ const { landingSlug } = Astro.params;
 const page = niche.landingPages?.find((p) => p.slug === landingSlug);
 if (!landingSlug || !page) return Astro.redirect("/404");
 
-// 2. Prefix safety — defence-in-depth even though the whitelist already protects us.
-// Allowed forms: `${niche.id}-jobs-<modifier>` or `<modifier>-${niche.id}-jobs`.
-const nicheKey = `${niche.id}-jobs`;
-if (!landingSlug.includes(nicheKey)) return Astro.redirect("/404");
-
-// 3. Build the search query from filters (Phase 4 simple form per D-19)
+// 2. Build the search query from filters (Phase 4 simple form per D-19)
 const qParts: string[] = [];
 if (page.filters.keywords?.length) qParts.push(page.filters.keywords.join(" "));
 if (page.filters.location) qParts.push(page.filters.location);
