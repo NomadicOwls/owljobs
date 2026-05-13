@@ -36,6 +36,23 @@ if (isExpired) {
   setCacheHeaders(Astro.response.headers, 600, 3600);
 }
 
+// ANLYT-01 — record view event (fire-and-forget, Pitfall 4 guard)
+// Only fires for active, viewable jobs — skipped on expired (410) renders.
+if (!isExpired) {
+  const analytics = (env as unknown as { ANALYTICS?: AnalyticsEngineDataset }).ANALYTICS;
+  if (analytics && typeof analytics.writeDataPoint === "function") {
+    try {
+      analytics.writeDataPoint({
+        blobs: [job.id, "view", niche.id, job.employer_id ?? ""],
+        doubles: [1],
+        indexes: [job.id],
+      });
+    } catch {
+      // never block render
+    }
+  }
+}
+
 const isFeatured = job.is_sponsored || (job.featured_until ? new Date(job.featured_until) > new Date() : false);
 const location = [job.location, job.country].filter(Boolean).join(", ");
 const canonicalSlug = slugFromId(job.id);
