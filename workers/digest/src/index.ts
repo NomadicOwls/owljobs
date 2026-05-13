@@ -13,11 +13,21 @@ interface DigestMessage {
   subscriberIds: string[];
 }
 
+interface EmployerAlertMessage {
+  nicheId: string;          // niche.supabaseSchema (e.g. "wind_turbine")
+  employerId: string;       // employers.id
+  employerName: string;
+  recipientEmail: string;
+  subscriberCount: number;
+  weekEndingISO: string;    // ISO timestamp of the Monday the alert is sent
+}
+
 export interface Env {
   SUPABASE_URL: string;
   SUPABASE_SERVICE_KEY: string;
-  RESEND_API_KEY: string;
+  BREVO_API_KEY: string;
   DIGEST_QUEUE: Queue<DigestMessage>;
+  EMPLOYER_ALERTS: Queue<EmployerAlertMessage>;
 }
 
 interface SubscriberRow {
@@ -48,7 +58,6 @@ interface EmployerRow {
 const BATCH_SIZE = 10;                                                      // D-15: 10 subscribers per queue message
 const MAX_JOBS_PER_DIGEST = 20;                                             // D-06
 const DIGEST_WINDOW_DAYS = 7;                                               // D-01: prior 7-day window
-const FROM_ADDRESS = "Wind Turbine Jobs <digest@windturbinejobs.com>";      // D-09
 
 // --- Helpers ---
 
@@ -167,11 +176,126 @@ function renderDigestText(jobs: JobRow[], sub: SubscriberRow, niche: NicheConfig
 
 // --- Worker handler ---
 
+// --- Employer-alert producer (ANLYT-02) ---
+
+async function scheduleEmployerAlerts(env: Env, ctx: ExecutionContext): Promise<void> {
+  const sb = makeSupabase(env);
+  const niches = getAllNiches();
+  const weekEndingISO = new Date().toISOString();
+  const sevenDaysAgoISO = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+
+  ctx.waitUntil(
+    Promise.allSettled(
+      niches.map(async (niche) => {
+        // 1. Count new confirmed subscribers in the last 7 days for this niche
+        const { count, error: countErr } = await sb
+          .schema(niche.supabaseSchema)
+          .from("subscribers")
+          .select("id", { count: "exact", head: true })
+          .gte("confirmed_at", sevenDaysAgoISO);
+        if (countErr || !count || count <= 0) return;
+
+        // 2. List claimed employers in this niche (auth_id IS NOT NULL = claimed)
+        const { data: employerUsers, error: usersErr } = await sb
+          .from("employer_users")
+          .select("auth_id, employer_id, niche_id")
+          .eq("niche_id", niche.supabaseSchema)
+          .not("auth_id", "is", null);
+        if (usersErr || !employerUsers?.length) return;
+
+        // 3. For each claimed employer: look up email from auth.users and name from niche schema
+        for (const eu of employerUsers) {
+          if (!eu.auth_id) continue;
+          const { data: userData, error: userErr } = await sb.auth.admin.getUserById(eu.auth_id);
+          if (userErr || !userData?.user?.email) continue;
+
+          const { data: employer, error: empErr } = await sb
+            .schema(niche.supabaseSchema)
+            .from("employers")
+            .select("id, name")
+            .eq("id", eu.employer_id)
+            .single();
+          if (empErr || !employer) continue;
+
+          await env.EMPLOYER_ALERTS.send({
+            nicheId: niche.supabaseSchema,
+            employerId: (employer as { id: string; name: string }).id,
+            employerName: (employer as { id: string; name: string }).name,
+            recipientEmail: userData.user.email,
+            subscriberCount: count,
+            weekEndingISO,
+          });
+        }
+      }),
+    ),
+  );
+}
+
+// --- Employer-alert consumer (ANLYT-02) ---
+
+async function processEmployerAlertsBatch(
+  batch: MessageBatch<EmployerAlertMessage>,
+  env: Env,
+): Promise<void> {
+  for (const msg of batch.messages) {
+    const m = msg.body;
+    const niche = getAllNiches().find((n) => n.supabaseSchema === m.nicheId);
+    if (!niche) {
+      msg.ack(); // unknown niche — drop, do not retry
+      continue;
+    }
+
+    const subject = `${m.subscriberCount} new candidates joined ${niche.name} this week`;
+    const dashboardUrl = `https://${niche.domain}/dashboard`;
+
+    const html = `
+      <p>Hi ${htmlEncode(m.employerName)} team,</p>
+      <p><strong>${m.subscriberCount}</strong> new candidates subscribed to weekly ${htmlEncode(niche.name)} alerts in the last 7 days.</p>
+      <p>Open your dashboard to see the audience your open roles are reaching:</p>
+      <p><a href="${dashboardUrl}">${dashboardUrl}</a></p>
+      <hr/>
+      <p style="font-size:12px;color:#666">You're receiving this because you claimed ${htmlEncode(m.employerName)} on ${htmlEncode(niche.domain)}. <a href="https://${niche.domain}/dashboard#profile">Manage email preferences</a>.</p>
+    `;
+
+    try {
+      const resp = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${env.BREVO_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: `${niche.name} <alerts@${niche.domain}>`,
+          to: [m.recipientEmail],
+          subject,
+          html,
+        }),
+      });
+      if (resp.status >= 500) {
+        msg.retry();
+      } else {
+        msg.ack();
+      }
+    } catch {
+      msg.retry();
+    }
+  }
+}
+
+// --- Worker handler ---
+
 const handler: ExportedHandler<Env, DigestMessage> = {
   // Cron producer — Monday 06:00 UTC (D-04). Paginates confirmed subscribers,
   // enqueues one DIGEST_QUEUE message per 10 IDs. All work in ctx.waitUntil()
   // because the cron handler has a 30s CPU cap (CLAUDE.md hard rule).
-  async scheduled(_event, env, ctx) {
+  async scheduled(event, env, ctx) {
+    // Branch on cron expression — Workers fires scheduled() once per cron entry
+    // and sets event.cron to the matching expression.
+    if (event.cron === "0 8 * * 1") {
+      return scheduleEmployerAlerts(env, ctx);
+    }
+
+    // Fall through to existing weekly subscriber digest path (CAND-01, "0 6 * * 1").
     const supabase = makeSupabase(env);
     const niches = getAllNiches();
 
@@ -208,10 +332,19 @@ const handler: ExportedHandler<Env, DigestMessage> = {
     );
   },
 
-  // Queue consumer — fetches jobs, applies location filter per subscriber,
-  // inserts email_sends row BEFORE adding to Resend batch (Pitfall 1 / CAND-03),
-  // sends a single POST to https://api.resend.com/emails/batch per invocation.
+  // Queue consumer — branches on batch.queue to distinguish digest vs employer-alerts.
+  // Digest: fetches jobs, applies location filter per subscriber,
+  // inserts email_sends row BEFORE sending (Pitfall 1 / CAND-03),
+  // sends one POST to https://api.brevo.com/v3/smtp/email per subscriber.
   async queue(batch, env) {
+    // Route employer-alert messages to the dedicated consumer.
+    if (batch.queue === "owljobs-employer-alerts") {
+      return processEmployerAlertsBatch(
+        batch as unknown as MessageBatch<EmployerAlertMessage>,
+        env,
+      );
+    }
+
     const supabase = makeSupabase(env);
 
     await Promise.allSettled(
@@ -225,6 +358,9 @@ const handler: ExportedHandler<Env, DigestMessage> = {
           msg.ack();
           return;
         }
+
+        const fromName  = niche.name;
+        const fromEmail = `digest@${niche.domain}`;
 
         const db = supabase.schema(niche.supabaseSchema);
 
@@ -297,32 +433,32 @@ const handler: ExportedHandler<Env, DigestMessage> = {
                 continue;
               }
 
-              // CR-01: per-subscriber send — a Resend failure for subscriber N
+              // CR-01: per-subscriber send — a Brevo failure for subscriber N
               // logs+continues without blocking subscriber N+1. The email_sends
               // row is already inserted; on retry the 23505 guard skips this
               // subscriber (one email may be lost, but not all 10).
               // D-03: even on a zero-jobs week, still send.
-              const res = await fetch("https://api.resend.com/emails/batch", {
+              const res = await fetch("https://api.brevo.com/v3/smtp/email", {
                 method: "POST",
                 headers: {
-                  Authorization: `Bearer ${env.RESEND_API_KEY}`,
+                  "api-key": env.BREVO_API_KEY,
                   "Content-Type": "application/json",
                 },
-                body: JSON.stringify([{
-                  from: FROM_ADDRESS,
-                  to: sub.email,
+                body: JSON.stringify({
+                  sender: { name: fromName, email: fromEmail },
+                  to: [{ email: sub.email }],
                   subject: buildSubject(subJobs.length, niche),
-                  html: renderDigestHtml(subJobs, sub, niche, employerNameById),
-                  text: renderDigestText(subJobs, sub, niche),
+                  htmlContent: renderDigestHtml(subJobs, sub, niche, employerNameById),
+                  textContent: renderDigestText(subJobs, sub, niche),
                   headers: {
                     "List-Unsubscribe": `<${buildUnsubscribeUrl(niche, sub.unsubscribe_token)}>`,
                     "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
                   },
-                }]),
+                }),
               });
               if (!res.ok) {
                 const text = await res.text();
-                console.error(`[${nicheId}] Resend failed for ${sub.id}: ${res.status}: ${text}`);
+                console.error(`[${nicheId}] Brevo failed for ${sub.id}: ${res.status}: ${text}`);
                 continue;
               }
             } catch (err) {
