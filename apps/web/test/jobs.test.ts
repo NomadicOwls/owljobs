@@ -120,3 +120,30 @@ describe("[slug].astro — JSON-LD JobPosting structured data (SEO-01, D-15..D-1
     expect(astroSrc).not.toMatch(/new\s+Set\s*<\s*string\s*>\s*\(\s*\[\s*["']adzuna["']/);
   });
 });
+
+describe("apps/web/src/lib/jobs.ts — FEAT-01 listFeaturedJobs", () => {
+  let src = "";
+  beforeAll(async () => {
+    src = await readFile(new URL("../src/lib/jobs.ts", import.meta.url), "utf-8");
+  });
+
+  it("FEAT-01 — exports listFeaturedJobs function", () => {
+    expect(src).toMatch(/export\s+(async\s+)?function\s+listFeaturedJobs/);
+  });
+
+  it("FEAT-01 — filters by featured_until > NOW (current time)", () => {
+    expect(src).toMatch(/\.gt\(\s*["']featured_until["']/);
+  });
+
+  it("FEAT-01 — filters by status='active'", () => {
+    expect(src).toMatch(/\.eq\(\s*["']status["']\s*,\s*["']active["']/);
+  });
+
+  it("FEAT-01 — orders by featured_until DESC", () => {
+    expect(src).toMatch(/\.order\(\s*["']featured_until["']/);
+  });
+
+  it("FEAT-01 — multi-niche: uses niche.supabaseSchema", () => {
+    expect(src).toMatch(/niche\.supabaseSchema/);
+  });
+});

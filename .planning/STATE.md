@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: ready_to_execute
-stopped_at: Phase 4 planned — 10 plans ready
+status: executing
+stopped_at: Phase 4 executing — Wave 0 in progress
 last_updated: "2026-05-13T00:00:00.000Z"
 progress:
   total_phases: 5
   completed_phases: 3
-  total_plans: 22
+  total_plans: 32
   completed_plans: 22
-  percent: 100
+  percent: 44
 ---
 
 # STATE
@@ -21,19 +21,19 @@ _Project memory. Updated continuously across sessions._
 
 - **Name:** OwlJobs (niche 1: Wind Turbine Jobs)
 - **Core value:** Be the only place wind turbine technicians find all relevant open roles — creating a candidate audience employers will pay to reach before competitors do.
-- **Current focus:** Phase 3 — Candidate Activation
+- **Current focus:** Phase 4 — Employer Product
 - **Mode:** mvp
 - **Granularity:** standard
 
 ## Current Position
 
-Phase: 3 (Candidate Activation) — EXECUTING
-Plan: 1 of 4
+Phase: 4 (Employer Product) — EXECUTING
+Plan: 1 of 10
 
 - **Phase:** 4
-- **Plan:** Not started
-- **Status:** Ready to execute (10 plans)
-- **Progress:** [████░░░░░░] 40% (3/5 phases complete — Phase 3 done; Phase 4 planned)
+- **Plan:** 04-01 (Wave 0 — schema foundation + test stubs)
+- **Status:** Executing
+- **Progress:** [████░░░░░░] 44% (3/5 phases complete — Phase 4 executing)
 
 ## Performance Metrics
 
