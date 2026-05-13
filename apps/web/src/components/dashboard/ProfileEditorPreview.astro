@@ -1,0 +1,38 @@
+---
+import Input from "../ui/Input.astro";
+import Button from "../ui/Button.astro";
+
+interface Props {
+  employer: {
+    name: string;
+    domain?: string | null;
+    website_url?: string | null;
+  };
+}
+const { employer } = Astro.props;
+---
+<form class="flex flex-col gap-3" aria-disabled="true">
+  <label class="flex flex-col gap-1 text-sm">
+    Company name
+    <Input type="text" value={employer.name} disabled readonly />
+  </label>
+  <label class="flex flex-col gap-1 text-sm">
+    Tagline
+    <Input type="text" placeholder="One-line pitch (paid plan)" disabled />
+  </label>
+  <label class="flex flex-col gap-1 text-sm">
+    Description
+    <textarea
+      class="min-h-[120px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
+      placeholder="Rich description with benefits (paid plan)"
+      disabled
+    ></textarea>
+  </label>
+  <label class="flex flex-col gap-1 text-sm">
+    Website
+    <Input type="url" value={employer.website_url ?? ""} disabled />
+  </label>
+  <Button type="button" variant="outline" disabled>
+    Save profile (paid plan)
+  </Button>
+</form>

@@ -3,7 +3,11 @@ import DashboardLayout from "../components/dashboard/DashboardLayout.astro";
 import EmployerLogo from "../components/employer/EmployerLogo.astro";
 import StatTile from "../components/dashboard/StatTile.astro";
 import JobRow from "../components/dashboard/JobRow.astro";
-import { supabasePublic } from "../lib/supabase.js";
+import LockedFeatureCard from "../components/dashboard/LockedFeatureCard.astro";
+import ProfileEditorPreview from "../components/dashboard/ProfileEditorPreview.astro";
+import LogoUploadPreview from "../components/dashboard/LogoUploadPreview.astro";
+import SubscriberMatchCard from "../components/dashboard/SubscriberMatchCard.astro";
+import { supabasePublic, supabaseAdmin } from "../lib/supabase.js";
 import { getEnv } from "../lib/env.js";
 
 const niche = Astro.locals.niche;
@@ -48,6 +52,22 @@ try {
   // graceful degradation — stats will render as null (shows "—" in StatTile)
 }
 
+// Subscriber count — use supabaseAdmin because subscribers table has RLS with no anon SELECT policy.
+// Only counting rows (no PII crossing the boundary).
+const adminDb = supabaseAdmin(env);
+const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+const { count: subscriberCount } = await adminDb
+  .schema(niche.supabaseSchema)
+  .from("subscribers")
+  .select("id", { count: "exact", head: true })
+  .gte("confirmed_at", sevenDaysAgo);
+
+const { count: totalSubscribers } = await adminDb
+  .schema(niche.supabaseSchema)
+  .from("subscribers")
+  .select("id", { count: "exact", head: true })
+  .not("confirmed_at", "is", null);
+
 // Do NOT set cache headers on /dashboard — per UI-SPEC §Cache headers, auth pages MUST NOT cache.
 ---
 <DashboardLayout title={`${employer.name} — Dashboard`} description="Your employer dashboard">
@@ -68,7 +88,20 @@ try {
       <StatTile label="Clicks" value={stats?.clicks ?? null} />
       <StatTile label="Apply clicks" value={stats?.applies ?? null} />
     </div>
-    {/* SubscriberMatchCard injected by Task 3 */}
+    <div class="mt-6">
+      {totalSubscribers !== null ? (
+        <SubscriberMatchCard
+          count={subscriberCount ?? 0}
+          totalAudience={totalSubscribers}
+          nicheName={niche.name}
+        />
+      ) : (
+        <SubscriberMatchCard
+          count={subscriberCount ?? 0}
+          nicheName={niche.name}
+        />
+      )}
+    </div>
   </div>
 
   {/* 4. Your jobs */}
@@ -99,7 +132,12 @@ try {
       Profile editing and logo upload unlock with any paid plan (Phase 5). Preview the form below.
     </p>
     <div data-dashboard-profile class="mt-4 grid gap-6 md:grid-cols-2">
-      {/* LockedFeatureCard + ProfileEditorPreview + LogoUploadPreview injected by Task 3 */}
+      <LockedFeatureCard title="Profile editor">
+        <ProfileEditorPreview employer={employer} />
+      </LockedFeatureCard>
+      <LockedFeatureCard title="Logo">
+        <LogoUploadPreview employer={employer} />
+      </LockedFeatureCard>
     </div>
   </section>
 </DashboardLayout>

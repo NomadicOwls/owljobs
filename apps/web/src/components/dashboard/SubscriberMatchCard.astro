@@ -1,0 +1,23 @@
+---
+interface Props {
+  count: number;
+  totalAudience?: number;
+  nicheName: string;
+}
+const { count, totalAudience, nicheName } = Astro.props;
+const subCopy =
+  count > 0
+    ? `Across ${nicheName}. Resets every Monday 00:00 UTC.`
+    : totalAudience !== undefined
+      ? `No new subscribers this week — total audience is ${totalAudience}.`
+      : `No new subscribers this week.`;
+---
+<section class="bg-card rounded-xl border border-border p-6 shadow-sm">
+  <p class="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+    New matching subscribers (last 7 days)
+  </p>
+  <p class="mt-2 text-2xl font-semibold tabular-nums">
+    <span class="text-accent">{count}</span>
+  </p>
+  <p class="mt-2 text-sm text-muted-foreground">{subCopy}</p>
+</section>

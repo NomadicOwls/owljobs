@@ -1,0 +1,22 @@
+---
+import EmployerLogo from "../employer/EmployerLogo.astro";
+import Button from "../ui/Button.astro";
+
+interface Props {
+  employer: {
+    name: string;
+    domain?: string | null;
+  };
+}
+const { employer } = Astro.props;
+---
+<div class="flex flex-col gap-3">
+  <p class="text-sm text-muted-foreground">Current logo (auto-fetched via logo.dev)</p>
+  <EmployerLogo name={employer.name} domain={employer.domain ?? null} size="lg" />
+  <div class="rounded-md border-2 border-dashed border-border p-6 text-center">
+    <p class="text-sm text-muted-foreground">Drag a logo here or click below to upload</p>
+  </div>
+  <Button type="button" variant="outline" disabled>
+    Upload logo (paid plan)
+  </Button>
+</div>
