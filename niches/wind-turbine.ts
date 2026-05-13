@@ -350,10 +350,72 @@ const config: NicheConfig = {
 
   // SEO landing pages (Phase 4, D-18). Slug prefix is `${id}-jobs` per D-17.
   landingPages: [
+    // ── US Wind Belt States ────────────────────────────────────────────────
+    // Ordered by actual DB job count (queried 2026-05-13).
+    // Note: US locations are stored as "City, County" — state name rarely
+    // appears verbatim. Coverage improves as ATS location data standardizes.
     {
-      slug: "wind-turbine-jobs-austin-tx",
-      label: "Austin, TX",
-      filters: { location: "Austin" },
+      slug: "wind-turbine-jobs-colorado",
+      label: "Colorado",
+      filters: { location: "Colorado" },
+    },
+    {
+      slug: "wind-turbine-jobs-new-mexico",
+      label: "New Mexico",
+      filters: { location: "New Mexico" },
+    },
+    {
+      slug: "wind-turbine-jobs-north-dakota",
+      label: "North Dakota",
+      filters: { location: "North Dakota" },
+    },
+    {
+      slug: "wind-turbine-jobs-texas",
+      label: "Texas",
+      filters: { location: "Texas" },
+    },
+    {
+      slug: "wind-turbine-jobs-kansas",
+      label: "Kansas",
+      filters: { location: "Kansas" },
+    },
+    {
+      slug: "wind-turbine-jobs-iowa",
+      label: "Iowa",
+      filters: { location: "Iowa" },
+    },
+    {
+      slug: "wind-turbine-jobs-nebraska",
+      label: "Nebraska",
+      filters: { location: "Nebraska" },
+    },
+    {
+      slug: "wind-turbine-jobs-illinois",
+      label: "Illinois",
+      filters: { location: "Illinois" },
+    },
+
+    // ── Europe ─────────────────────────────────────────────────────────────
+    // Only DE (263 jobs) and UK (43 jobs) have enough density.
+    // France/Denmark/Sweden/Spain all have <6 jobs — deferred.
+    {
+      slug: "wind-turbine-jobs-germany",
+      label: "Germany",
+      filters: { location: "Deutschland" },
+      // Deutsche Windtechnik, Enertrag, RWE store locations as "City, Deutschland"
+    },
+    {
+      slug: "wind-turbine-jobs-united-kingdom",
+      label: "United Kingdom",
+      filters: { location: "UK" },
+      // SSE, RES Group, Vattenfall store locations as "Region, UK"
+    },
+
+    // ── Specializations ────────────────────────────────────────────────────
+    {
+      slug: "blade-repair-technician-jobs",
+      label: "Blade Repair Technicians",
+      filters: { keywords: ["blade repair", "blade technician"] },
     },
     {
       slug: "wind-turbine-jobs-offshore-north-sea",
@@ -361,14 +423,24 @@ const config: NicheConfig = {
       filters: { keywords: ["offshore"], location: "North Sea" },
     },
     {
-      slug: "entry-level-wind-turbine-jobs",
-      label: "Entry Level",
-      filters: { keywords: ["entry level", "junior", "trainee"] },
+      slug: "wind-turbine-jobs-offshore",
+      label: "Offshore Wind Jobs",
+      filters: { keywords: ["offshore"] },
     },
     {
-      slug: "blade-repair-technician-jobs",
-      label: "Blade Repair Technicians",
-      filters: { keywords: ["blade repair", "blade technician"] },
+      slug: "entry-level-wind-turbine-jobs",
+      label: "Entry Level",
+      filters: { keywords: ["entry level", "entry-level", "trainee", "apprentice"] },
+    },
+    {
+      slug: "wind-turbine-jobs-high-voltage",
+      label: "Electrical & High Voltage",
+      filters: { keywords: ["high voltage", "HV", "electrical technician"] },
+    },
+    {
+      slug: "wind-turbine-jobs-scada",
+      label: "SCADA & Controls",
+      filters: { keywords: ["SCADA", "controls", "PLC"] },
     },
   ],
 
