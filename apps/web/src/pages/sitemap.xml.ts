@@ -1,14 +1,9 @@
 import type { APIRoute } from "astro";
-import { supabasePublic } from "../lib/supabase.js";
-import { listSitemapJobs, slugFromId } from "../lib/jobs.js";
 import { getEnv } from "../lib/env.js";
 
 export const GET: APIRoute = async ({ locals }) => {
   const { niche } = locals;
-  const env = getEnv(locals);
-
-  const db = supabasePublic(env);
-  const jobs = await listSitemapJobs(db, niche.supabaseSchema);
+  getEnv(locals);
 
   const baseUrl = `https://${niche.domain}`;
 
@@ -19,16 +14,13 @@ export const GET: APIRoute = async ({ locals }) => {
     { loc: `${baseUrl}/terms`, changefreq: "yearly", priority: "0.3" },
   ];
 
-  const jobUrls = jobs.map((job) => {
-    const slug = slugFromId(job.id);
-    const lastmod = new Date(job.updated_at).toISOString().split("T")[0] ?? new Date().toISOString().split("T")[0];
-    return `  <url>
-    <loc>${baseUrl}/jobs/${slug}</loc>
-    <lastmod>${lastmod}</lastmod>
-    <changefreq>weekly</changefreq>
+  const landingUrls = (niche.landingPages ?? []).map(
+    (page) => `  <url>
+    <loc>${baseUrl}/${page.slug}</loc>
+    <changefreq>daily</changefreq>
     <priority>0.8</priority>
-  </url>`;
-  });
+  </url>`,
+  );
 
   const staticXml = staticUrls
     .map(
@@ -43,7 +35,7 @@ export const GET: APIRoute = async ({ locals }) => {
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${staticXml}
-${jobUrls.join("\n")}
+${landingUrls.join("\n")}
 </urlset>`;
 
   return new Response(xml, {
