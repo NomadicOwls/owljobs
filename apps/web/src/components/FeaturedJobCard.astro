@@ -1,27 +1,30 @@
 ---
+import { relativeDate } from "../lib/relative-date.js";
+
 export interface Props {
-  title: string;
-  employer: string;
-  location: string;
-  salary: string;
-  jobType: string;
-  postedAgo: string;
-  applyUrl: string;
-  href: string;
+  job?: import("../lib/jobs.js").JobWithEmployer;
+  // Legacy props kept for call sites that haven't migrated to the job prop
+  employer?: string;
+  title?: string;
+  location?: string;
+  salary?: string;
+  jobType?: string;
+  postedAgo?: string;
+  applyUrl?: string;
+  href?: string;
   tags?: string[];
 }
 
-const {
-  title,
-  employer,
-  location,
-  salary,
-  jobType,
-  postedAgo,
-  applyUrl,
-  href,
-  tags = [],
-} = Astro.props;
+const { job, ...legacy } = Astro.props as Props;
+
+const employer = job?.employers?.name ?? legacy.employer ?? "";
+const title = job?.title ?? legacy.title ?? "";
+const location = job?.location ?? legacy.location ?? "";
+const href = job ? `/jobs/${job.id}` : (legacy.href ?? "/jobs");
+const postedAgo = job?.posted_at ? relativeDate(job.posted_at) : (legacy.postedAgo ?? "");
+const salary = legacy.salary ?? "";
+const jobType = legacy.jobType ?? "";
+const tags = legacy.tags ?? [];
 
 const initials = employer
   .split(/\s+/)
@@ -36,7 +39,7 @@ const initials = employer
   <article class="relative rounded-xl border border-accent/30 bg-card p-5 transition-all hover:border-accent/50 hover:bg-card/80">
 
     <!-- Floating Featured badge -->
-    <div class="absolute -top-2.5 left-4">
+    <div class="absolute -top-2 left-4">
       <span class="inline-flex items-center rounded-md bg-accent px-2 py-0.5 text-xs font-medium text-accent-foreground">
         Featured
       </span>
@@ -67,24 +70,30 @@ const initials = employer
 
         <!-- Meta: location · salary · type -->
         <div class="mt-3 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-          <span class="flex items-center gap-1">
-            <svg class="h-3.5 w-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>
-            </svg>
-            {location}
-          </span>
-          <span class="flex items-center gap-1">
-            <svg class="h-3.5 w-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-            </svg>
-            {salary}
-          </span>
-          <span class="flex items-center gap-1">
-            <svg class="h-3.5 w-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
-            </svg>
-            {jobType}
-          </span>
+          {location && (
+            <span class="flex items-center gap-1">
+              <svg class="h-3.5 w-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>
+              </svg>
+              {location}
+            </span>
+          )}
+          {salary && (
+            <span class="flex items-center gap-1">
+              <svg class="h-3.5 w-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+              </svg>
+              {salary}
+            </span>
+          )}
+          {jobType && (
+            <span class="flex items-center gap-1">
+              <svg class="h-3.5 w-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+              </svg>
+              {jobType}
+            </span>
+          )}
         </div>
 
         <!-- Skill tags -->

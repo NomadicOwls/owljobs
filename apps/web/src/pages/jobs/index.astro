@@ -3,7 +3,7 @@ import Layout from "../../components/Layout.astro";
 import JobCardModern from "../../components/JobCardModern.astro";
 import FeaturedJobCard from "../../components/FeaturedJobCard.astro";
 import { supabasePublic } from "../../lib/supabase.js";
-import { listJobs } from "../../lib/jobs.js";
+import { listJobs, listFeaturedJobs } from "../../lib/jobs.js";
 import { setCacheHeaders } from "../../lib/cache.js";
 import { getEnv } from "../../lib/env.js";
 
@@ -29,6 +29,13 @@ try {
   total = result.total;
 } catch {
   // silently degrade
+}
+
+let featuredJobs: Awaited<ReturnType<typeof listFeaturedJobs>> = [];
+try {
+  featuredJobs = await listFeaturedJobs(db, niche.supabaseSchema, 6);
+} catch {
+  // silently degrade — featured section just won't render
 }
 
 const totalPages = Math.max(1, Math.ceil(total / perPage));
@@ -156,19 +163,13 @@ function buildUrl(p: number): string {
           )}
         </div>
 
-        <!-- Featured job (sponsored) -->
-        {!q && !country && page === 1 && (
-          <FeaturedJobCard
-            title="Senior Wind Turbine Field Service Technician"
-            employer="Vestas Wind Systems"
-            location="Amsterdam, NL · Multiple sites"
-            salary="€65K – €85K"
-            jobType="Full-time"
-            postedAgo="2h ago"
-            applyUrl="https://careers.vestas.com"
-            href="/jobs"
-            tags={["High Voltage", "SCADA", "Remote OK"]}
-          />
+        <!-- Featured jobs (pinned above regular listing — real DB query, FEAT-01/FEAT-02) -->
+        {featuredJobs.length > 0 && page === 1 && !hasActiveFilters && (
+          <div class="grid gap-4 mb-6">
+            {featuredJobs.map((job) => (
+              <FeaturedJobCard job={job} />
+            ))}
+          </div>
         )}
 
         <!-- Job list -->
