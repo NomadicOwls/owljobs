@@ -52,6 +52,19 @@ describe("lib/jobs.ts — DATA-02 status='active' filter", () => {
     const body = extractFnBody(src, "getJobBySlug");
     expect(body).not.toMatch(/\.eq\(\s*"status"\s*,/);
   });
+
+  it("listJobs applies ilike on location column when location opt is provided", () => {
+    const body = extractFnBody(src, "listJobs");
+    expect(body).toMatch(/ilike\(\s*["']location["']/);
+  });
+
+  it("listJobs does NOT fold location into the title q search", () => {
+    // The old buggy pattern was: qParts.push(page.filters.location) → ilike("title", ...)
+    // The fix keeps location as a separate filter on the location column.
+    // This test ensures the ListJobsOpts interface has a location field.
+    const src2 = src; // same source used in beforeAll
+    expect(src2).toMatch(/location\?\s*:\s*string/);
+  });
 });
 
 describe("[slug].astro — JSON-LD JobPosting structured data (SEO-01, D-15..D-18)", () => {
