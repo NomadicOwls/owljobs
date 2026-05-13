@@ -46,9 +46,11 @@ dead_letter_queue = "owljobs-employer-alerts-dlq"
 # Secrets — set via wrangler secret put (from workers/digest/):
 #   wrangler secret put SUPABASE_URL
 #   wrangler secret put SUPABASE_SERVICE_KEY
-#   wrangler secret put BREVO_API_KEY
+#   wrangler secret put BREVO_API_KEY      # subscriber digest (Brevo endpoint)
+#   wrangler secret put RESEND_API_KEY     # employer alert emails (Resend endpoint)
 #
 # For local dev, create workers/digest/.dev.vars:
 #   SUPABASE_URL=https://<ref>.supabase.co
 #   SUPABASE_SERVICE_KEY=<service_role_key>
 #   BREVO_API_KEY=<brevo_api_key>
+#   RESEND_API_KEY=<resend_api_key>
