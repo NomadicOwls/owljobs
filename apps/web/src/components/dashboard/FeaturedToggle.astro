@@ -1,0 +1,34 @@
+---
+interface Props {
+  jobId: string;
+  featured: boolean;
+  jobTitle: string;
+  featuredUntil: string | null;
+}
+const { jobId, featured, jobTitle, featuredUntil } = Astro.props;
+
+function daysLeft(iso: string | null): number {
+  if (!iso) return 0;
+  const ms = new Date(iso).getTime() - Date.now();
+  return Math.max(0, Math.ceil(ms / (24 * 60 * 60 * 1000)));
+}
+const left = daysLeft(featuredUntil);
+const onLabel = left > 0 ? `Featured · ${left} days left` : "Featured";
+const offLabel = "Feature job";
+---
+<button
+  type="button"
+  aria-pressed={featured ? "true" : "false"}
+  aria-label={featured ? `Remove featured status from ${jobTitle}` : `Feature ${jobTitle}`}
+  data-job-id={jobId}
+  data-featured-toggle
+  class:list={[
+    "inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm font-semibold transition-colors",
+    "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+    featured
+      ? "bg-accent text-accent-foreground border-transparent hover:bg-accent/90"
+      : "border-border bg-background text-muted-foreground hover:border-accent/50 hover:text-foreground"
+  ]}
+>
+  <span data-label>{featured ? onLabel : offLabel}</span>
+</button>

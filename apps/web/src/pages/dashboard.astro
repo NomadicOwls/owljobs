@@ -1,6 +1,8 @@
 ---
 import DashboardLayout from "../components/dashboard/DashboardLayout.astro";
 import EmployerLogo from "../components/employer/EmployerLogo.astro";
+import StatTile from "../components/dashboard/StatTile.astro";
+import JobRow from "../components/dashboard/JobRow.astro";
 import { supabasePublic } from "../lib/supabase.js";
 import { getEnv } from "../lib/env.js";
 
@@ -35,6 +37,17 @@ const { data: ownJobs } = await db
 const jobs = ownJobs ?? [];
 const userEmail = session.user.email ?? "";
 
+// Server-side fetch of stats — forward session cookie so /api/stats can auth the request
+let stats: { views: number; clicks: number; applies: number; perJob: Record<string, { views: number; clicks: number; applies: number }> } | null = null;
+try {
+  const statsResp = await fetch(`${Astro.url.origin}/api/stats?employer_id=${encodeURIComponent(employerId)}`, {
+    headers: { cookie: Astro.request.headers.get("cookie") ?? "" },
+  });
+  if (statsResp.ok) stats = await statsResp.json();
+} catch {
+  // graceful degradation — stats will render as null (shows "—" in StatTile)
+}
+
 // Do NOT set cache headers on /dashboard — per UI-SPEC §Cache headers, auth pages MUST NOT cache.
 ---
 <DashboardLayout title={`${employer.name} — Dashboard`} description="Your employer dashboard">
@@ -47,9 +60,15 @@ const userEmail = session.user.email ?? "";
     </div>
   </section>
 
-  {/* 2. Stats row + 3. Subscriber match card — Task 2 components plug in here */}
+  {/* 2. Stats row + 3. Subscriber match card */}
   <div data-dashboard-stats data-employer-id={employer.id} class="mb-8">
-    {/* StatTile grid + SubscriberMatchCard injected by Task 2 (server-fetched /api/stats inline) */}
+    <p class="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">Last 30 days</p>
+    <div class="grid gap-4 sm:grid-cols-3">
+      <StatTile label="Views" value={stats?.views ?? null} />
+      <StatTile label="Clicks" value={stats?.clicks ?? null} />
+      <StatTile label="Apply clicks" value={stats?.applies ?? null} />
+    </div>
+    {/* SubscriberMatchCard injected by Task 3 */}
   </div>
 
   {/* 4. Your jobs */}
@@ -59,7 +78,17 @@ const userEmail = session.user.email ?? "";
       Toggle Featured to pin a job to the top of the public listing. Featured slots are unlimited during the free trial — paid tier limits apply from Phase 5.
     </p>
     <div data-dashboard-jobs class="mt-4 grid gap-3">
-      {/* JobRow list injected by Task 2 */}
+      {jobs.length > 0 ? jobs.map((job) => {
+        const j = stats?.perJob?.[job.id];
+        return <JobRow job={job} views={j?.views ?? 0} clicks={j?.clicks ?? 0} applies={j?.applies ?? 0} />;
+      }) : (
+        <div class="bg-card rounded-xl border border-border p-6 text-center">
+          <p class="text-base font-semibold">No active jobs</p>
+          <p class="mt-1 text-sm text-muted-foreground">
+            We're not seeing any open positions for {employer.name} right now. New roles appear here automatically when we detect them on your careers page.
+          </p>
+        </div>
+      )}
     </div>
   </section>
 
@@ -74,3 +103,48 @@ const userEmail = session.user.email ?? "";
     </div>
   </section>
 </DashboardLayout>
+
+<script>
+  const toggles = document.querySelectorAll<HTMLButtonElement>("[data-featured-toggle]");
+  toggles.forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const jobId = btn.dataset.jobId;
+      if (!jobId) return;
+      const pressed = btn.getAttribute("aria-pressed") === "true";
+      const method = pressed ? "DELETE" : "POST";
+      btn.disabled = true;
+      try {
+        const res = await fetch(`/api/jobs/${encodeURIComponent(jobId)}/featured`, {
+          method,
+          headers: { "Content-Type": "application/json" },
+          ...(method === "POST" ? { body: "{}" } : {}),
+        });
+        if (!res.ok) throw new Error(String(res.status));
+        const data = await res.json() as { featured_until: string | null };
+        const newPressed = !!data.featured_until;
+        btn.setAttribute("aria-pressed", newPressed ? "true" : "false");
+        const label = btn.querySelector<HTMLElement>("[data-label]");
+        if (label) label.textContent = newPressed ? "Featured" : "Feature job";
+        btn.className = btn.className
+          .replace(/bg-accent[^\s]*/g, "")
+          .replace(/text-accent-foreground/g, "")
+          .replace(/border-transparent/g, "")
+          .trim();
+        if (newPressed) {
+          btn.classList.add("bg-accent", "text-accent-foreground", "border-transparent");
+        } else {
+          btn.classList.add("border-border", "bg-background", "text-muted-foreground");
+        }
+      } catch {
+        // Show error pill below the button
+        const errPill = document.createElement("p");
+        errPill.className = "mt-2 bg-destructive/10 text-destructive border border-destructive/30 rounded-md p-2 text-sm";
+        errPill.textContent = "Couldn't update Featured status. Try again.";
+        btn.parentElement?.appendChild(errPill);
+        setTimeout(() => errPill.remove(), 5000);
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  });
+</script>

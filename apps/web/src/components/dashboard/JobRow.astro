@@ -1,0 +1,34 @@
+---
+import FeaturedToggle from "./FeaturedToggle.astro";
+import { relativeDate } from "../../lib/relative-date.js";
+
+interface Props {
+  job: {
+    id: string;
+    title: string;
+    location: string | null;
+    status: string;
+    posted_at: string | null;
+    featured_until: string | null;
+  };
+  views?: number;
+  clicks?: number;
+  applies?: number;
+}
+const { job, views = 0, clicks = 0, applies = 0 } = Astro.props;
+const featured = !!job.featured_until && new Date(job.featured_until) > new Date();
+---
+<article class="bg-card rounded-xl border border-border p-4 shadow-sm flex flex-wrap items-center gap-4">
+  <div class="min-w-0 flex-1">
+    <h3 class="text-base font-semibold leading-tight truncate">{job.title}</h3>
+    <p class="mt-1 text-sm text-muted-foreground">
+      {job.location ?? "Unspecified location"} · {job.posted_at ? relativeDate(job.posted_at) : "—"}
+    </p>
+    <p class="mt-2 text-sm text-muted-foreground tabular-nums">
+      <span class="font-semibold text-foreground">{views}</span> views
+      · <span class="font-semibold text-foreground">{clicks}</span> clicks
+      · <span class="font-semibold text-foreground">{applies}</span> applies
+    </p>
+  </div>
+  <FeaturedToggle jobId={job.id} featured={featured} jobTitle={job.title} featuredUntil={job.featured_until} />
+</article>
