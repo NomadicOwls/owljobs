@@ -1,0 +1,16 @@
+---
+interface Props {
+  label: string;
+  count: number;
+  nicheName: string;
+}
+const { label, count, nicheName } = Astro.props;
+const now = new Date();
+const month = now.toLocaleString("en-US", { month: "long", year: "numeric" });
+---
+<section class="max-w-3xl mx-auto py-12 text-center">
+  <h1 class="text-2xl font-semibold leading-tight">{label}</h1>
+  <p class="mt-4 text-sm text-muted-foreground leading-relaxed">
+    {count} open <span class="text-accent">{nicheName.toLowerCase()}</span> in {label} as of {month}.
+  </p>
+</section>

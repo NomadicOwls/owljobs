@@ -1,0 +1,70 @@
+---
+import Layout from "../components/Layout.astro";
+import JobCardModern from "../components/JobCardModern.astro";
+import SeoIntroBlock from "../components/landing/SeoIntroBlock.astro";
+import { supabasePublic } from "../lib/supabase.js";
+import { listJobs } from "../lib/jobs.js";
+import { setCacheHeaders } from "../lib/cache.js";
+import { getEnv } from "../lib/env.js";
+
+const niche = Astro.locals.niche;
+const env = getEnv(Astro.locals);
+const { landingSlug } = Astro.params;
+
+// 1. Whitelist check — only serve pages that exist in the niche config
+const page = niche.landingPages?.find((p) => p.slug === landingSlug);
+if (!landingSlug || !page) return Astro.redirect("/404");
+
+// 2. Prefix safety — defence-in-depth even though the whitelist already protects us.
+// Allowed forms: `${niche.id}-jobs-<modifier>` or `<modifier>-${niche.id}-jobs`.
+const nicheKey = `${niche.id}-jobs`;
+if (!landingSlug.includes(nicheKey)) return Astro.redirect("/404");
+
+// 3. Build the search query from filters (Phase 4 simple form per D-19)
+const qParts: string[] = [];
+if (page.filters.keywords?.length) qParts.push(page.filters.keywords.join(" "));
+if (page.filters.location) qParts.push(page.filters.location);
+const q = qParts.join(" ").trim() || undefined;
+
+setCacheHeaders(Astro.response.headers, 3600, 300);
+
+const db = supabasePublic(env);
+let jobs: Awaited<ReturnType<typeof listJobs>>["jobs"] = [];
+let total = 0;
+try {
+  const result = await listJobs(db, niche.supabaseSchema, { page: 1, perPage: 30, q });
+  jobs = result.jobs;
+  total = result.total;
+} catch {
+  // empty state below renders
+}
+---
+<Layout
+  title={`${page.label} — ${niche.name}`}
+  description={`${total} open ${niche.name.toLowerCase()} in ${page.label}. Updated hourly.`}
+>
+  <SeoIntroBlock label={page.label} count={total} nicheName={niche.name} />
+
+  <div class="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
+    {jobs.length > 0 ? (
+      <div class="grid gap-4">
+        {jobs.map((job, index) => (
+          <JobCardModern job={job} index={index} />
+        ))}
+      </div>
+    ) : (
+      <div class="flex flex-col items-center justify-center rounded-xl border border-border bg-card py-16 text-center">
+        <p class="text-base font-medium text-foreground">No matching jobs right now</p>
+        <p class="mt-2 text-sm text-muted-foreground max-w-md">
+          Subscribe to weekly alerts and we'll email you the moment a {niche.name.toLowerCase().replace(/ jobs$/, "")} role appears in {page.label}.
+        </p>
+      </div>
+    )}
+  </div>
+
+  {niche.seoFooter && (
+    <section class="mx-auto max-w-3xl px-4 pb-16 text-center text-sm text-muted-foreground">
+      <p>{niche.seoFooter}</p>
+    </section>
+  )}
+</Layout>
