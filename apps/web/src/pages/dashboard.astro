@@ -1,0 +1,76 @@
+---
+import DashboardLayout from "../components/dashboard/DashboardLayout.astro";
+import EmployerLogo from "../components/employer/EmployerLogo.astro";
+import { supabasePublic } from "../lib/supabase.js";
+import { getEnv } from "../lib/env.js";
+
+const niche = Astro.locals.niche;
+const session = Astro.locals.session;
+const employerId = Astro.locals.employerId;
+
+// PROF-04: gate to authenticated employers only
+if (!session) return Astro.redirect("/login");
+if (!employerId) return Astro.redirect("/employers");
+
+const env = getEnv(Astro.locals);
+const db = supabasePublic(env);
+
+const { data: employer } = await db
+  .schema(niche.supabaseSchema)
+  .from("employers")
+  .select("id, name, slug, domain, normalized_name, website_url")
+  .eq("id", employerId)
+  .single();
+
+if (!employer) return Astro.redirect("/employers");
+
+const { data: ownJobs } = await db
+  .schema(niche.supabaseSchema)
+  .from("jobs")
+  .select("id, title, location, status, posted_at, featured_until, canonical_url")
+  .eq("employer_id", employerId)
+  .order("posted_at", { ascending: false })
+  .limit(50);
+
+const jobs = ownJobs ?? [];
+const userEmail = session.user.email ?? "";
+
+// Do NOT set cache headers on /dashboard — per UI-SPEC §Cache headers, auth pages MUST NOT cache.
+---
+<DashboardLayout title={`${employer.name} — Dashboard`} description="Your employer dashboard">
+  {/* 1. Greeting row */}
+  <section class="mb-8 flex items-center gap-4 flex-wrap">
+    <EmployerLogo name={employer.name} domain={employer.domain} size="lg" />
+    <div class="flex-1 min-w-0">
+      <h1 class="text-2xl font-semibold leading-tight">{employer.name}</h1>
+      <p class="text-sm text-muted-foreground">Signed in as {userEmail}</p>
+    </div>
+  </section>
+
+  {/* 2. Stats row + 3. Subscriber match card — Task 2 components plug in here */}
+  <div data-dashboard-stats data-employer-id={employer.id} class="mb-8">
+    {/* StatTile grid + SubscriberMatchCard injected by Task 2 (server-fetched /api/stats inline) */}
+  </div>
+
+  {/* 4. Your jobs */}
+  <section id="jobs" class="mb-8">
+    <h2 class="text-xl font-semibold leading-tight">Your jobs</h2>
+    <p class="mt-1 text-sm text-muted-foreground">
+      Toggle Featured to pin a job to the top of the public listing. Featured slots are unlimited during the free trial — paid tier limits apply from Phase 5.
+    </p>
+    <div data-dashboard-jobs class="mt-4 grid gap-3">
+      {/* JobRow list injected by Task 2 */}
+    </div>
+  </section>
+
+  {/* 5. Profile (locked) */}
+  <section id="profile" class="mb-8">
+    <h2 class="text-xl font-semibold leading-tight">Company profile</h2>
+    <p class="mt-1 text-sm text-muted-foreground">
+      Profile editing and logo upload unlock with any paid plan (Phase 5). Preview the form below.
+    </p>
+    <div data-dashboard-profile class="mt-4 grid gap-6 md:grid-cols-2">
+      {/* LockedFeatureCard + ProfileEditorPreview + LogoUploadPreview injected by Task 3 */}
+    </div>
+  </section>
+</DashboardLayout>
