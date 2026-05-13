@@ -1,0 +1,17 @@
+---
+import Layout from "../../components/Layout.astro";
+import CheckEmailNotice from "../../components/auth/CheckEmailNotice.astro";
+
+const niche = Astro.locals.niche;
+const email = Astro.url.searchParams.get("email") ?? "";
+// Defensive: reject anything that does not look like an email to avoid reflected XSS
+const safeEmail = /^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]+$/.test(email) ? email : "your inbox";
+---
+<Layout
+  title={`Check your email — ${niche.name}`}
+  description="A sign-in link has been sent."
+>
+  <main class="mx-auto max-w-md px-4 py-16 sm:px-6">
+    <CheckEmailNotice email={safeEmail} />
+  </main>
+</Layout>

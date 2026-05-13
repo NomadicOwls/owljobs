@@ -1,0 +1,33 @@
+---
+import { createSupabaseServerClient } from "../../lib/supabase.js";
+import { getEnv } from "../../lib/env.js";
+
+const env = getEnv(Astro.locals);
+const code = new URL(Astro.request.url).searchParams.get("code");
+
+// Pitfall 7 — use exchangeCodeForSession, NOT getSession.
+// The session cookies are written via the supabase client's setAll adapter,
+// which writes to a Headers() we then attach to the redirect response.
+const responseHeaders = new Headers();
+const supabase = createSupabaseServerClient(
+  env,
+  Astro.request.headers.get("cookie"),
+  responseHeaders,
+);
+
+let target = "/dashboard";
+if (!code) {
+  target = "/login?error=missing_code";
+} else {
+  const { error } = await supabase.auth.exchangeCodeForSession(code);
+  if (error) {
+    target = "/login?error=expired";
+  }
+}
+
+// Build the redirect Response with Set-Cookie headers attached.
+// Astro.redirect() drops custom headers; we construct the Response manually.
+const headers = new Headers({ Location: target });
+responseHeaders.forEach((value, key) => headers.append(key, value));
+return new Response(null, { status: 302, headers });
+---

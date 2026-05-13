@@ -1,0 +1,37 @@
+---
+import Card from "../ui/Card.astro";
+import CardHeader from "../ui/CardHeader.astro";
+import CardContent from "../ui/CardContent.astro";
+
+interface Props {
+  email: string;
+}
+const { email } = Astro.props;
+---
+<Card class="w-full">
+  <CardHeader>
+    <div class="flex flex-col items-center gap-3 text-center">
+      <svg
+        class="h-8 w-8 text-accent"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        aria-hidden="true"
+      >
+        <rect x="3" y="5" width="18" height="14" rx="2" />
+        <path d="m3 7 9 6 9-6" />
+      </svg>
+      <h1 class="text-2xl font-semibold leading-tight">Check your email</h1>
+    </div>
+  </CardHeader>
+  <CardContent>
+    <p class="text-sm text-muted-foreground leading-relaxed text-center">
+      We sent a sign-in link to <strong class="text-foreground">{email}</strong>.
+      It expires in 60 minutes. Open it on the same device for the smoothest experience.
+    </p>
+    <p class="mt-4 text-sm text-muted-foreground text-center">
+      Wrong email? <a href="/login" class="text-accent hover:underline">Try again</a>
+    </p>
+  </CardContent>
+</Card>
