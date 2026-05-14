@@ -357,42 +357,46 @@ const config: NicheConfig = {
     {
       slug: "wind-turbine-jobs-colorado",
       label: "Colorado",
-      filters: { location: "Colorado" },
+      // Matches: "Denver, Colorado" | "Denver, CO" | bare "Denver" | county-only ("Weld County" is CO-unique)
+      filters: { locations: ["Colorado", ", CO", "Denver", "Fort Collins", "Greeley", "Pueblo", "Loveland", "Weld County", "Kit Carson County"] },
     },
     {
       slug: "wind-turbine-jobs-new-mexico",
       label: "New Mexico",
-      filters: { location: "New Mexico" },
+      filters: { locations: ["New Mexico", ", NM", "Albuquerque", "Roswell", "Clovis", "Hobbs", "Alamogordo"] },
     },
     {
       slug: "wind-turbine-jobs-north-dakota",
       label: "North Dakota",
-      filters: { location: "North Dakota" },
+      // Burleigh County and Bowman County are ND-unique; appear in DB as "Bismarck, Burleigh County" etc.
+      filters: { locations: ["North Dakota", ", ND", "Bismarck", "Fargo", "Minot", "Dickinson", "Williston", "Burleigh County", "Bowman County"] },
     },
     {
       slug: "wind-turbine-jobs-texas",
       label: "Texas",
-      filters: { location: "Texas" },
+      // Throckmorton County, Castro County, Bexar County, Midland County are TX-unique
+      filters: { locations: ["Texas", ", TX", "Houston", "Dallas", "Fort Worth", "Lubbock", "Abilene", "Odessa", "Throckmorton County", "Castro County", "Bexar County", "Midland County"] },
     },
     {
       slug: "wind-turbine-jobs-kansas",
       label: "Kansas",
-      filters: { location: "Kansas" },
+      // Kingman County is KS-unique; appears in DB as "Cunningham, Kingman County"
+      filters: { locations: ["Kansas", ", KS", "Wichita", "Dodge City", "Garden City", "Hutchinson", "Salina", "Kingman County"] },
     },
     {
       slug: "wind-turbine-jobs-iowa",
       label: "Iowa",
-      filters: { location: "Iowa" },
+      filters: { locations: ["Iowa", ", IA", "Des Moines", "Cedar Rapids", "Iowa City", "Ames", "Sioux City"] },
     },
     {
       slug: "wind-turbine-jobs-nebraska",
       label: "Nebraska",
-      filters: { location: "Nebraska" },
+      filters: { locations: ["Nebraska", ", NE", "Omaha", "Lincoln", "Grand Island", "North Platte", "Kearney"] },
     },
     {
       slug: "wind-turbine-jobs-illinois",
       label: "Illinois",
-      filters: { location: "Illinois" },
+      filters: { locations: ["Illinois", ", IL", "Chicago", "Springfield", "Peoria", "Bloomington", "Rockford"] },
     },
 
     // ── Europe ─────────────────────────────────────────────────────────────

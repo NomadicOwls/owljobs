@@ -1,9 +1,9 @@
 ---
 import Layout from "../components/Layout.astro";
 import JobCardModern from "../components/JobCardModern.astro";
-import SeoIntroBlock from "../components/landing/SeoIntroBlock.astro";
+import FeaturedJobCard from "../components/FeaturedJobCard.astro";
 import { supabasePublic } from "../lib/supabase.js";
-import { listJobs } from "../lib/jobs.js";
+import { listJobs, listFeaturedJobs } from "../lib/jobs.js";
 import { setCacheHeaders } from "../lib/cache.js";
 import { getEnv } from "../lib/env.js";
 
@@ -11,48 +11,168 @@ const niche = Astro.locals.niche;
 const env = getEnv(Astro.locals);
 const { landingSlug } = Astro.params;
 
-// 1. Whitelist check — only serve pages that exist in the niche config
 const page = niche.landingPages?.find((p) => p.slug === landingSlug);
 if (!landingSlug || !page) return Astro.redirect("/404");
 
-// 2. Build filters — keywords use OR semantics on title; location filters the location column
 const keywords = page.filters.keywords?.length ? page.filters.keywords : undefined;
-const location = page.filters.location || undefined;
+const locations = page.filters.locations?.length ? page.filters.locations : undefined;
+const location = !locations && page.filters.location ? page.filters.location : undefined;
+const isGeoPage = !!(location || locations);
+
+const url = Astro.url;
+const pageNum = Math.max(1, parseInt(url.searchParams.get("page") ?? "1", 10));
+const perPage = 20;
 
 setCacheHeaders(Astro.response.headers, 3600, 300);
 
 const db = supabasePublic(env);
 let jobs: Awaited<ReturnType<typeof listJobs>>["jobs"] = [];
 let total = 0;
+let isFallback = false;
 try {
-  const result = await listJobs(db, niche.supabaseSchema, { page: 1, perPage: 30, keywords, location });
+  const result = await listJobs(db, niche.supabaseSchema, { page: pageNum, perPage, keywords, location, locations });
   jobs = result.jobs;
   total = result.total;
 } catch {
-  // empty state below renders
+  // empty state renders below
+}
+
+// If a geo page returns no results, fall back to recent jobs across all locations
+if (total === 0 && isGeoPage) {
+  try {
+    const fallback = await listJobs(db, niche.supabaseSchema, { page: pageNum, perPage, keywords });
+    if (fallback.total > 0) {
+      jobs = fallback.jobs;
+      total = fallback.total;
+      isFallback = true;
+    }
+  } catch {
+    // keep empty state
+  }
+}
+
+let featuredJobs: Awaited<ReturnType<typeof listFeaturedJobs>> = [];
+try {
+  featuredJobs = await listFeaturedJobs(db, niche.supabaseSchema, 6);
+} catch {
+  // silently degrade
+}
+
+const totalPages = Math.max(1, Math.ceil(total / perPage));
+
+function buildUrl(p: number): string {
+  const next = new URL(url);
+  next.searchParams.set("page", String(p));
+  return next.pathname + next.search;
 }
 ---
+
 <Layout
-  title={`${page.label} — ${niche.name}`}
+  title={`${page.label} ${niche.name} — ${niche.name}`}
   description={`${total} open ${niche.name.toLowerCase()} in ${page.label}. Updated hourly.`}
 >
-  <SeoIntroBlock label={page.label} count={total} nicheName={niche.name} />
+  <!-- Page header -->
+  <div class="border-b border-border bg-card/50">
+    <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <nav class="mb-3 text-xs text-muted-foreground">
+        <a href="/jobs" class="hover:text-foreground transition-colors hover:no-underline">All Jobs</a>
+        <span class="mx-1.5">›</span>
+        <span>{page.label}</span>
+      </nav>
+      <h1 class="text-3xl font-bold text-foreground">{page.label} {niche.name}</h1>
+      <p class="mt-2 text-sm text-muted-foreground">
+        {isFallback
+          ? `No ${page.label}-specific jobs right now — showing all open positions`
+          : total > 0
+            ? `${total.toLocaleString()} open ${total === 1 ? "position" : "positions"}`
+            : "No open positions right now"} · Updated hourly
+      </p>
+    </div>
+  </div>
 
-  <div class="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
-    {jobs.length > 0 ? (
-      <div class="grid gap-4">
-        {jobs.map((job, index) => (
-          <JobCardModern job={job} index={index} />
-        ))}
+  <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <div class="flex gap-8">
+
+      <!-- Desktop sidebar -->
+      <aside class="hidden w-64 shrink-0 lg:block">
+        <div class="sticky top-24 space-y-6">
+          <div>
+            <h2 class="text-sm font-semibold text-foreground mb-3">Filtered by</h2>
+            <div class="inline-flex items-center gap-1.5 rounded-md border border-accent/40 bg-accent/10 px-3 py-1.5 text-xs font-medium text-accent">
+              {page.label}
+            </div>
+          </div>
+          <a href="/jobs" class="block text-xs text-muted-foreground hover:text-foreground transition-colors hover:no-underline">
+            ← View all {niche.name.toLowerCase()}
+          </a>
+        </div>
+      </aside>
+
+      <!-- Main content -->
+      <div class="min-w-0 flex-1">
+
+        <!-- Result count / fallback notice -->
+        <div class="mb-6">
+          {isFallback ? (
+            <div class="rounded-md border border-border bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
+              No jobs matched <span class="font-medium text-foreground">{page.label}</span> — showing <span class="font-medium text-foreground">{total.toLocaleString()}</span> recent wind turbine positions instead.
+            </div>
+          ) : (
+            <p class="text-sm text-muted-foreground">
+              <span class="font-medium text-foreground">{total.toLocaleString()}</span> jobs found
+            </p>
+          )}
+        </div>
+
+        <!-- Featured jobs (page 1 only) -->
+        {featuredJobs.length > 0 && pageNum === 1 && (
+          <div class="grid gap-4 mb-6">
+            {featuredJobs.map((job) => (
+              <FeaturedJobCard job={job} />
+            ))}
+          </div>
+        )}
+
+        <!-- Job list -->
+        {jobs.length > 0 ? (
+          <div class="grid gap-4">
+            {jobs.map((job, index) => (
+              <JobCardModern job={job} index={index} />
+            ))}
+          </div>
+        ) : (
+          <div class="flex flex-col items-center justify-center rounded-xl border border-border bg-card py-16 text-center">
+            <svg class="h-12 w-12 text-muted-foreground/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+            </svg>
+            <p class="mt-4 text-base font-medium text-foreground">No {page.label} jobs right now</p>
+            <p class="mt-1 text-sm text-muted-foreground max-w-sm">
+              New roles are added hourly. Browse all open positions or check back soon.
+            </p>
+            <a href="/jobs" class="mt-6 inline-flex items-center rounded-md border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-secondary hover:no-underline transition-colors">
+              Browse all jobs
+            </a>
+          </div>
+        )}
+
+        <!-- Pagination -->
+        {totalPages > 1 && (
+          <nav class="mt-10 flex items-center justify-center gap-4 border-t border-border pt-8" aria-label="Pagination">
+            {pageNum > 1 && (
+              <a href={buildUrl(pageNum - 1)} class="rounded-md border border-border px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:border-accent/50 hover:text-foreground hover:no-underline">
+                ← Previous
+              </a>
+            )}
+            <span class="text-sm text-muted-foreground">Page {pageNum} of {totalPages}</span>
+            {pageNum < totalPages && (
+              <a href={buildUrl(pageNum + 1)} class="rounded-md border border-border px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:border-accent/50 hover:text-foreground hover:no-underline">
+                Next →
+              </a>
+            )}
+          </nav>
+        )}
       </div>
-    ) : (
-      <div class="flex flex-col items-center justify-center rounded-xl border border-border bg-card py-16 text-center">
-        <p class="text-base font-medium text-foreground">No matching jobs right now</p>
-        <p class="mt-2 text-sm text-muted-foreground max-w-md">
-          Subscribe to weekly alerts and we'll email you the moment a {niche.name.toLowerCase().replace(/ jobs$/, "")} role appears in {page.label}.
-        </p>
-      </div>
-    )}
+    </div>
   </div>
 
   {niche.seoFooter && (

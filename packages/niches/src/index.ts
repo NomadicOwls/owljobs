@@ -107,8 +107,10 @@ export interface LandingPage {
   filters: {
     /** Keyword filters AND-ed with the location filter; passed to listJobs `q` param */
     keywords?: string[];
-    /** Location text; passed to listJobs `location` param — queries the `location` column directly */
+    /** Single location pattern (ILIKE); use `locations` for OR-semantics multi-pattern matching */
     location?: string;
+    /** Multiple location patterns ORed together — use when a state appears as both full name and abbreviation (e.g. ["Colorado", ", CO"]) */
+    locations?: string[];
   };
 }
 
