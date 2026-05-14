@@ -35,6 +35,15 @@ Check `.planning/STATE.md` for current phase and status.
 - `employer_id` JWT claim injected via Supabase Auth Hook — fast RLS without joins
 - `PAGES_DEPLOY_HOOK` triggers rebuild after enrich and profile edits
 
+## Deployment
+
+- **CF Pages project name**: `owljobs` (not `owljobs-web` — use this with all `wrangler` commands)
+- **Build output directory**: `apps/web/dist` (set in CF Pages dashboard, not in wrangler.toml)
+- **No root `wrangler.toml`**: Adding one breaks secrets injection. `apps/web/wrangler.toml` is for local dev only.
+- **Secrets**: Set via `wrangler pages secret bulk <json> --project-name owljobs` or CF dashboard → owljobs → Settings → Environment Variables. Required: `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_KEY`, `BREVO_API_KEY`.
+- **Live logs**: `pnpm wrangler pages deployment tail <deployment-id> --project-name owljobs`
+- **Cache purge**: Automatic via `.github/workflows/purge-cache.yml` on every push to main. Requires `CF_ACCOUNT_ID`, `CF_ZONE_ID`, `CF_CACHE_PURGE_TOKEN` GitHub secrets.
+
 ## Workflow
 
 This project uses GSD (Get Shit Done) planning workflow:
