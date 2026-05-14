@@ -13,17 +13,14 @@ export const onRequest = defineMiddleware(async (ctx, next) => {
   }
   ctx.locals.niche = niche;
 
-  // PROF-03: SSR session for every request. responseHeaders captures
-  // Set-Cookie writes from @supabase/ssr (refresh tokens, etc.) and is
-  // merged into the final response below.
   const env = getEnv(ctx.locals);
   const responseHeaders = new Headers();
-  const supabase = createSupabaseServerClient(
-    env,
-    ctx.request.headers.get("cookie"),
-    responseHeaders,
-  );
   try {
+    const supabase = createSupabaseServerClient(
+      env,
+      ctx.request.headers.get("cookie"),
+      responseHeaders,
+    );
     const { data } = await supabase.auth.getSession();
     ctx.locals.session = data.session ?? null;
     const employerId =
