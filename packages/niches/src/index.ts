@@ -136,6 +136,8 @@ export interface NicheConfig {
   landingPages?: LandingPage[];
   /** Optional 2–3 sentence boilerplate rendered under the job grid on landing pages */
   seoFooter?: string;
+  /** Curated employer list shown in the "Trusted by" bar with logos */
+  featuredEmployers?: Array<{ name: string; domain: string }>;
 }
 
 // --- Registry ---

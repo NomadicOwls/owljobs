@@ -448,6 +448,21 @@ const config: NicheConfig = {
     },
   ],
 
+  featuredEmployers: [
+    { name: "GE Vernova", domain: "gevernova.com" },
+    { name: "Vestas", domain: "vestas.com" },
+    { name: "Siemens Energy", domain: "siemens-energy.com" },
+    { name: "Nordex", domain: "nordex.com" },
+    { name: "Invenergy", domain: "invenergy.com" },
+    { name: "Vattenfall", domain: "vattenfall.com" },
+    { name: "RWE Renewables", domain: "rwe.com" },
+    { name: "EDP Group", domain: "edp.com" },
+    { name: "Acciona Energía", domain: "acciona.com" },
+    { name: "Engie", domain: "engie.com" },
+    { name: "ABB", domain: "abb.com" },
+    { name: "SSE Renewables", domain: "sse.com" },
+  ],
+
   seoFooter:
     "All wind-turbine technician roles on this page are aggregated hourly from OEM, O&M, and operator ATS feeds. Subscribe to weekly alerts to receive new openings the moment we detect them.",
 
