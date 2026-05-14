@@ -67,8 +67,8 @@ export interface JSearchCredentials {
 
 /**
  * Fetch JSearch aggregator results for a list of queries.
- * description: null applied uniformly (matches Adzuna policy; JSON-LD guard chain in Plan 02 excludes
- * source IN ('adzuna','jsearch'), so storing descriptions adds no SEO value.)
+ * job_description contains full HTML — stored for user display, excluded from JSON-LD
+ * via the isAggregator guard in the job detail page.
  */
 export async function fetchAllJSearchJobs(
   _target: JSearchTarget,
@@ -102,7 +102,7 @@ export async function fetchAllJSearchJobs(
         employerName: r.employer_name ?? "",
         sourceId,
         rawPayload: JSON.stringify(r),
-        description: null,
+        description: r.job_description ?? null,
       });
     }
   }

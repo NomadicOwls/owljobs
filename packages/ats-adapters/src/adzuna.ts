@@ -85,7 +85,8 @@ export interface AdzunaCredentials {
 /**
  * Fetch all Adzuna results for a given target and a list of queries.
  * Caller (ingest.ts) supplies the queries from niche.aggregatorQueries.
- * Pitfall 4: every adapted job has description: null — Adzuna descriptions are teaser snippets.
+ * description is the teaser snippet from the API — stored for user display but excluded from JSON-LD
+ * via the isAggregator guard in the job detail page.
  */
 export async function fetchAllAdzunaJobs(
   target: AdzunaTarget,
@@ -119,7 +120,7 @@ export async function fetchAllAdzunaJobs(
           employerName: r.company?.display_name ?? "",
           sourceId,
           rawPayload: JSON.stringify(r),
-          description: null, // Pitfall 4 — teaser snippet would trigger JSON-LD thin content
+          description: r.description ?? null,
         });
       }
 

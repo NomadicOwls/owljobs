@@ -658,6 +658,31 @@ async function ensureAggregatorEmployer(
   return id;
 }
 
+// Upsert a named employer sourced from an aggregator (Adzuna/JSearch).
+// ignoreDuplicates: true ensures we never overwrite a native-ATS employer row if the name matches.
+async function upsertAggregatorNamedEmployer(
+  db: SchemaClient,
+  name: string,
+  source: "adzuna" | "jsearch",
+): Promise<string> {
+  const normalized = normalizeForKey(name);
+  const id = await sha256Hex(normalized);
+  await db.from("employers").upsert(
+    {
+      id,
+      name,
+      normalized_name: normalized,
+      ats_type: source,
+      ats_tenant: null,
+      ats_instance: null,
+      ats_site: null,
+      careers_url: null,
+    },
+    { onConflict: "id", ignoreDuplicates: true },
+  );
+  return id;
+}
+
 async function ingestAdzuna(
   target: AdzunaTarget,
   niche: NicheConfig,
@@ -683,10 +708,21 @@ async function ingestAdzuna(
     throw err;
   }
 
-  // Pitfall 1: use the aggregator sentinel (ensureAggregatorEmployer), NOT the native employer helper.
-  const employerId = await ensureAggregatorEmployer(db, "adzuna");
+  const sentinelId = await ensureAggregatorEmployer(db, "adzuna");
+
+  // Pre-build employer cache — one DB call per unique employer name, not per job.
+  // ignoreDuplicates ensures native-ATS employer rows are never overwritten.
+  const employerCache = new Map<string, string>();
+  for (const job of jobs) {
+    const name = job.employerName.trim();
+    if (name && !employerCache.has(name)) {
+      employerCache.set(name, await upsertAggregatorNamedEmployer(db, name, "adzuna"));
+    }
+  }
 
   for (const job of jobs) {
+    const name = job.employerName.trim();
+    const employerId = (name && employerCache.get(name)) ?? sentinelId;
     try {
       const inserted = await upsertJob(db, {
         id: job.sourceId,
@@ -697,7 +733,7 @@ async function ingestAdzuna(
         postedAt: job.postedOn,
         source: "adzuna",
         rawPayload: JSON.parse(job.rawPayload) as Record<string, unknown>,
-        // description: null intentional (Pitfall 4)
+        description: job.description,
       });
       if (inserted) {
         stats.inserted++;
@@ -748,9 +784,19 @@ async function ingestJSearch(
     throw err;
   }
 
-  const employerId = await ensureAggregatorEmployer(db, "jsearch");
+  const sentinelId = await ensureAggregatorEmployer(db, "jsearch");
+
+  const employerCache = new Map<string, string>();
+  for (const job of jobs) {
+    const name = job.employerName.trim();
+    if (name && !employerCache.has(name)) {
+      employerCache.set(name, await upsertAggregatorNamedEmployer(db, name, "jsearch"));
+    }
+  }
 
   for (const job of jobs) {
+    const name = job.employerName.trim();
+    const employerId = (name && employerCache.get(name)) ?? sentinelId;
     try {
       const inserted = await upsertJob(db, {
         id: job.sourceId,
@@ -761,6 +807,7 @@ async function ingestJSearch(
         postedAt: job.postedOn,
         source: "jsearch",
         rawPayload: JSON.parse(job.rawPayload) as Record<string, unknown>,
+        description: job.description,
       });
       if (inserted) {
         stats.inserted++;

@@ -63,6 +63,31 @@ async function supabasePatch(table, query, body, schema) {
   if (!resp.ok) throw new Error(`Supabase PATCH ${table} → ${resp.status}: ${await resp.text()}`);
 }
 
+// Upsert employer with ignore-duplicates (never overwrites a native-ATS employer row).
+async function supabaseUpsertIgnore(table, body, schema) {
+  const url = `${SUPABASE_URL}/rest/v1/${table}`;
+  const resp = await fetch(url, {
+    method: "POST",
+    headers: {
+      ...supabaseHeaders(schema),
+      Prefer: "return=minimal,resolution=ignore-duplicates",
+    },
+    body: JSON.stringify(body),
+  });
+  if (!resp.ok) throw new Error(`Supabase UPSERT ${table} → ${resp.status}: ${await resp.text()}`);
+}
+
+// Mirrors normalizeForKey and sha256Hex from @owljobs/schema
+function normalizeForKey(s) {
+  return s.toLowerCase().trim().replace(/\s+/g, " ");
+}
+
+async function sha256Hex(input) {
+  const data = new TextEncoder().encode(input);
+  const buf = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
 // --- Sanitizer (mirrors packages/ats-adapters/src/sanitize.ts) ---
 function sanitize(html) {
   return html
@@ -118,6 +143,21 @@ async function fetchSuccessFactors(canonicalUrl) {
 async function main() {
   console.log(`Backfilling descriptions for niche=${nicheArg} (schema=${SCHEMA}), limit=${limitArg}`);
 
+  // Pre-fetch aggregator raw_payloads so the main loop doesn't need per-job DB calls.
+  // Adzuna stores teaser in raw_payload.description; JSearch stores full HTML in raw_payload.job_description.
+  const aggregatorRows = await supabaseGet(
+    "discovered_jobs",
+    `select=resolved_job_id,source,raw_payload&source=in.(adzuna,jsearch)&resolved_job_id=not.is.null&limit=10000`,
+    SCHEMA
+  );
+  const aggregatorDescMap = new Map();
+  for (const row of aggregatorRows) {
+    const payload = row.raw_payload ?? {};
+    const rawDesc = row.source === "adzuna" ? payload.description : payload.job_description;
+    if (rawDesc) aggregatorDescMap.set(row.resolved_job_id, sanitize(String(rawDesc)));
+  }
+  console.log(`Aggregator cache: ${aggregatorDescMap.size} entries with descriptions (of ${aggregatorRows.length} rows)`);
+
   // Fetch jobs with NULL description, joining employers for ats_type/tenant/etc.
   const jobs = await supabaseGet(
     "jobs",
@@ -138,7 +178,9 @@ async function main() {
     const { ats_type, ats_tenant, ats_instance, ats_site } = job.employers ?? {};
     let description = null;
 
-    if (ats_type === "workday" && ats_tenant && ats_instance && ats_site) {
+    if (ats_type === "adzuna" || ats_type === "jsearch") {
+      description = aggregatorDescMap.get(job.id) ?? null;
+    } else if (ats_type === "workday" && ats_tenant && ats_instance && ats_site) {
       const basePrefix = `https://${ats_tenant}.${ats_instance}.myworkdayjobs.com/${ats_site}`;
       const externalPath = job.canonical_url.startsWith(basePrefix)
         ? job.canonical_url.slice(basePrefix.length)
@@ -176,7 +218,60 @@ async function main() {
     }
   }
 
-  console.log(`\nDone. enriched=${enriched} skipped=${skipped} errors=${errors}`);
+  console.log(`\nDone descriptions. enriched=${enriched} skipped=${skipped} errors=${errors}`);
+
+  // --- Backfill employer_id for existing Adzuna/JSearch jobs ---
+  // Existing jobs point to the "Adzuna (aggregator)" / "JSearch (aggregator)" sentinel.
+  // We re-read raw_payload to get the actual employer name and update employer_id.
+  console.log("\nBackfilling employer_id for aggregator jobs...");
+
+  let empUpdated = 0, empSkipped = 0, empErrors = 0;
+  const employerIdCache = new Map(); // name → id
+
+  for (const row of aggregatorRows) {
+    const payload = row.raw_payload ?? {};
+    const rawName = row.source === "adzuna"
+      ? (payload.company?.display_name ?? "")
+      : (payload.employer_name ?? "");
+    const name = String(rawName).trim();
+
+    if (!name || !row.resolved_job_id) {
+      empSkipped++;
+      continue;
+    }
+
+    try {
+      if (!employerIdCache.has(name)) {
+        const normalized = normalizeForKey(name);
+        const id = await sha256Hex(normalized);
+        await supabaseUpsertIgnore("employers", {
+          id,
+          name,
+          normalized_name: normalized,
+          ats_type: row.source,
+          ats_tenant: null,
+          ats_instance: null,
+          ats_site: null,
+          careers_url: null,
+        }, SCHEMA);
+        employerIdCache.set(name, id);
+      }
+
+      const employerId = employerIdCache.get(name);
+      await supabasePatch(
+        "jobs",
+        `id=eq.${encodeURIComponent(row.resolved_job_id)}`,
+        { employer_id: employerId },
+        SCHEMA
+      );
+      empUpdated++;
+    } catch (err) {
+      console.error(`  Error updating employer for job ${row.resolved_job_id}:`, err.message);
+      empErrors++;
+    }
+  }
+
+  console.log(`Done employers. updated=${empUpdated} skipped=${empSkipped} errors=${empErrors}`);
 }
 
 function sleep(ms) {

@@ -34,6 +34,7 @@ export async function listJobs(
     .gte("classification_score", 0.5)
     .eq("status", "active")
     .order("is_sponsored", { ascending: false })
+    .order("has_description", { ascending: false })
     .order("posted_at", { ascending: false, nullsFirst: false })
     .range(offset, offset + perPage - 1);
 
@@ -108,6 +109,7 @@ export async function listEmployerJobs(
     .gte("classification_score", 0.5)
     .eq("status", "active")
     .order("is_sponsored", { ascending: false })
+    .order("has_description", { ascending: false })
     .order("posted_at", { ascending: false, nullsFirst: false })
     .range(offset, offset + perPage - 1);
 
@@ -129,6 +131,7 @@ export async function listFeedJobs(
     .gte("classification_score", 0.5)
     .eq("status", "active")
     .order("is_sponsored", { ascending: false })
+    .order("has_description", { ascending: false })
     .order("posted_at", { ascending: false, nullsFirst: false })
     .limit(limit);
 

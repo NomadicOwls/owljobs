@@ -202,11 +202,17 @@ export async function fetchSuccessFactorsJobDescription(
     const resp = await fetch(canonicalUrl, {
       headers: { Accept: "text/html", "User-Agent": "Mozilla/5.0 (compatible)" },
     });
-    if (!resp.ok) return null;
+    if (!resp.ok) {
+      console.warn(`[sf-desc] ${resp.status} ${resp.statusText} — ${canonicalUrl}`);
+      return null;
+    }
 
     const html = await resp.text();
     const parts = html.split(/class="jobdescription">/i);
-    if (parts.length < 2) return null;
+    if (parts.length < 2) {
+      console.warn(`[sf-desc] jobdescription marker not found (${html.length}b) — ${canonicalUrl}`);
+      return null;
+    }
 
     // Content ends at the first </span> that's followed by a block element close —
     // verified against both Vestas (<\/span>\s+<\/div>) and NextEra (<\/span>\s+<p\s).
