@@ -1,5 +1,8 @@
 ---
+import { getEnv } from "../lib/env.js";
+
 const niche = Astro.locals.niche;
+const { LOGODEV_TOKEN } = getEnv(Astro.locals);
 
 type Employer = { name: string; domain: string };
 const employers: Employer[] = niche.featuredEmployers ?? [];
@@ -19,7 +22,7 @@ const nicheTopic = niche.name.replace(" Jobs", "").toLowerCase();
       {employers.map((emp) => (
         <div class="group flex items-center" title={emp.name}>
           <img
-            src={`https://logo.clearbit.com/${emp.domain}`}
+            src={`https://img.logo.dev/${emp.domain}?token=${LOGODEV_TOKEN}&size=60&format=png`}
             alt={emp.name}
             width="120"
             height="40"
