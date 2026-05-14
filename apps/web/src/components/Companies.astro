@@ -7,9 +7,12 @@ const niche = Astro.locals.niche;
 const env = getEnv(Astro.locals);
 const db = supabasePublic(env);
 
+const AGGREGATORS = new Set(["adzuna", "jsearch"]);
+
 let employers: Array<{ name: string; normalized_name: string }> = [];
 try {
-  employers = await listEmployers(db, niche.supabaseSchema, 8);
+  const all = await listEmployers(db, niche.supabaseSchema, 16);
+  employers = all.filter((e) => !AGGREGATORS.has(e.normalized_name.toLowerCase()));
 } catch {
   // silently skip — section just won't render if DB is unavailable
 }
@@ -17,6 +20,11 @@ try {
 if (employers.length === 0) return;
 
 const nicheTopic = niche.name.replace(" Jobs", "").toLowerCase();
+
+function logoUrl(normalized: string) {
+  const domain = normalized.replace(/-/g, "") + ".com";
+  return `https://logo.clearbit.com/${domain}`;
+}
 ---
 
 <section id="companies" class="border-y border-border bg-card/30 py-12">
@@ -25,13 +33,24 @@ const nicheTopic = niche.name.replace(" Jobs", "").toLowerCase();
       Trusted by leading {nicheTopic} employers
     </p>
 
-    <div class="flex flex-wrap items-center justify-center gap-8 sm:gap-12 lg:gap-16">
+    <div class="flex flex-wrap items-center justify-center gap-8 sm:gap-12">
       {employers.map((emp) => (
         <a
           href={`/employers/${emp.normalized_name}`}
-          class="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground hover:no-underline"
+          class="group flex items-center hover:no-underline"
+          title={emp.name}
         >
-          {emp.name}
+          <img
+            src={logoUrl(emp.normalized_name)}
+            alt={emp.name}
+            width="120"
+            height="40"
+            class="max-h-8 w-auto object-contain opacity-50 grayscale transition-all duration-200 group-hover:opacity-100 group-hover:grayscale-0"
+            onerror="this.style.display='none';this.nextElementSibling.style.display='inline'"
+          />
+          <span class="hidden text-sm font-medium text-muted-foreground transition-colors group-hover:text-foreground">
+            {emp.name}
+          </span>
         </a>
       ))}
     </div>
