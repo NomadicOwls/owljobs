@@ -159,3 +159,25 @@ describe("apps/web/src/lib/jobs.ts — FEAT-01 listFeaturedJobs", () => {
     expect(src).toMatch(/niche\.supabaseSchema/);
   });
 });
+
+describe("apps/web/src/lib/jobs.ts — PostgREST OR-clause escaping (BUG-TX)", () => {
+  let src = "";
+  beforeAll(async () => {
+    src = await readFile(new URL("../src/lib/jobs.ts", import.meta.url), "utf-8");
+  });
+
+  it("has a buildOrIlikeClause helper that quotes values with reserved chars", () => {
+    // Must contain the quoted-value form: column.ilike."<value>"
+    expect(src).toMatch(/ilike\."[^"]/);
+  });
+
+  it("listJobs OR clause uses buildOrIlikeClause helper, not raw template-literal join", () => {
+    // The old broken pattern was: locations.map(l => `location.ilike.%${l}%`).join(",")
+    // That raw pattern must be gone — it does not escape commas in values like ", TX".
+    expect(src).not.toMatch(/location\.ilike\.%\$\{/);
+  });
+
+  it("keyword OR clause also uses the helper (latent same bug fixed)", () => {
+    expect(src).not.toMatch(/title\.ilike\.%\$\{/);
+  });
+});

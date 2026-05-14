@@ -34,8 +34,8 @@ try {
   const result = await listJobs(db, niche.supabaseSchema, { page: pageNum, perPage, keywords, location, locations, q });
   jobs = result.jobs;
   total = result.total;
-} catch {
-  // empty state renders below
+} catch (e) {
+  console.error("[landingSlug] listJobs failed", e);
 }
 
 if (total === 0 && isGeoPage) {
@@ -46,8 +46,8 @@ if (total === 0 && isGeoPage) {
       total = fallback.total;
       isFallback = true;
     }
-  } catch {
-    // keep empty state
+  } catch (e) {
+    console.error("[landingSlug] fallback listJobs failed", e);
   }
 }
 

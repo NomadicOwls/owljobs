@@ -19,6 +19,21 @@ interface ListJobsOpts {
   keywords?: string[] | undefined;
 }
 
+// PostgREST .or() splits on commas/colons/parens at the top level.
+// Values containing those chars (e.g. ", TX") must be wrapped in double quotes.
+// % wildcards work inside quoted values the same as unquoted.
+function buildOrIlikeClause(column: string, patterns: string[]): string {
+  const needsQuote = /[,.:()]/;
+  return patterns
+    .map((p) => {
+      const value = `%${p}%`;
+      return needsQuote.test(p)
+        ? `${column}.ilike."${value}"`
+        : `${column}.ilike.${value}`;
+    })
+    .join(",");
+}
+
 export async function listJobs(
   db: SupabaseClient,
   schema: string,
@@ -41,14 +56,12 @@ export async function listJobs(
   if (country) query = query.eq("country", country);
   if (q) query = query.ilike("title", `%${q}%`);
   if (locations?.length) {
-    const orClause = locations.map(l => `location.ilike.%${l}%`).join(",");
-    query = query.or(orClause);
+    query = query.or(buildOrIlikeClause("location", locations));
   } else if (location) {
     query = query.ilike("location", `%${location}%`);
   }
   if (keywords?.length) {
-    const orClause = keywords.map(k => `title.ilike.%${k}%`).join(",");
-    query = query.or(orClause);
+    query = query.or(buildOrIlikeClause("title", keywords));
   }
 
   const { data, error, count } = await query;
