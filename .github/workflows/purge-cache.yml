@@ -1,0 +1,42 @@
+name: Purge Cloudflare Cache
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  purge-cache:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for Pages deploy
+        run: |
+          echo "Polling for deployment completion (max 10 min)..."
+          for i in $(seq 1 20); do
+            RESPONSE=$(curl -s \
+              "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CF_ACCOUNT_ID }}/pages/projects/owljobs-web/deployments?per_page=1" \
+              -H "Authorization: Bearer ${{ secrets.CF_CACHE_PURGE_TOKEN }}")
+            STATUS=$(echo "$RESPONSE" | jq -r '.result[0].latest_stage.status // "unknown"')
+            echo "Attempt $i/20 — deploy status: $STATUS"
+            if [ "$STATUS" = "success" ]; then
+              echo "Deploy complete."
+              exit 0
+            fi
+            if [ "$STATUS" = "failure" ]; then
+              echo "Deploy failed — skipping cache purge."
+              exit 1
+            fi
+            sleep 30
+          done
+          echo "Timed out waiting for deploy — purging anyway."
+
+      - name: Purge Cloudflare cache
+        run: |
+          RESPONSE=$(curl -s -X POST \
+            "https://api.cloudflare.com/client/v4/zones/${{ secrets.CF_ZONE_ID }}/purge_cache" \
+            -H "Authorization: Bearer ${{ secrets.CF_CACHE_PURGE_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{"purge_everything":true}')
+          echo "$RESPONSE"
+          echo "$RESPONSE" | jq -e '.success == true' > /dev/null \
+            && echo "Cache purged." \
+            || (echo "Purge failed." && exit 1)
