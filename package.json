@@ -5,7 +5,7 @@
   "packageManager": "pnpm@10.6.2",
   "scripts": {
     "dev": "pnpm --filter @owljobs/web dev",
-    "build": "turbo build && rm -rf dist && cp -r apps/web/dist dist",
+    "build": "turbo build",
     "typecheck": "turbo typecheck",
     "test": "vitest run --bail=1 --passWithNoTests",
     "niche:provision": "node scripts/provision-niche.mjs"

@@ -13,15 +13,7 @@ export const onRequest = defineMiddleware(async (ctx, next) => {
   }
   ctx.locals.niche = niche;
 
-  const raw = (ctx.locals as Record<string, unknown>);
-  console.log("[middleware] locals keys:", Object.keys(raw).join(","));
-  console.log("[middleware] runtime type:", typeof raw.runtime);
-  const runtimeEnvKeys = raw.runtime && typeof raw.runtime === "object"
-    ? Object.keys((raw.runtime as Record<string, unknown>).env ?? {}).join(",")
-    : "n/a";
-  console.log("[middleware] runtime.env keys:", runtimeEnvKeys);
   const env = getEnv(ctx.locals);
-  console.log("[middleware] SUPABASE_URL set:", !!env.SUPABASE_URL);
   const responseHeaders = new Headers();
   try {
     const supabase = createSupabaseServerClient(
