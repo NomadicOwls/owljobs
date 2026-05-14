@@ -5,6 +5,7 @@ import Companies from "../components/Companies.astro";
 import Stats from "../components/Stats.astro";
 import JobListings from "../components/JobListings.astro";
 import Newsletter from "../components/Newsletter.astro";
+import PopularCategories from "../components/PopularCategories.astro";
 import { supabasePublic } from "../lib/supabase.js";
 import { listJobs } from "../lib/jobs.js";
 import { setCacheHeaders } from "../lib/cache.js";
@@ -37,6 +38,7 @@ try {
   <Hero count={total} />
   <Companies />
   <Stats />
+  <PopularCategories />
   <JobListings jobs={jobs} total={total} />
   <Newsletter siteKey={env.TURNSTILE_SITE_KEY} confirmed={confirmed} />
 </Layout>
