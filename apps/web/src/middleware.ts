@@ -14,6 +14,7 @@ export const onRequest = defineMiddleware(async (ctx, next) => {
   ctx.locals.niche = niche;
 
   const env = getEnv(ctx.locals);
+  console.log("[middleware] env check — SUPABASE_URL set:", !!env.SUPABASE_URL);
   const responseHeaders = new Headers();
   try {
     const supabase = createSupabaseServerClient(
@@ -28,7 +29,8 @@ export const onRequest = defineMiddleware(async (ctx, next) => {
         ?.employer_id;
     ctx.locals.employerId =
       typeof employerId === "string" && employerId.length > 0 ? employerId : null;
-  } catch {
+  } catch (err) {
+    console.error("[middleware] Supabase init failed:", err);
     ctx.locals.session = null;
     ctx.locals.employerId = null;
   }
